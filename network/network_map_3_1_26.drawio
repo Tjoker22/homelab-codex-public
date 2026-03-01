@@ -1,0 +1,127 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.6.0">
+  <diagram name="Page-1" id="xdHdlyAATswRSRxAYhKw">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="%name%" name="ER605" uplink="" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-1">
+          <mxCell parent="1" style="shape=mxgraph.networks.router;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="80" x="495.83333333333337" y="20" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="TL-SG2008P" uplink="ER605" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-2">
+          <mxCell parent="1" style="shape=mxgraph.networks.switch;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="110" x="480.83333333333337" y="130" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="WAP" uplink="TL-SG2008P" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-3">
+          <mxCell parent="1" style="shape=mxgraph.networks.wireless_hub;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="70" x="20" y="240" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="OC200" uplink="TL-SG2008P" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-4">
+          <mxCell parent="1" style="shape=mxgraph.networks.pc;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="80" x="130" y="240" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="Xavier PC" uplink="TL-SG2008P" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-5">
+          <mxCell parent="1" style="shape=mxgraph.networks.pc;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="100" x="250" y="240" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="Hue Bridge" uplink="TL-SG2008P" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-6">
+          <mxCell parent="1" style="shape=mxgraph.networks.hub;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="100" x="390" y="240" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="GS305" uplink="TL-SG2008P" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-7">
+          <mxCell parent="1" style="shape=mxgraph.networks.switch;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="80" x="570" y="240" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="Vizio TV" uplink="GS305" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-8">
+          <mxCell parent="1" style="shape=mxgraph.networks.monitor;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="90" x="510" y="350" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="PS5" uplink="GS305" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-9">
+          <mxCell parent="1" style="shape=mxgraph.networks.pro_console;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="70" x="640" y="350" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="GS308" uplink="TL-SG2008P" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-10">
+          <mxCell parent="1" style="shape=mxgraph.networks.switch;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="80" x="971.6666666666667" y="240" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="RPi 5" uplink="GS308" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-11">
+          <mxCell parent="1" style="shape=mxgraph.networks.microprocessor;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="70" x="750" y="350" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="Genesis Server" uplink="GS308" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-12">
+          <mxCell parent="1" style="shape=mxgraph.networks.server;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="130" x="860" y="350" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="[OWNER] PC" uplink="GS308" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-13">
+          <mxCell parent="1" style="shape=mxgraph.networks.pc;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="100" x="1030" y="350" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="TL-SG605" uplink="GS308" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-14">
+          <mxCell parent="1" style="shape=mxgraph.networks.switch;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="100" x="1173.3333333333335" y="350" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="%name%" name="Alpha Server" uplink="TL-SG605" placeholders="1" id="T3XL3gbqnNqKMc0v0vdv-15">
+          <mxCell parent="1" style="shape=mxgraph.networks.server;fillColor=#5D7F99;strokeColor=#D0CEE2;fontColor=#1A1A1A;labelBackgroundColor=none;rounded=1;" vertex="1">
+            <mxGeometry height="50" width="110" x="1168.3333333333335" y="460" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-16" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-17" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-18" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-19" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-20" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-21" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-22" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-23" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-9" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-24" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-25" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-11" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-26" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-12" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-27" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-13" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-28" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-14" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="T3XL3gbqnNqKMc0v0vdv-29" edge="1" parent="1" source="T3XL3gbqnNqKMc0v0vdv-14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;strokeColor=#736CA8;fontColor=default;" target="T3XL3gbqnNqKMc0v0vdv-15" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
