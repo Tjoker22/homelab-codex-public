@@ -8,13 +8,13 @@ ER605,4,,,
 ER605,5,,Downlink to TLSG2008P (port 8),Main LAN
 ,,,,
 Distribute Layer,,,,
-TL-SG2008P,1,,WAP,
-TL-SG2008P,2,,OC Controller,
-TL-SG2008P,3,,,
+TL-SG2008P,1,,OC Controller,
+TL-SG2008P,2,,WAP,
+TL-SG2008P,3,,Downlink to GS308 (port 1),By [OWNER] PC
 TL-SG2008P,4,,Xavier PC,
 TL-SG2008P,5,,Phillips HUE Bridge,
 TL-SG2008P,6,,Donwlink to GS305 (port 5),Media center switch
-TL-SG2008P,7,,Downlink to GS308 (port 1),By [OWNER] PC
+TL-SG2008P,7,,,
 TL-SG2008P,8,,WAN uplink from ER605,
 ,,,,
 Media Center,,,,
