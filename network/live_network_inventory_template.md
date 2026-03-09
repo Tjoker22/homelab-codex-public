@@ -1,4 +1,5 @@
-## 🌐 Live Network Inventory
+# 🌐 Live Network Inventory
+
 *This table tracks active services. For full MAC addresses and hardware history, see [network-inventory.csv](./network/network-inventory.csv).*
 
 | ID | Service Name | IP Address | VLAN/Subnet | Purpose | Status |
@@ -10,7 +11,8 @@
 
 ---
 
-### 🏷️ Network Color Key
+## 🏷️ Network Color Key
+
 * 🟢 **Active:** Production service, essential for lab/home.
 * 🟡 **Setup:** Currently being configured or rebuilt.
 * 🔴 **Offline:** Decommissioned or troubleshooting required.
