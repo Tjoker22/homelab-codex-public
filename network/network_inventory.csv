@@ -13,7 +13,7 @@ TL-SG2008P,2,,WAP,
 TL-SG2008P,3,,Downlink to GS308 (port 8),By [OWNER] PC
 TL-SG2008P,4,,Xavier PC,
 TL-SG2008P,5,,Phillips HUE Bridge,
-TL-SG2008P,6,,Donwlink to GS305 (port 5),Media center switch
+TL-SG2008P,6,,Downlink to GS305 (port 5),Media center switch
 TL-SG2008P,7,,,
 TL-SG2008P,8,,WAN uplink from ER605,
 ,,,,
@@ -22,7 +22,7 @@ GS305,1,,Vizio TV,
 GS305,2,,PS5,
 GS305,3,,,
 GS305,4,,,
-GS305,5,,Upink to TL-SG2008P (port 6),Media center switch
+GS305,5,,Uplink to TL-SG2008P (port 6),Media center switch
 ,,,,
 Personal Rack,,,,
 GS308,1,,,
@@ -54,7 +54,7 @@ Catalyst 3750G,Gi0/2,802.1Q Trunk,Catalyst 2960G Gi0/1 (optional) — Inter-swit
 Catalyst 3750G,Gi0/3,Access LAB,Cisco 1921 #1 Gi0/0 (optional),
 Catalyst 3750G,Gi0/24,Access MGMT,Switch management / console only,
 ,,,,
-Catalyst 2960G,,,,
+Catalyst 2960G,(Optional),,,
 Catalyst 2960G,Gi0/1,802.1Q Trunk,Catalyst 3750G Gi0/2,
 Catalyst 2960G,Gi0/2-12,Access LAB,Lab servers (VLAN 20),
 Catalyst 2960G,Gi0/13-22,Access IOT,IoT devices (VLAN 30),
