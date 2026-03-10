@@ -1,11 +1,11 @@
 # Network Settings Register
 **Site Name:** `JXStudio`  
-**Owner:** `[Your Name]`  
-**Storage:** `[Git repo URL or folder path]`  
+**Owner:** `[OWNER]`  
+**Storage:** `[https://github.com/[USERNAME]/proxmox_homelab]`  
 **Version:** `1.0`  
 **Created:** `09/03/2026`  
 **Last Updated:** `09/03/2026`  
-**Switch Stack:** `[ ] Option A — Single Switch (3750G only)  [ ] Option B — Dual Switch (3750G + 2960G)`
+**Switch Stack:** `[X] Option A — Single Switch (3750G only)  [ ] Option B — Dual Switch (3750G + 2960G)`
 
 ---
 
