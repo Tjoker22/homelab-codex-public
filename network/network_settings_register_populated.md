@@ -57,13 +57,13 @@
 > Update when a VLAN is added, removed, or any of its parameters change.
 
 | VLAN ID | Name | Subnet | Gateway IP | Static Range | DHCP Range | DNS Primary | DNS Secondary | DHCP | Lease | Purpose |
-|---------|------|--------|------------|--------------|------------|-------------|---------------|------|-------|---------|
-| 10 | HOME | 192.168.10.0/24 | 192.168.10.1 | .1 – .29 | .100 – .200 | 192.168.10.15 | 1.1.1.1 | ON | 1 day | Home PCs, phones, TVs, consoles. Pi-hole DNS for VLAN 10 only. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 10 | HOME | 192.168.10.0/24 | 192.168.10.1 | .1 – .29 | .100 – .200 | 1.1.1.1 | 8.8.8.8 | ON | 1 day | Home PCs, phones, TVs, consoles. Pi-hole DNS for VLAN 10 only when brought online. |
 | 20 | LAB | 192.168.20.0/24 | 192.168.20.1 | .1 – .99 | .100 – .200 | 1.1.1.1 | 1.0.0.1 | ON | 1 day | Servers, VMs, Proxmox. Large static block .1–.99 for infrastructure. |
 | 30 | IOT | 192.168.30.0/24 | 192.168.30.1 | .1 – .19 | .20 – .254 | 9.9.9.9 | 149.112.112.112 | ON | 1 day | Smart devices — fully isolated. Quad9 DNS blocks malicious domains. |
 | 99 | MGMT | 192.168.99.0/24 | 192.168.99.1 | All | N/A | 1.1.1.1 | — | OFF | N/A | Network device management only. All static IPs. No DHCP. |
 
-> **DNS note:** VLAN 10 DNS primary is Pi-hole at 192.168.10.15 (Phase 1 — HOME VLAN only).  
+> **DNS note:** VLAN 10 DNS primary will be Pi-hole at 192.168.10.15 (Phase 1 — HOME VLAN only).  
 > Phase 2+: Pi moves to MGMT 192.168.99.5 and becomes network-wide DNS. All VLAN DNS entries update at that point.
 
 ---
@@ -87,12 +87,12 @@
 > **Type:** Static = hardcoded on device | Reservation = DHCP reservation by MAC
 
 | Device / Hostname | IP Address | VLAN | MAC Address | Type | Phase | Notes |
-|-------------------|------------|------|-------------|------|-------|-------|
+| --- | --- | --- | --- | --- | --- | --- |
 | ER605 — WAN Gateway | 192.168.10.1 | 10 | N/A | Static | 1 | WAN gateway — do not change |
 | ER605 — LAB SVI | 192.168.20.1 | 20 | N/A | Static | 1 | LAB VLAN gateway |
 | ER605 — IOT SVI | 192.168.30.1 | 30 | N/A | Static | 1 | IOT VLAN gateway |
 | ER605 — MGMT SVI | 192.168.99.1 | 99 | N/A | Static | 1 | Also OC200 address — ER605 handles MGMT routing |
-| OC200 — Omada Controller | 192.168.99.1 | 99 | `[MAC — bottom of unit]` | Reservation | 1 | Fixed via DHCP reservation — MGMT VLAN |
+| OC200 — Omada Controller | 192.168.99.1 | 99 | [MAC_REDACTED] | Reservation | 1 | Fixed via DHCP reservation — MGMT VLAN |
 | TL-SG2008P | 192.168.99.10 | 99 | `[MAC]` | Static | 1 | Omada managed switch |
 | 3750G — SVI MGMT (Vlan99) | 192.168.99.2 | 99 | N/A | Static | 2 | Core switch MGMT SVI |
 | 3750G — SVI HOME (Vlan10) | 192.168.10.2 | 10 | N/A | Static | 2 | Home VLAN SVI |
@@ -102,9 +102,9 @@
 | Proxmox Host | 192.168.20.10 | 20 | `[MAC]` | Static | 4 | Hypervisor — web UI port 8006 |
 | Nginx Proxy Manager VM | 192.168.20.50 | 20 | N/A (VM) | Static | 5 | Reverse proxy — used in ACL rules |
 | Tailscale LXC | 192.168.20.51 | 20 | N/A (LXC) | Static | 6 | Subnet router — used in ACL permit |
-| Admin PC — daily driver | 192.168.10.10 | 10 | `[MAC]` | Reservation | 1 | In ACL rules — reservation must be set first |
-| Admin Laptop | 192.168.10.11 | 10 | `[MAC]` | Reservation | 1 | In ACL rules — reservation must be set first |
-| Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | `[MAC]` | Reservation | 1 | Phase 1: HOME DNS only. Phase 2: move to MGMT 192.168.99.5 for network-wide DNS |
+| Admin PC — daily driver | 192.168.10.10 | 10 | [MAC_REDACTED] | Reservation | 1 | In ACL rules — reservation must be set first |
+| Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] | Reservation | 1 | In ACL rules — reservation must be set first |
+| Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] | Reservation | 1 | Phase 1: HOME DNS only. Phase 2: move to MGMT 192.168.99.5 for network-wide DNS |
 | Cisco 1921 #1 | 192.168.20.254 | 20 | `[MAC]` | Static | 7 | Lab edge — optional Phase 7 |
 | Cisco 1921 #2 | 192.168.20.253 | 20 | `[MAC]` | Static | 7 | VPN / lab — optional Phase 7 |
 | Philips Hue Bridge | `[IP — set when moved to IoT]` | 30 | `[MAC]` | Reservation | 1+ | Currently on HOME. Move to IOT VLAN 30 when 3750G live. Set static via Hue app after move. |
@@ -119,11 +119,11 @@
 > **Must be set before writing any ACL rules that reference these IPs.**
 
 | Device Name | MAC Address | Reserved IP | VLAN | Date Set | ACL Reference | Notes |
-|-------------|-------------|-------------|------|----------|---------------|-------|
-| Admin PC — daily driver | `[MAC]` | 192.168.10.10 | HOME — VLAN 10 | `[Date]` | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
-| Admin Laptop | `[MAC]` | 192.168.10.11 | HOME — VLAN 10 | `[Date]` | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
-| Raspberry Pi — Pi-hole | `[MAC]` | 192.168.10.15 | HOME — VLAN 10 | `[Date]` | DNS target — no ACL rule needed while on HOME | Phase 1 only — update when moved to MGMT |
-| OC200 — Omada Controller | `[MAC — bottom of unit]` | 192.168.99.1 | MGMT — VLAN 99 | `[Date]` | ACL Rule 1 destination | DHCP briefly enabled on MGMT to assign — disable after |
+| --- | --- | --- | --- | --- | --- | --- |
+| Admin PC — daily driver | [MAC_REDACTED] | 192.168.10.10 | HOME — VLAN 10 | `[Date]` | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
+| Admin Laptop | [MAC_REDACTED] | 192.168.10.11 | HOME — VLAN 10 | `[Date]` | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
+| Raspberry Pi — Pi-hole | [MAC_REDACTED] | 192.168.10.15 | HOME — VLAN 10 | `[Date]` | DNS target — no ACL rule needed while on HOME | Phase 1 only — update when moved to MGMT |
+| OC200 — Omada Controller | [MAC_REDACTED] | 192.168.99.1 | MGMT — VLAN 99 | `[Date]` | ACL Rule 1 destination | DHCP briefly enabled on MGMT to assign — disable after |
 | Philips Hue Bridge | `[MAC]` | `[192.168.30.x]` | IOT — VLAN 30 | `[Date — when moved]` | None needed | Set when moving to IOT VLAN |
 
 ---
@@ -150,15 +150,29 @@
 ### TL-SG2008P
 
 | Port | Profile | Untagged VLAN | Tagged VLANs | Native VLAN | Connected Device | Last Updated | Notes |
-|------|---------|---------------|--------------|-------------|------------------|--------------|-------|
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | Port 1 | MGMT | 99 | None | 99 | OC200 — Omada Controller | `[Date]` | Change last — after all other ports confirmed |
-| Port 2 | HOME | 10 | None | 10 | `[Device]` | `[Date]` | |
-| Port 3 | HOME | 10 | None | 10 | Admin PC — 192.168.10.10 | `[Date]` | Change last alongside Port 1 |
-| Port 4 | HOME | 10 | None | 10 | `[Device]` | `[Date]` | |
-| Port 5 | HOME | 10 | None | 10 | `[Device]` | `[Date]` | |
-| Port 6 | HOME | 10 | None | 10 | WAP — TP-Link EAP | `[Date]` | Future: change to WAP-TRUNK for VLAN-aware SSIDs |
+| Port 2 | HOME | 10 | None | 10 | WAP — TP-Link EAP | `[Date]` | Future: change to WAP-TRUNK for VLAN-aware SSIDs |
+| Port 3 | HOME | 10 | None | 10 | Uplink to GS208 (port 8) | `[Date]` | Admin PC — 192.168.10.10 |
+| Port 4 | HOME | 10 | None | 10 | Xavier PC - 192.168.10.x | `[Date]` |  |
+| Port 5 | HOME | 10 | None | 10 | Philips HUE Bridge | `[Date]` | Current location |
+| Port 6 | HOME | 10 | None | 10 | Downlink to GS305G | `[Date]` | Unmanaged switch connectiong Media |
 | Port 7 | TRUNK-ALL | None | 10,20,30,99 | 99 | 3750G Gi0/1 — inter-rack trunk | `[Date]` | Phase 2 — not connected yet |
-| Port 8 | LAN-Uplink | 10 | None | 10 | ER605 LAN port | `[Date]` | |
+| Port 8 | LAN-Uplink | 10 | None | 10 | ER605 LAN port | `[Date]` |  |
+
+### Netgear GS308
+
+| Port | Profile | Untagged VLAN | Tagged VLANs | Native VLAN | Connected Device | Last Updated | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Port 1 | HOME | None | None |  |  | `[Date]` |  |
+| Port 2 | HOME |  | None |  |  | `[Date]` |  |
+| Port 3 | HOME | 10 | None | 10 | Raspberry Pi - 192.168.10.15 | 03/09/2026 |  |
+| Port 4 | HOME |  | None |  |  | `[Date]` |  |
+| Port 5 | HOME |  | None |  |  | `[Date]` |  |
+| Port 6 | HOME |  | None |  |  | `[Date]` |  |
+| Port 7 | HOME | 10 | None | 10 | Admin PC — 192.168.10.10 | 03/09/2026 |  |
+| Port 8 | HOME | 10 | None | 10 | Uplink from TL-SG2008P (port 3) | 03/09/2026 |  |
+
 
 ### Catalyst 3750G *(Phase 2 — not configured yet)*
 
@@ -195,14 +209,14 @@
 ### Active Rules — Phase 1
 
 | # | Rule Name | Source | Destination | Protocol | Port | Policy | Status | Date Added | Notes |
-|---|-----------|--------|-------------|----------|------|--------|--------|------------|-------|
-| 1 | Home-to-MGMT | HOME (network) | MGMT (network) | TCP | All | Permit | ✅ Enabled | `[Date]` | Broad permit for now — all HOME to MGMT. Tighten to specific IPs using IP Groups in Phase 2. |
-| 2 | Block-Home-to-Lab | HOME (network) | LAB (network) | All | All | Deny | ✅ Enabled | `[Date]` | Blocks home devices from direct lab access |
-| 3 | Block-Home-to-IoT | HOME (network) | IOT (network) | All | All | Deny | ✅ Enabled | `[Date]` | No home to IoT lateral movement |
-| 4 | Block-IoT-to-Home | IOT (network) | HOME (network) | All | All | Deny | ✅ Enabled | `[Date]` | IoT cannot reach home devices |
-| 5 | Block-IoT-to-Lab | IOT (network) | LAB (network) | All | All | Deny | ✅ Enabled | `[Date]` | IoT cannot reach lab |
-| 6 | Block-IoT-to-MGMT | IOT (network) | MGMT (network) | All | All | Deny | ✅ Enabled | `[Date]` | IoT cannot reach management devices |
-| 7 | MGMT-Full-Access | MGMT (network) | HOME, LAB, IOT | All | All | Permit | ✅ Enabled | `[Date]` | Management VLAN has unrestricted internal access |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Home-to-MGMT | HOME (network) | MGMT (network) | TCP | All | Permit | ✅ Disabled | `[Date]` | Broad permit for now — all HOME to MGMT. Tighten to specific IPs using IP Groups in Phase 2. |
+| 2 | Block-Home-to-Lab | HOME (network) | LAB (network) | All | All | Deny | ✅ Disabled | `[Date]` | Blocks home devices from direct lab access |
+| 3 | Block-Home-to-IoT | HOME (network) | IOT (network) | All | All | Deny | ✅ Disabled | `[Date]` | No home to IoT lateral movement |
+| 4 | Block-IoT-to-Home | IOT (network) | HOME (network) | All | All | Deny | ✅ Disabled | `[Date]` | IoT cannot reach home devices |
+| 5 | Block-IoT-to-Lab | IOT (network) | LAB (network) | All | All | Deny | ✅ Disabled | `[Date]` | IoT cannot reach lab |
+| 6 | Block-IoT-to-MGMT | IOT (network) | MGMT (network) | All | All | Deny | ✅ Disabled | `[Date]` | IoT cannot reach management devices |
+| 7 | MGMT-Full-Access | MGMT (network) | HOME, LAB, IOT | All | All | Permit | ✅ Disabled | `[Date]` | Management VLAN has unrestricted internal access |
 
 ### Pending Rules — Add when service is live
 
@@ -239,10 +253,10 @@
 > Verify EAP model supports VLAN-tagged SSIDs before planning multi-SSID setup.
 
 | SSID Name | VLAN Tag | Band | Security | WAP Device | WAP Port | Enabled | Notes |
-|-----------|----------|------|----------|------------|----------|---------|-------|
-| `[Current SSID name]` | 10 | 2.4 + 5GHz | WPA2/WPA3 | EAP-`[model]` | TL-SG2008P Port 6 | Y | Current home SSID — all devices on VLAN 10 |
-| IoT-Net (planned) | 30 | 2.4GHz | WPA2 | EAP-`[model]` | TL-SG2008P Port 6 | N | Add when IoT VLAN is active — requires WAP-TRUNK port profile |
-| LabWiFi (planned) | 20 | 5GHz | WPA2 | EAP-`[model]` | TL-SG2008P Port 6 | N | Add when lab is active — admin devices only |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `[Current SSID name]` | 10 | 2.4 + 5GHz | WPA2/WPA3 | EAP-`[model]` | TL-SG2008P Port 2 | Y | Current home SSID — all devices on VLAN 10 |
+| IoT-Net (planned) | 30 | 2.4GHz | WPA2 | EAP-`[model]` | TL-SG2008P Port 2 | N | Add when IoT VLAN is active — requires WAP-TRUNK port profile |
+| LabWiFi (planned) | 20 | 5GHz | WPA2 | EAP-`[model]` | TL-SG2008P Port 2 | N | Add when lab is active — admin devices only |
 
 ---
 
@@ -292,10 +306,10 @@
 ## Phase Completion Checklist
 
 ### Phase 1 — Omada Stack ✳️ In Progress
-- [x] VLANs 10, 20, 30, 99 created on ER605
-- [x] DHCP pools configured per VLAN
-- [x] DHCP reservations set — Admin PC, Admin Laptop
-- [x] 7 Gateway ACL rules created and enabled
+- [ ] VLANs 10, 20, 30, 99 created on ER605
+- [ ] DHCP pools configured per VLAN
+- [ ] DHCP reservations set — Admin PC, Admin Laptop
+- [ ] 7 Gateway ACL rules created and enabled
 - [ ] OC200 static IP set to 192.168.99.1
 - [ ] TL-SG2008P management IP set to 192.168.99.10
 - [ ] Port profiles created in Omada
@@ -316,4 +330,6 @@
 
 ---
 
-*Last commit: `Phase 1 in progress — ACL rules complete, port changes pending`*
+*Last commit: `"Phase 1 prep - Updates to MACs / IPs. Added GS308 to Sec.7: Port Assignments"`*
+*Previous commit: `Phase 1 in progress — `*
+
