@@ -107,7 +107,7 @@
 | Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] | Reservation | 1 | Phase 1: HOME DNS only. Phase 2: move to MGMT 192.168.99.5 for network-wide DNS |
 | Cisco 1921 #1 | 192.168.20.254 | 20 | `[MAC]` | Static | 7 | Lab edge — optional Phase 7 |
 | Cisco 1921 #2 | 192.168.20.253 | 20 | `[MAC]` | Static | 7 | VPN / lab — optional Phase 7 |
-| Philips Hue Bridge | `[IP — set when moved to IoT]` | 30 | [MAC_REDACTED] | Reservation | 1+ | Currently on HOME. Move to IOT VLAN 30 when 3750G live. Set static via Hue app after move. |
+| Philips Hue Bridge | `[192.168.30.5 — set when moved to IoT]` | 30 | [MAC_REDACTED] | Reservation | 1+ | Currently on HOME. Move to IOT VLAN 30 when 3750G live. Set static via Hue app after move. |
 | PS5 | `[DHCP .100–.200]` | 10 | `[MAC]` | DHCP | 1 | Home device |
 | TV | `[DHCP .100–.200]` | 10 | `[MAC]` | DHCP | 1 | Home device |
 
@@ -124,7 +124,7 @@
 | Admin Laptop | [MAC_REDACTED] | 192.168.10.11 | HOME — VLAN 10 | `[Date]` | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
 | Raspberry Pi — Pi-hole | [MAC_REDACTED] | 192.168.10.15 | HOME — VLAN 10 | `[Date]` | DNS target — no ACL rule needed while on HOME | Phase 1 only — update when moved to MGMT |
 | OC200 — Omada Controller | [MAC_REDACTED] | 192.168.99.2 | MGMT — VLAN 99 | `[Date]` | ACL Rule 1 destination | DHCP briefly enabled on MGMT to assign — disable after |
-| Philips Hue Bridge | [MAC_REDACTED] | `[192.168.30.x]` | IOT — VLAN 30 | `[Date — when moved]` | None needed | Set when moving to IOT VLAN |
+| Philips Hue Bridge | [MAC_REDACTED] | 192.168.30.5 | IOT — VLAN 30 | `[Date — when moved]` | None needed | Set when moving to IOT VLAN |
 
 ---
 
