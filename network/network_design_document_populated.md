@@ -290,7 +290,7 @@ When the Pi is repurposed as a MGMT utility device, it moves to 192.168.99.5 and
   Port 8  → ER605 LAN port (LAN-Uplink profile)
       |
   [3750G]               Server Rack
-  SVI99: 192.168.99.2
+  SVI99: 192.168.99.3
   SVI10: 192.168.10.2
   SVI20: 192.168.20.1
   SVI30: 192.168.30.1
@@ -370,7 +370,7 @@ When the Pi is repurposed as a MGMT utility device, it moves to 192.168.99.5 and
 - [ ] DHCP reservations set — Admin PC (.10.10), Admin Laptop (.10.11)
 - [ ] 7 Gateway ACL rules created and enabled
 - [ ] IP Groups pre-created in Omada Profiles (Admin-PC, Admin-Laptop, Proxmox, Proxy-VM, Pi-hole)
-- [ ] OC200 static IP set to 192.168.99.1
+- [ ] OC200 static IP set to 192.168.99.2
 - [ ] TL-SG2008P management IP set to 192.168.99.10
 - [ ] Port profiles created — HOME, MGMT, TRUNK-ALL, LAN-Uplink
 - [ ] Media devices (TV, PS5) moved to VLAN 10 — tested, internet confirmed
@@ -379,7 +379,7 @@ When the Pi is repurposed as a MGMT utility device, it moves to 192.168.99.5 and
 - [ ] Remaining home devices moved to VLAN 10
 - [ ] Admin Laptop moved to VLAN 10 — confirmed 192.168.10.11
 - [ ] OC200 Port 1 and Admin PC Port 3 switched last — back to back
-- [ ] Dashboard confirmed accessible at https://192.168.99.1:8043
+- [ ] Dashboard confirmed accessible at https://192.168.99.2:8043
 - [ ] All devices shown as adopted in Omada
 - [ ] Phase 1 change log entries completed in register
 
@@ -458,7 +458,7 @@ interface GigabitEthernet0/1
 
 | Field | Value |
 |-------|-------|
-| IP Address | 192.168.99.1 |
+| IP Address | 192.168.99.2 |
 | Subnet Mask | 255.255.255.0 |
 | Gateway | 192.168.99.1 |
 | DNS | 1.1.1.1 |
@@ -484,7 +484,7 @@ interface GigabitEthernet0/1
 | Admin PC | [MAC_REDACTED] | 192.168.10.10 | HOME 10 | Must be set before ACL rules |
 | Admin Laptop | [MAC_REDACTED] | 192.168.10.11 | HOME 10 | Must be set before ACL rules |
 | Raspberry Pi | [MAC_REDACTED] | 192.168.10.15 | HOME 10 | Pi-hole DNS — Phase 1 |
-| OC200 | [MAC_REDACTED] | 192.168.99.1 | MGMT 99 | Assigned via DHCP reservation — DHCP briefly enabled on MGMT then disabled |
+| OC200 | [MAC_REDACTED] | 192.168.99.2 | MGMT 99 | Assigned via DHCP reservation — DHCP briefly enabled on MGMT then disabled |
 | Philips Hue Bridge | `[MAC]` | `[192.168.30.x]` | IOT 30 | Set when moved to IoT VLAN — currently on HOME |
 
 ### 9.5 — Switch Port Profiles
