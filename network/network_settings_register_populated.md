@@ -3,8 +3,8 @@
 **Owner:** `[OWNER]`  
 **Storage:** `[https://github.com/[USERNAME]/proxmox_homelab]`  
 **Version:** `1.0`  
-**Created:** `09/03/2026`  
-**Last Updated:** `09/03/2026`  
+**Created:** `2026/03/09`  
+**Last Updated:** `2026/03/15`  
 **Switch Stack:** `[X] Option A — Single Switch (3750G only)  [ ] Option B — Dual Switch (3750G + 2960G)`
 
 ---
@@ -104,6 +104,7 @@
 | Tailscale LXC | 192.168.20.51 | 20 | N/A (LXC) | Static | 6 | Subnet router — used in ACL permit |
 | Admin PC — daily driver | 192.168.10.10 | 10 | [MAC_REDACTED] | Reservation | 1 | In ACL rules — reservation must be set first |
 | Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] | Reservation | 1 | In ACL rules — reservation must be set first |
+| Xavier PC | 192.168.10.12 | 10 | [MAC_REDACTED] | Reservation | 1 | Reservation set for potential future admin access |
 | Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] | Reservation | 1 | Phase 1: HOME DNS only. Phase 2: move to MGMT 192.168.99.5 for network-wide DNS |
 | Cisco 1921 #1 | 192.168.20.254 | 20 | `[MAC]` | Static | 7 | Lab edge — optional Phase 7 |
 | Cisco 1921 #2 | 192.168.20.253 | 20 | `[MAC]` | Static | 7 | VPN / lab — optional Phase 7 |
@@ -120,10 +121,11 @@
 
 | Device Name | MAC Address | Reserved IP | VLAN | Date Set | ACL Reference | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| Admin PC — daily driver | [MAC_REDACTED] | 192.168.10.10 | HOME — VLAN 10 | `[Date]` | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
-| Admin Laptop | [MAC_REDACTED] | 192.168.10.11 | HOME — VLAN 10 | `[Date]` | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
-| Raspberry Pi — Pi-hole | [MAC_REDACTED] | 192.168.10.15 | HOME — VLAN 10 | `[Date]` | DNS target — no ACL rule needed while on HOME | Phase 1 only — update when moved to MGMT |
-| OC200 — Omada Controller | [MAC_REDACTED] | 192.168.99.2 | MGMT — VLAN 99 | `[Date]` | ACL Rule 1 destination | DHCP briefly enabled on MGMT to assign — disable after |
+| Admin PC — daily driver | [MAC_REDACTED] | 192.168.10.10 | HOME — VLAN 10 | 2026/03/15 | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
+| Admin Laptop | [MAC_REDACTED] | 192.168.10.11 | HOME — VLAN 10 | 2026/03/15 | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
+| Xavier PC | [MAC_REDACTED] | 192.168.10.12 | 10 | 2026/03/15 | N/A | Reserved for potential future admin access |
+| Raspberry Pi — Pi-hole | [MAC_REDACTED] | 192.168.10.15 | HOME — VLAN 10 | 2026/03/15 | DNS target — no ACL rule needed while on HOME | Phase 1 only — update when moved to MGMT |
+| OC200 — Omada Controller | [MAC_REDACTED] | 192.168.99.2 | MGMT — VLAN 99 | 2026/03/15 | ACL Rule 1 destination | DHCP briefly enabled on MGMT to assign — disable after |
 | Philips Hue Bridge | [MAC_REDACTED] | 192.168.30.5 | IOT — VLAN 30 | `[Date — when moved]` | None needed | Set when moving to IOT VLAN |
 
 ---
@@ -154,7 +156,7 @@
 | Port 1 | MGMT | 99 | None | 99 | OC200 — Omada Controller | `[Date]` | Change last — after all other ports confirmed |
 | Port 2 | HOME | 10 | None | 10 | WAP — TP-Link EAP | `[Date]` | Future: change to WAP-TRUNK for VLAN-aware SSIDs |
 | Port 3 | HOME | 10 | None | 10 | Uplink to GS208 (port 8) | `[Date]` | Admin PC — 192.168.10.10 |
-| Port 4 | HOME | 10 | None | 10 | Xavier PC - 192.168.10.x | `[Date]` |  |
+| Port 4 | HOME | 10 | None | 10 | Xavier PC - 192.168.10.12 | `[Date]` |  |
 | Port 5 | HOME | 10 | None | 10 | Philips HUE Bridge | `[Date]` | Current location |
 | Port 6 | HOME | 10 | None | 10 | Downlink to GS305G | `[Date]` | Unmanaged switch connectiong Media |
 | Port 7 | TRUNK-ALL | None | 10,20,30,99 | 99 | 3750G Gi0/1 — inter-rack trunk | `[Date]` | Phase 2 — not connected yet |
