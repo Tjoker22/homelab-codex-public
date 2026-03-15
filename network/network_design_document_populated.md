@@ -356,7 +356,7 @@ When the Pi is repurposed as a MGMT utility device, it moves to 192.168.99.5 and
 | 1 | Omada ISP Rack | VLANs, DHCP, ACL rules, port profiles, Pi-hole on HOME | 2–3 hrs | ✳️ In Progress |
 | 2 | Catalyst 3750G | IOS config, SVIs, ACLs, inter-rack trunk | 2–3 hrs | 🔲 Not started |
 | 3 | Catalyst 2960G | Option B only — cascade config | 1–1.5 hrs | 🔲 Not started |
-| 4 | Proxmox | Install, VLAN-aware bridge, VM network config | 2–3 hrs | 🔲 Not started |
+| 4 | Proxmox | Install, VLAN-aware bridge, VM network config | 2–3 hrs | 🔲 Not started — hardware to be staged ahead of this phase |
 | 5 | Nginx Proxy Manager | Reverse proxy setup, service entries | 1–2 hrs | 🔲 Not started |
 | 6 | Tailscale | Subnet router LXC, route advertisement | 1–2 hrs | 🔲 Not started |
 | 7 | Cisco 1921 Routers | Optional lab edge / VPN config | 2–5 hrs | 🔲 Optional |
@@ -365,16 +365,19 @@ When the Pi is repurposed as a MGMT utility device, it moves to 192.168.99.5 and
 
 ### Phase 1 — Detailed Checklist
 
-- [ ] VLANs 10, 20, 30, 99 created on ER605
-- [ ] DHCP pools configured per VLAN
-- [ ] DHCP reservations set — Admin PC (.10.10), Admin Laptop (.10.11)
-- [ ] 7 Gateway ACL rules created and enabled
+- [x] VLANs 10, 20, 30, 99 created on ER605
+- [x] DHCP pools configured per VLAN
+- [x] DHCP reservations set — Admin PC (.10.10), Admin Laptop (.10.11), Xavier PC (.10.12), Pi-hole (.10.15), OC200 (.99.2)
+- [x] 7 Gateway ACL rules created and enabled
 - [ ] IP Groups pre-created in Omada Profiles (Admin-PC, Admin-Laptop, Proxmox, Proxy-VM, Pi-hole)
-- [ ] OC200 static IP set to 192.168.99.2
-- [ ] TL-SG2008P management IP set to 192.168.99.10
+- [x] OC200 static IP set to 192.168.99.2
+- [x] TL-SG2008P management IP set to 192.168.99.10
 - [ ] Port profiles created — HOME, MGMT, TRUNK-ALL, LAN-Uplink
+
+> ⬇️ Items below require the active maintenance window — VLANs configured but not yet live.
+
 - [ ] Media devices (TV, PS5) moved to VLAN 10 — tested, internet confirmed
-- [ ] Raspberry Pi static IP removed, DHCP reservation set to 192.168.10.15
+- [x] Raspberry Pi static IP removed, DHCP reservation set to 192.168.10.15
 - [ ] Pi-hole confirmed working on VLAN 10, DHCP DNS updated to 192.168.10.15
 - [ ] Remaining home devices moved to VLAN 10
 - [ ] Admin Laptop moved to VLAN 10 — confirmed 192.168.10.11
@@ -407,7 +410,7 @@ vlan 99
 
 ! SVIs
 interface Vlan99
- ip address 192.168.99.2 255.255.255.0
+ ip address 192.168.99.3 255.255.255.0
 interface Vlan10
  ip address 192.168.10.2 255.255.255.0
 interface Vlan20
@@ -486,6 +489,7 @@ interface GigabitEthernet0/1
 | Raspberry Pi | [MAC_REDACTED] | 192.168.10.15 | HOME 10 | Pi-hole DNS — Phase 1 |
 | OC200 | [MAC_REDACTED] | 192.168.99.2 | MGMT 99 | Assigned via DHCP reservation — DHCP briefly enabled on MGMT then disabled |
 | Philips Hue Bridge | `[MAC]` | `[192.168.30.x]` | IOT 30 | Set when moved to IoT VLAN — currently on HOME |
+| Raspberry Pi (Phase 2+) | [MAC_REDACTED] | 192.168.99.5 | MGMT 99 | Set at Phase 2 migration — see §6.2 for full transition steps |
 
 ### 9.5 — Switch Port Profiles
 
@@ -563,9 +567,9 @@ interface GigabitEthernet0/1
 | IOS Version | `[run: show version]` |
 | Feature Set | `[IP Base / IP Services — run: show license]` |
 | Stack Option | `[ ] Option A — L3 core + access  [ ] Option B — L3 core only` |
-| Management IP | 192.168.99.2 (Vlan99 SVI) |
+| Management IP | 192.168.99.3 (Vlan99 SVI) |
 | Default Route | ip route 0.0.0.0 0.0.0.0 192.168.10.1 |
-| Active SVIs | Vlan10 → .10.2 / Vlan20 → .20.1 / Vlan30 → .30.1 / Vlan99 → .99.2 |
+| Active SVIs | Vlan10 → .10.2 / Vlan20 → .20.1 / Vlan30 → .30.1 / Vlan99 → .99.3 |
 | VLANs | 10 HOME, 20 LAB, 30 IOT, 99 MGMT — VLAN 1 shutdown |
 | ACLs Applied | VLAN10-IN on Vlan10 in / VLAN30-IN on Vlan30 in |
 | SSH / Auth | SSH v2, RSA 2048, local auth, VTY transport input ssh |
@@ -578,8 +582,8 @@ interface GigabitEthernet0/1
 |-------|-------|
 | Hostname | `[e.g. SW-ACCESS-2960G]` |
 | IOS Version | `[run: show version]` |
-| Management IP | 192.168.99.3 (Vlan99) |
-| Default Gateway | 192.168.99.2 (3750G SVI) |
+| Management IP | 192.168.99.4 (Vlan99) |
+| Default Gateway | 192.168.99.3 (3750G SVI) |
 | Uplink | Gi0/1 → trunk to 3750G Gi0/2 |
 | Last Config Backup | `[DD/MM/YYYY — filename or Git commit]` |
 | Phase | 3 — Not started (Option B only) |

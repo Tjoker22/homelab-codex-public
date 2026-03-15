@@ -42,8 +42,8 @@
 | 1 | WAN Router | TP-Link ER605 v2 | `[Version]` | ISP Rack | WAN Gateway | 192.168.10.1 | Active |
 | 2 | PoE Switch | TP-Link TL-SG2008P | `[Version]` | ISP Rack | Managed Switch | 192.168.99.10 | Active |
 | 3 | Controller | TP-Link OC200 | `[Version]` | ISP Rack | Omada Controller | 192.168.99.2 | Active |
-| 4 | L3 Core Switch | Cisco Catalyst 3750G | `[IOS Version]` | Server Rack | L3 Core | 192.168.99.2 | Planned — Phase 2 |
-| 5 | L2 Access Switch | Cisco Catalyst 2960G | `[IOS Version]` | Server Rack / Lab | Access / Lab | 192.168.99.3 | Option B only / Lab |
+| 4 | L3 Core Switch | Cisco Catalyst 3750G | `[IOS Version]` | Server Rack | L3 Core | 192.168.99.3 | Planned — Phase 2 |
+| 5 | L2 Access Switch | Cisco Catalyst 2960G | `[IOS Version]` | Server Rack / Lab | Access / Lab | 192.168.99.4 | Option B only / Lab |
 | 6 | Hypervisor | `[Server model — Proxmox]` | `[Version]` | Server Rack | Hypervisor | 192.168.20.10 | Planned — Phase 4 |
 | 7 | Router #1 | Cisco 1921 | `[IOS Version]` | Server Rack | Lab Edge | 192.168.20.254 | Planned — Phase 7 |
 | 8 | Router #2 | Cisco 1921 | `[IOS Version]` | Server Rack | VPN / Lab | 192.168.20.253 | Planned — Phase 7 |
@@ -94,11 +94,11 @@
 | ER605 — MGMT SVI | 192.168.99.1 | 99 | N/A | Static | 1 | Also OC200 address — ER605 handles MGMT routing |
 | OC200 — Omada Controller | 192.168.99.2 | 99 | [MAC_REDACTED] | Reservation | 1 | Fixed via DHCP reservation — MGMT VLAN |
 | TL-SG2008P | 192.168.99.10 | 99 | [MAC_REDACTED] | Static | 1 | Omada managed switch |
-| 3750G — SVI MGMT (Vlan99) | 192.168.99.2 | 99 | N/A | Static | 2 | Core switch MGMT SVI |
+| 3750G — SVI MGMT (Vlan99) | 192.168.99.3 | 99 | N/A | Static | 2 | Core switch MGMT SVI |
 | 3750G — SVI HOME (Vlan10) | 192.168.10.2 | 10 | N/A | Static | 2 | Home VLAN SVI |
 | 3750G — SVI LAB (Vlan20) | 192.168.20.1 | 20 | N/A | Static | 2 | Lab VLAN gateway — takes over from ER605 |
 | 3750G — SVI IOT (Vlan30) | 192.168.30.1 | 30 | N/A | Static | 2 | IoT VLAN gateway |
-| 2960G — Option B only | 192.168.99.3 | 99 | `[MAC]` | Static | 2 | Access switch MGMT — Option B only |
+| 2960G — Option B only | 192.168.99.4 | 99 | `[MAC]` | Static | 2 | Access switch MGMT — Option B only |
 | Proxmox Host | 192.168.20.10 | 20 | `[MAC]` | Static | 4 | Hypervisor — web UI port 8006 |
 | Nginx Proxy Manager VM | 192.168.20.50 | 20 | N/A (VM) | Static | 5 | Reverse proxy — used in ACL rules |
 | Tailscale LXC | 192.168.20.51 | 20 | N/A (LXC) | Static | 6 | Subnet router — used in ACL permit |
@@ -106,6 +106,7 @@
 | Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] | Reservation | 1 | In ACL rules — reservation must be set first |
 | Xavier PC | 192.168.10.12 | 10 | [MAC_REDACTED] | Reservation | 1 | Reservation set for potential future admin access |
 | Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] | Reservation | 1 | Phase 1: HOME DNS only. Phase 2: move to MGMT 192.168.99.5 for network-wide DNS |
+| Raspberry Pi — Pi-hole (Phase 2+) | 192.168.99.5 | 99 | [MAC_REDACTED] | Reservation | 2+ | Planned MGMT DNS — reserve when migrating Pi from HOME. See NDD §6.2 for transition steps. |
 | Cisco 1921 #1 | 192.168.20.254 | 20 | `[MAC]` | Static | 7 | Lab edge — optional Phase 7 |
 | Cisco 1921 #2 | 192.168.20.253 | 20 | `[MAC]` | Static | 7 | VPN / lab — optional Phase 7 |
 | Philips Hue Bridge | `[192.168.30.5 — set when moved to IoT]` | 30 | [MAC_REDACTED] | Reservation | 1+ | Currently on HOME. Move to IOT VLAN 30 when 3750G live. Set static via Hue app after move. |
@@ -127,6 +128,7 @@
 | Raspberry Pi — Pi-hole | [MAC_REDACTED] | 192.168.10.15 | HOME — VLAN 10 | 2026/03/15 | DNS target — no ACL rule needed while on HOME | Phase 1 only — update when moved to MGMT |
 | OC200 — Omada Controller | [MAC_REDACTED] | 192.168.99.2 | MGMT — VLAN 99 | 2026/03/15 | ACL Rule 1 destination | DHCP briefly enabled on MGMT to assign — disable after |
 | Philips Hue Bridge | [MAC_REDACTED] | 192.168.30.5 | IOT — VLAN 30 | `[Date — when moved]` | None needed | Set when moving to IOT VLAN |
+| Raspberry Pi — Pi-hole (Phase 2+) | [MAC_REDACTED] | 192.168.99.5 | MGMT — VLAN 99 | `[Date — Phase 2 migration]` | IoT→Pi, Lab→Pi, MGMT→Pi port 53 | Set when migrating Pi to MGMT VLAN — see NDD §6.2 |
 
 ---
 
@@ -210,15 +212,17 @@
 
 ### Active Rules — Phase 1
 
+> **Note:** All 7 rules are created and enabled in Omada. VLANs are configured but devices are not yet migrated — backend setup is being completed ahead of a planned maintenance window. Rules will enforce once devices are moved to their respective VLANs.
+
 | # | Rule Name | Source | Destination | Protocol | Port | Policy | Status | Date Added | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Home-to-MGMT | HOME (network) | MGMT (network) | TCP | All | Permit | ✅ Disabled | `[Date]` | Broad permit for now — all HOME to MGMT. Tighten to specific IPs using IP Groups in Phase 2. |
-| 2 | Block-Home-to-Lab | HOME (network) | LAB (network) | All | All | Deny | ✅ Disabled | `[Date]` | Blocks home devices from direct lab access |
-| 3 | Block-Home-to-IoT | HOME (network) | IOT (network) | All | All | Deny | ✅ Disabled | `[Date]` | No home to IoT lateral movement |
-| 4 | Block-IoT-to-Home | IOT (network) | HOME (network) | All | All | Deny | ✅ Disabled | `[Date]` | IoT cannot reach home devices |
-| 5 | Block-IoT-to-Lab | IOT (network) | LAB (network) | All | All | Deny | ✅ Disabled | `[Date]` | IoT cannot reach lab |
-| 6 | Block-IoT-to-MGMT | IOT (network) | MGMT (network) | All | All | Deny | ✅ Disabled | `[Date]` | IoT cannot reach management devices |
-| 7 | MGMT-Full-Access | MGMT (network) | HOME, LAB, IOT | All | All | Permit | ✅ Disabled | `[Date]` | Management VLAN has unrestricted internal access |
+| 1 | Home-to-MGMT | HOME (network) | MGMT (network) | TCP | All | Permit | ✅ Enabled | `[Date]` | Broad permit for now — all HOME to MGMT. Tighten to specific IPs using IP Groups in Phase 2. |
+| 2 | Block-Home-to-Lab | HOME (network) | LAB (network) | All | All | Deny | ✅ Enabled | `[Date]` | Blocks home devices from direct lab access |
+| 3 | Block-Home-to-IoT | HOME (network) | IOT (network) | All | All | Deny | ✅ Enabled | `[Date]` | No home to IoT lateral movement |
+| 4 | Block-IoT-to-Home | IOT (network) | HOME (network) | All | All | Deny | ✅ Enabled | `[Date]` | IoT cannot reach home devices |
+| 5 | Block-IoT-to-Lab | IOT (network) | LAB (network) | All | All | Deny | ✅ Enabled | `[Date]` | IoT cannot reach lab |
+| 6 | Block-IoT-to-MGMT | IOT (network) | MGMT (network) | All | All | Deny | ✅ Enabled | `[Date]` | IoT cannot reach management devices |
+| 7 | MGMT-Full-Access | MGMT (network) | HOME, LAB, IOT | All | All | Permit | ✅ Enabled | `[Date]` | Management VLAN has unrestricted internal access |
 
 ### Pending Rules — Add when service is live
 
@@ -308,20 +312,23 @@
 ## Phase Completion Checklist
 
 ### Phase 1 — Omada Stack ✳️ In Progress
-- [ ] VLANs 10, 20, 30, 99 created on ER605
-- [ ] DHCP pools configured per VLAN
-- [ ] DHCP reservations set — Admin PC, Admin Laptop
-- [ ] 7 Gateway ACL rules created and enabled
-- [ ] OC200 static IP set to 192.168.99.2
-- [ ] TL-SG2008P management IP set to 192.168.99.10
+- [x] VLANs 10, 20, 30, 99 created on ER605
+- [x] DHCP pools configured per VLAN
+- [x] DHCP reservations set — Admin PC, Admin Laptop, Xavier PC, Pi-hole, OC200
+- [x] 7 Gateway ACL rules created and enabled
+- [x] OC200 static IP set to 192.168.99.2
+- [x] TL-SG2008P management IP set to 192.168.99.10
 - [ ] Port profiles created in Omada
+
+> ⬇️ Items below require the active maintenance window — VLANs configured but not yet live.
+
 - [ ] Media devices (TV, PS5) moved to VLAN 10 and tested
-- [ ] Raspberry Pi static IP removed — DHCP reservation set to 192.168.10.15
+- [x] Raspberry Pi static IP removed — DHCP reservation set to 192.168.10.15
 - [ ] Pi-hole confirmed working on VLAN 10 — DNS updated in DHCP settings
 - [ ] Remaining home devices moved to VLAN 10
 - [ ] Admin laptop moved to VLAN 10 — confirmed 192.168.10.11
 - [ ] OC200 Port 1 and Admin PC Port 3 switched last — back to back
-- [ ] Dashboard confirmed accessible at https://192.168.99.1:8043
+- [ ] Dashboard confirmed accessible at https://192.168.99.2:8043
 
 ### Phase 2 — Catalyst 3750G 🔲 Not started
 ### Phase 3 — Catalyst 2960G (Option B only) 🔲 Not started
