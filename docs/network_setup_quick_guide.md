@@ -54,22 +54,6 @@ Worth flagging: **1.1.1.1 is Cloudflare, not Google.** Google's DNS is 8.8.8.8 a
 
 Pi-hole running as an LXC on Proxmox is worth considering as a Phase 5 addition alongside the reverse proxy. It would become the DNS server for all VLANs and forward upstream to whichever providers you choose, giving you a single pane of glass for all DNS queries across your entire network.
 
-## **4.3 — TL-SG2008P Port Configuration in Omada**
-
-5. Navigate to Devices \> click TL-SG2008P \> Config \> Port Config
-
-6. Create a trunk profile: Profiles \> Switch Profiles \> Create \> name it TRUNK-ALL \> tag VLANs 10,20,30,99 \> set native VLAN to 99
-
-7. Apply port profiles as follows:
-
-* Port 1: MGMT profile (untagged VLAN 99\)
-
-* Ports 2–6: HOME profile (untagged VLAN 10\) — downstream expander switch connects to any of these
-
-* Port 7: TRUNK-ALL profile — this is the inter-rack trunk to the 3750G
-
-* Port 8: Default LAN / ER605 uplink profile
-
 ---
 
 **What LAN→LAN Actually Supports in This Version**
@@ -88,7 +72,7 @@ When Direction is left unset, the Type dropdown expands to show IP Group and IP-
 |---|---|
 | Admin-PC | 192.168.10.10/32 |
 | Admin-Laptop | 192.168.10.11/32 |
-| OC-Controller | 192.168.99.1/32 |
+| OC-Controller | 192.168.99.2/32 |
 | Proxmox | 192.168.20.10/32 |
 | Proxy-VM | 192.168.20.50/32 |
 
@@ -354,18 +338,40 @@ Save and apply.
 
 ---
 
-**Step 3 — Confirm before touching ports**
+## **4.3 — TL-SG2008P Port Configuration in Omada**
 
-Before you change a single port profile, verify you can answer yes to all of these:
+5. Navigate to Devices \> click TL-SG2008P \> Config \> Port Config
 
-```
-☐  OC static IP set to 192.168.99.1
-☐  TL-SG2008P management IP set to 192.168.99.10
-☐  You know your Omada login credentials
-☐  All 7 ACL rules created and enabled
-☐  New dashboard URL noted: https://192.168.99.1:8043
-☐  Admin PC DHCP reservation set: 192.168.10.10
-☐  Admin Laptop DHCP reservation set: 192.168.10.11
-```
+6. Create a trunk profile: Profiles \> Switch Profiles \> Create \> name it TRUNK-ALL \> tag VLANs 10,20,30,99 \> set native VLAN to 99
 
-All seven boxes checked — then and only then start the port profile sequence from the test plan we built earlier, working from media devices first through to the OC and your admin PC last.
+7. Apply port profiles as follows:
+
+* Port 1: MGMT profile (untagged VLAN 99\)
+
+* Ports 2–6: HOME profile (untagged VLAN 10\) — downstream expander switch connects to any of these
+
+* Port 7: TRUNK-ALL profile — this is the inter-rack trunk to the 3750G
+
+* Port 8: Default LAN / ER605 uplink profile
+
+---
+
+### Phase 1 — Detailed Checklist
+
+- [ X ] VLANs 10, 20, 30, 99 created on ER605
+- [ X ] DHCP pools configured per VLAN
+- [ X ] DHCP reservations set — Admin PC (.10.10), Admin Laptop (.10.11)
+- [ X ] 7 Gateway ACL rules created and enabled
+- [ X ] IP Groups pre-created in Omada Profiles (Admin-PC, Admin-Laptop, Proxmox, Proxy-VM, Pi-hole)
+- [ ] OC200 static IP set to 192.168.99.2
+- [ ] TL-SG2008P management IP set to 192.168.99.10
+- [ ] Port profiles created — HOME, MGMT, TRUNK-ALL, LAN-Uplink
+- [ ] Media devices (TV, PS5) moved to VLAN 10 — tested, internet confirmed
+- [ ] Raspberry Pi static IP removed, DHCP reservation set to 192.168.10.15
+- [ ] Pi-hole confirmed working on VLAN 10, DHCP DNS updated to 192.168.10.15
+- [ ] Remaining home devices moved to VLAN 10
+- [ ] Admin Laptop moved to VLAN 10 — confirmed 192.168.10.11
+- [ ] OC200 Port 1 and Admin PC Port 3 switched last — back to back
+- [ ] Dashboard confirmed accessible at https://192.168.99.2:8043
+- [ ] All devices shown as adopted in Omada
+- [ ] Phase 1 change log entries completed in register
