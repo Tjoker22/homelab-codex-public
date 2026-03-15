@@ -304,7 +304,7 @@ Settings > Maintenance > (look for Network / IP settings)
 
 Set it to:
 ```
-IP Address:   192.168.99.1
+IP Address:   192.168.99.2
 Subnet Mask:  255.255.255.0
 Gateway:      192.168.99.1
 DNS:          1.1.1.1
