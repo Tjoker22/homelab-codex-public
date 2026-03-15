@@ -41,7 +41,7 @@
 |---|--------|----------------|----------|-----------------|------|---------------|--------|
 | 1 | WAN Router | TP-Link ER605 v2 | `[Version]` | ISP Rack | WAN Gateway | 192.168.10.1 | Active |
 | 2 | PoE Switch | TP-Link TL-SG2008P | `[Version]` | ISP Rack | Managed Switch | 192.168.99.10 | Active |
-| 3 | Controller | TP-Link OC200 | `[Version]` | ISP Rack | Omada Controller | 192.168.99.1 | Active |
+| 3 | Controller | TP-Link OC200 | `[Version]` | ISP Rack | Omada Controller | 192.168.99.2 | Active |
 | 4 | L3 Core Switch | Cisco Catalyst 3750G | `[IOS Version]` | Server Rack | L3 Core | 192.168.99.2 | Planned — Phase 2 |
 | 5 | L2 Access Switch | Cisco Catalyst 2960G | `[IOS Version]` | Server Rack / Lab | Access / Lab | 192.168.99.3 | Option B only / Lab |
 | 6 | Hypervisor | `[Server model — Proxmox]` | `[Version]` | Server Rack | Hypervisor | 192.168.20.10 | Planned — Phase 4 |
@@ -92,8 +92,8 @@
 | ER605 — LAB SVI | 192.168.20.1 | 20 | N/A | Static | 1 | LAB VLAN gateway |
 | ER605 — IOT SVI | 192.168.30.1 | 30 | N/A | Static | 1 | IOT VLAN gateway |
 | ER605 — MGMT SVI | 192.168.99.1 | 99 | N/A | Static | 1 | Also OC200 address — ER605 handles MGMT routing |
-| OC200 — Omada Controller | 192.168.99.1 | 99 | [MAC_REDACTED] | Reservation | 1 | Fixed via DHCP reservation — MGMT VLAN |
-| TL-SG2008P | 192.168.99.10 | 99 | `[MAC]` | Static | 1 | Omada managed switch |
+| OC200 — Omada Controller | 192.168.99.2 | 99 | [MAC_REDACTED] | Reservation | 1 | Fixed via DHCP reservation — MGMT VLAN |
+| TL-SG2008P | 192.168.99.10 | 99 | [MAC_REDACTED] | Static | 1 | Omada managed switch |
 | 3750G — SVI MGMT (Vlan99) | 192.168.99.2 | 99 | N/A | Static | 2 | Core switch MGMT SVI |
 | 3750G — SVI HOME (Vlan10) | 192.168.10.2 | 10 | N/A | Static | 2 | Home VLAN SVI |
 | 3750G — SVI LAB (Vlan20) | 192.168.20.1 | 20 | N/A | Static | 2 | Lab VLAN gateway — takes over from ER605 |
@@ -107,7 +107,7 @@
 | Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] | Reservation | 1 | Phase 1: HOME DNS only. Phase 2: move to MGMT 192.168.99.5 for network-wide DNS |
 | Cisco 1921 #1 | 192.168.20.254 | 20 | `[MAC]` | Static | 7 | Lab edge — optional Phase 7 |
 | Cisco 1921 #2 | 192.168.20.253 | 20 | `[MAC]` | Static | 7 | VPN / lab — optional Phase 7 |
-| Philips Hue Bridge | `[IP — set when moved to IoT]` | 30 | `[MAC]` | Reservation | 1+ | Currently on HOME. Move to IOT VLAN 30 when 3750G live. Set static via Hue app after move. |
+| Philips Hue Bridge | `[IP — set when moved to IoT]` | 30 | [MAC_REDACTED] | Reservation | 1+ | Currently on HOME. Move to IOT VLAN 30 when 3750G live. Set static via Hue app after move. |
 | PS5 | `[DHCP .100–.200]` | 10 | `[MAC]` | DHCP | 1 | Home device |
 | TV | `[DHCP .100–.200]` | 10 | `[MAC]` | DHCP | 1 | Home device |
 
@@ -123,8 +123,8 @@
 | Admin PC — daily driver | [MAC_REDACTED] | 192.168.10.10 | HOME — VLAN 10 | `[Date]` | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
 | Admin Laptop | [MAC_REDACTED] | 192.168.10.11 | HOME — VLAN 10 | `[Date]` | ACL Rule 1 (Home-to-MGMT source) | Set before ACL rules |
 | Raspberry Pi — Pi-hole | [MAC_REDACTED] | 192.168.10.15 | HOME — VLAN 10 | `[Date]` | DNS target — no ACL rule needed while on HOME | Phase 1 only — update when moved to MGMT |
-| OC200 — Omada Controller | [MAC_REDACTED] | 192.168.99.1 | MGMT — VLAN 99 | `[Date]` | ACL Rule 1 destination | DHCP briefly enabled on MGMT to assign — disable after |
-| Philips Hue Bridge | `[MAC]` | `[192.168.30.x]` | IOT — VLAN 30 | `[Date — when moved]` | None needed | Set when moving to IOT VLAN |
+| OC200 — Omada Controller | [MAC_REDACTED] | 192.168.99.2 | MGMT — VLAN 99 | `[Date]` | ACL Rule 1 destination | DHCP briefly enabled on MGMT to assign — disable after |
+| Philips Hue Bridge | [MAC_REDACTED] | `[192.168.30.x]` | IOT — VLAN 30 | `[Date — when moved]` | None needed | Set when moving to IOT VLAN |
 
 ---
 
@@ -296,7 +296,7 @@
 | 09/03/26 | `[Time]` | ER605 | DHCP Reservations | Admin PC reservation set | No reservation | 192.168.10.10 reserved for Admin PC MAC | `[Y/N]` | Required before ACL rules referencing this IP |
 | 09/03/26 | `[Time]` | ER605 | DHCP Reservations | Admin Laptop reservation set | No reservation | 192.168.10.11 reserved for Admin Laptop MAC | `[Y/N]` | Required before ACL rules referencing this IP |
 | 09/03/26 | `[Time]` | ER605 | Gateway ACL | 7 Phase 1 ACL rules created | No ACL rules | Rules 1–7 created and enabled | `[Y/N]` | Phase 1 VLAN isolation policy |
-| 09/03/26 | `[Time]` | OC200 | Controller Settings | Controller IP changed | `[Old IP]` | 192.168.99.1 | `[Y/N]` | Move controller to MGMT VLAN |
+| 09/03/26 | `[Time]` | OC200 | Controller Settings | Controller IP changed | `[Old IP]` | 192.168.99.2 | `[Y/N]` | Move controller to MGMT VLAN |
 | `[Date]` | `[Time]` | TL-SG2008P | Port Profiles | Port 1 changed to MGMT profile | HOME / flat | MGMT — VLAN 99 | `[Y/N]` | Phase 1 port migration |
 | `[Date]` | `[Time]` | TL-SG2008P | Port Profiles | Port 3 changed to HOME profile | Flat network | HOME — VLAN 10 | `[Y/N]` | Phase 1 port migration — admin PC |
 | `[Date]` | `[Time]` | `[Device]` | `[Section]` | `[Description]` | `[Old value]` | `[New value]` | `[Y/N]` | `[Reason]` |
@@ -310,7 +310,7 @@
 - [ ] DHCP pools configured per VLAN
 - [ ] DHCP reservations set — Admin PC, Admin Laptop
 - [ ] 7 Gateway ACL rules created and enabled
-- [ ] OC200 static IP set to 192.168.99.1
+- [ ] OC200 static IP set to 192.168.99.2
 - [ ] TL-SG2008P management IP set to 192.168.99.10
 - [ ] Port profiles created in Omada
 - [ ] Media devices (TV, PS5) moved to VLAN 10 and tested

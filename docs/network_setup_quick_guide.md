@@ -27,6 +27,8 @@
 | Admin Laptop (if applicable) | 192.168.10.11 | [MAC_REDACTED] | Secondary admin device — add ACL permit line for this IP too |
 | Additional admin devices | 192.168.10.12+ |  | Any device you regularly use for server management |
 | Raspberry Pi | 192.168.10.15 | [MAC_REDACTED] | home vlan pi-hole - later network device |
+| OC200 — Omada Controller | 192.168.99.2 | [MAC_REDACTED] | MGMT — VLAN 99 | `[Date]` | ACL Rule 1 destination | DHCP briefly enabled on MGMT to assign — disable after |
+| Philips Hue Bridge | `[192.168.30.x]` | [MAC_REDACTED] | IOT — VLAN 30 | `[Date — when moved]` | None needed | Set when moving to IOT VLAN |
 
 Find a device's MAC address via: Windows — ipconfig /all | Android/iOS — Settings \> WiFi \> tap network \> Advanced | Linux — ip link show
 
