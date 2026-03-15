@@ -110,7 +110,7 @@
 | Cisco 1921 #2 | 192.168.20.253 | 20 | `[MAC]` | Static | 7 | VPN / lab — optional Phase 7 |
 | Philips Hue Bridge | `[192.168.30.5 — set when moved to IoT]` | 30 | [MAC_REDACTED] | Reservation | 1+ | Currently on HOME. Move to IOT VLAN 30 when 3750G live. Set static via Hue app after move. |
 | PS5 | `[DHCP .100–.200]` | 10 | `[MAC]` | DHCP | 1 | Home device |
-| TV | `[DHCP .100–.200]` | 10 | `[MAC]` | DHCP | 1 | Home device |
+| TV (viziocastdisplay) | `[DHCP .100–.200]` | 10 | [MAC_REDACTED] | DHCP | 1 | Home device |
 
 ---
 
