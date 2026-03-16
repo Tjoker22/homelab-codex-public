@@ -1,5 +1,5 @@
 # Network Settings Register
-**Site Name:** `JXStudio`  
+**Site Name:** `JXStudios`
 **Owner:** `[OWNER]`  
 **Storage:** `[https://github.com/[USERNAME]/proxmox_homelab]`  
 **Version:** `1.0`  

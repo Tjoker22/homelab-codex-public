@@ -1,5 +1,5 @@
 # Network Design Document
-**Site Name:** `JXStudio`  
+**Site Name:** `JXStudios`
 **Owner:** `[OWNER]`  
 **Storage:** `https://github.com/[USERNAME]/proxmox_homelab`  
 **Version:** `1.0`  
@@ -11,7 +11,7 @@
 ---
 
 > **How to use this document**  
-> This document captures the design rationale, architecture decisions, procedures, and configuration records for the JXStudio home lab network.  
+> This document captures the design rationale, architecture decisions, procedures, and configuration records for the JXStudios home lab network.  
 > The companion register (`network-settings-register-POPULATED.md`) holds the living settings tables — IPs, ACL rules, port assignments, and the change log.  
 > Update this document when architecture decisions change, new phases are completed, or procedures are revised.  
 > Both documents should be committed to the same Git repository together.
@@ -40,7 +40,7 @@
 
 | Field | Value |
 | --- | --- |
-| Site Name | JXStudio |
+| Site Name | JXStudios |
 | Owner | [OWNER] |
 | Storage Location | https://github.com/[USERNAME]/proxmox_homelab |
 | Current Version | 1.0 |

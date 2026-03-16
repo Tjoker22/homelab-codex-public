@@ -55,4 +55,4 @@ The repository documents a four-VLAN segmented home network with a phased deploy
 - **Network settings register** (`network_settings_register_populated.md`) is the authoritative source for IP addresses, MAC addresses, and DHCP reservations. Update it when adding or changing any device.
 - **Omada backups** in `configs/` are named with the format `omada_backup_<version>_<date>_<description>.cfg`. Add a new backup file rather than overwriting existing ones.
 - VM/LXC instances are documented using the template in `vms/universal_prox_instance_template.md`.
-- Domain: `jxstudios.dev`; Proxmox host: `192.168.20.10`; Nginx Proxy Manager: `192.168.20.50`.
+- Site name: `JXStudios`; Domain: `jxstudios.dev`; Proxmox host: `192.168.20.10`; Nginx Proxy Manager: `192.168.20.50`.
