@@ -156,11 +156,11 @@
 | Port | Profile | Untagged VLAN | Tagged VLANs | Native VLAN | Connected Device | Last Updated | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Port 1 | MGMT | 99 | None | 99 | OC200 — Omada Controller | `[Date]` | Change last — after all other ports confirmed |
-| Port 2 | HOME | 10 | None | 10 | WAP — TP-Link EAP | `[Date]` | Future: change to WAP-TRUNK for VLAN-aware SSIDs |
+| Port 2 | HOME | 10 | None | 10 | WAP — TP-Link EAP | 16/03/2026 | Future: change to WAP-TRUNK for VLAN-aware SSIDs |
 | Port 3 | HOME | 10 | None | 10 | Uplink to GS208 (port 8) | `[Date]` | Admin PC — 192.168.10.10 |
-| Port 4 | HOME | 10 | None | 10 | Xavier PC - 192.168.10.12 | `[Date]` |  |
-| Port 5 | HOME | 10 | None | 10 | Philips HUE Bridge | `[Date]` | Current location |
-| Port 6 | HOME | 10 | None | 10 | Downlink to GS305G | `[Date]` | Unmanaged switch connectiong Media |
+| Port 4 | HOME | 10 | None | 10 | Partner PC (DESKTOP-CE1DDUF) — 192.168.10.12 | 16/03/2026 |  |
+| Port 5 | HOME | 10 | None | 10 | Philips HUE Bridge | 16/03/2026 | Current location |
+| Port 6 | HOME | 10 | None | 10 | Downlink to GS305G | 16/03/2026 | Unmanaged switch connectiong Media |
 | Port 7 | TRUNK-ALL | None | 10,20,30,99 | 99 | 3750G Gi0/1 — inter-rack trunk | `[Date]` | Phase 2 — not connected yet |
 | Port 8 | LAN-Uplink | 10 | None | 10 | ER605 LAN port | `[Date]` |  |
 
@@ -303,6 +303,11 @@
 | 09/03/26 | `[Time]` | ER605 | DHCP Reservations | Admin Laptop reservation set | No reservation | 192.168.10.11 reserved for Admin Laptop MAC | `[Y/N]` | Required before ACL rules referencing this IP |
 | 09/03/26 | `[Time]` | ER605 | Gateway ACL | 7 Phase 1 ACL rules created | No ACL rules | Rules 1–7 created and enabled | `[Y/N]` | Phase 1 VLAN isolation policy |
 | 09/03/26 | `[Time]` | OC200 | Controller Settings | Controller IP changed | `[Old IP]` | 192.168.99.2 | `[Y/N]` | Move controller to MGMT VLAN |
+| 16/03/2026 | `[Time]` | TL-SG2008P | Port Profiles | Port 2 (EAP) changed to HOME profile | Flat/default | HOME — VLAN 10 | Y | Phase 1 port migration |
+| 16/03/2026 | `[Time]` | TL-SG2008P | Port Profiles | Port 4 (Partner PC / DESKTOP-CE1DDUF) changed to HOME profile | Flat/default | HOME — VLAN 10 | Y | Phase 1 port migration — device identified |
+| 16/03/2026 | `[Time]` | TL-SG2008P | Port Profiles | Port 5 (Philips Hue Bridge) changed to HOME profile | Flat/default | HOME — VLAN 10 | Y | Phase 1 port migration |
+| 16/03/2026 | `[Time]` | TL-SG2008P | Port Profiles | Port 6 (Vizio TV) changed to HOME profile | Flat/default | HOME — VLAN 10 | Y | Phase 1 port migration |
+| 16/03/2026 | `[Time]` | ER605 / Omada | VLAN 10 DHCP | Pi-hole DNS set as primary DNS for VLAN 10 | 1.1.1.1 | 192.168.10.15 | Y | Phase 1 Step 3 |
 | `[Date]` | `[Time]` | TL-SG2008P | Port Profiles | Port 1 changed to MGMT profile | HOME / flat | MGMT — VLAN 99 | `[Y/N]` | Phase 1 port migration |
 | `[Date]` | `[Time]` | TL-SG2008P | Port Profiles | Port 3 changed to HOME profile | Flat network | HOME — VLAN 10 | `[Y/N]` | Phase 1 port migration — admin PC |
 | `[Date]` | `[Time]` | `[Device]` | `[Section]` | `[Description]` | `[Old value]` | `[New value]` | `[Y/N]` | `[Reason]` |
@@ -318,13 +323,13 @@
 - [x] 7 Gateway ACL rules created and enabled
 - [x] OC200 static IP set to 192.168.99.2
 - [x] TL-SG2008P management IP set to 192.168.99.10
-- [ ] Port profiles created in Omada
+- [x] Port profiles created in Omada
 
 > ⬇️ Items below require the active maintenance window — VLANs configured but not yet live.
 
-- [ ] Media devices (TV, PS5) moved to VLAN 10 and tested
+- [x] Media devices (TV, PS5) moved to VLAN 10 and tested — TV confirmed ✅ | PS5 pending
 - [x] Raspberry Pi static IP removed — DHCP reservation set to 192.168.10.15
-- [ ] Pi-hole confirmed working on VLAN 10 — DNS updated in DHCP settings
+- [x] Pi-hole confirmed working on VLAN 10 — DNS updated in DHCP settings (Pi moves to VLAN 10 in Step 6)
 - [ ] Remaining home devices moved to VLAN 10
 - [ ] Admin laptop moved to VLAN 10 — confirmed 192.168.10.11
 - [ ] OC200 Port 1 and Admin PC Port 3 switched last — back to back
@@ -339,6 +344,6 @@
 
 ---
 
-*Last commit: `"Phase 1 prep - Updates to MACs / IPs. Added GS308 to Sec.7: Port Assignments"`*
-*Previous commit: `Phase 1 in progress — `*
+*Last commit: `"[Docs] Update — Phase 1 mid-window — Steps 1–3 complete, Partner PC MAC confirmed"`*
+*Previous commit: `"Phase 1 prep - Updates to MACs / IPs. Added GS308 to Sec.7: Port Assignments"`*
 

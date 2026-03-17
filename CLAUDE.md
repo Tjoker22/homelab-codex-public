@@ -97,7 +97,7 @@ Tier 2 — Management (admin devices only):
 | EAP653 — WAP | 192.168.99.x | 99 | [MAC_REDACTED] |
 | Admin PC | 192.168.10.10 | 10 | [MAC_REDACTED] |
 | Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] |
-| Partner PC | 192.168.10.12 | 10 | `[MAC pending]` |
+| Partner PC | 192.168.10.12 | 10 | [MAC_REDACTED] |
 | Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] |
 | Philips Hue Bridge | 192.168.30.5 | 30 | [MAC_REDACTED] |
 | Proxmox Host | 192.168.20.10 | 20 | `[MAC — Phase 4]` |

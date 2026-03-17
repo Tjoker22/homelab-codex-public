@@ -132,7 +132,7 @@ Caused by attempting login on the ER605 page while believing it was the OC200. 2
 | EAP653 | 192.168.99.x | 99 | [MAC_REDACTED] |
 | Admin PC | 192.168.10.10 | 10 | [MAC_REDACTED] |
 | Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] |
-| Partner PC | 192.168.10.12 | 10 | `[MAC]` |
+| Partner PC | 192.168.10.12 | 10 | [MAC_REDACTED] |
 | Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] |
 | Philips Hue Bridge | 192.168.30.5 | 30 | [MAC_REDACTED] |
 | Proxmox Host | 192.168.20.10 | 20 | `[MAC — Phase 4]` |
@@ -204,7 +204,7 @@ Caused by attempting login on the ER605 page while believing it was the OC200. 2
 Port 1  — OC200 Omada Controller     → Step 5 — last
 Port 2  — EAP653 WAP                 → ✅ Complete
 Port 3  — Raspberry Pi (MAC confirms)→ Step 6 — after Step 5
-Port 4  — DESKTOP-CE1DDUF            → identify then Step 6
+Port 4  — Partner PC (DESKTOP-CE1DDUF)  → ✅ Complete
 Port 5  — Philips Hue Bridge         → ✅ Complete — HOME
 Port 6  — Vizio TV                   → ✅ Complete
 Port 7  — Nothing connected          → leave
@@ -238,22 +238,18 @@ For Port 1 — OC200 only — do last:
 
 ---
 
-### Step 1 — Remaining Home Devices ✅ In Progress
+### Step 1 — Remaining Home Devices ✅ Complete
 
 ```
 ✅  Port 6 — Vizio TV          → HOME — verified
 ✅  Port 5 — Philips Hue Bridge → HOME — verified
-☐   Port 4 — DESKTOP-CE1DDUF   → identify first
+✅  Port 4 — Partner PC (DESKTOP-CE1DDUF) → HOME — verified
+    IP: 192.168.10.12 | MAC: [MAC_REDACTED]
 
-To identify Port 4 device:
-  Check hostname on each machine — Windows: open terminal → hostname
-  Match to DESKTOP-CE1DDUF
-  Change to HOME profile once confirmed
-
-Verify after each port change:
-  ☐  Device shows 192.168.10.x in Omada → Clients
-  ☐  Internet works on the device
-  ☐  No other devices lost connectivity
+Verified:
+  ✅  Device shows 192.168.10.12 in Omada → Clients
+  ✅  Internet works on the device
+  ✅  No other devices lost connectivity
 ```
 
 ---
@@ -271,7 +267,7 @@ Verify after each port change:
 
 ---
 
-### Step 3 — Update Pi-hole DNS in Omada
+### Step 3 — Update Pi-hole DNS in Omada ✅ Complete
 
 ```
 Do from Admin PC — still has flat network dashboard access
@@ -285,7 +281,7 @@ Action:
 Note: Pi not yet on VLAN 10 — takes effect after Step 6.
 
 Verify:
-  ☐  DNS saved as 192.168.10.15 in VLAN 10 config
+  ✅  DNS saved as 192.168.10.15 in VLAN 10 config
 ```
 
 ---
@@ -517,4 +513,4 @@ Unexpected outage on any port change:
 
 ---
 
-*Last updated: 16/03/2026 — Pre-window prep complete. Maintenance window ready to begin.*
+*Last updated: 16/03/2026 — Mid-window update. Steps 1–3 complete. Steps 4–6 pending.*
