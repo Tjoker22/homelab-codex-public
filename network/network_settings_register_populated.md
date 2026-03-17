@@ -308,6 +308,9 @@
 | 16/03/2026 | `[Time]` | TL-SG2008P | Port Profiles | Port 5 (Philips Hue Bridge) changed to HOME profile | Flat/default | HOME — VLAN 10 | Y | Phase 1 port migration |
 | 16/03/2026 | `[Time]` | TL-SG2008P | Port Profiles | Port 6 (Vizio TV) changed to HOME profile | Flat/default | HOME — VLAN 10 | Y | Phase 1 port migration |
 | 16/03/2026 | `[Time]` | ER605 / Omada | VLAN 10 DHCP | Pi-hole DNS set as primary DNS for VLAN 10 | 1.1.1.1 | 192.168.10.15 | Y | Phase 1 Step 3 |
+| 16/03/2026 | `[Time]` | TL-SG2008P | VLAN Interface | Management VLAN changed from Default (1) to MGMT (99) | VLAN 1 (default) | VLAN 99 (MGMT) | Y | Phase 1 Step 4 |
+| 16/03/2026 | `[Time]` | OC200 | Port 1 / Recovery | Port 1 changed to MGMT profile — OC200 unreachable, no DHCP on MGMT. Factory reset + config restore performed. | HOME/flat | Reset — config restored | N | Incident — DHCP missing on MGMT VLAN |
+| 16/03/2026 | `[Time]` | ER605 | Adoption | ER605 not re-adopting post-restore — internet functional, management plane issue | Adopted | Not adopted | N | Pending resolution next session |
 | `[Date]` | `[Time]` | TL-SG2008P | Port Profiles | Port 1 changed to MGMT profile | HOME / flat | MGMT — VLAN 99 | `[Y/N]` | Phase 1 port migration |
 | `[Date]` | `[Time]` | TL-SG2008P | Port Profiles | Port 3 changed to HOME profile | Flat network | HOME — VLAN 10 | `[Y/N]` | Phase 1 port migration — admin PC |
 | `[Date]` | `[Time]` | `[Device]` | `[Section]` | `[Description]` | `[Old value]` | `[New value]` | `[Y/N]` | `[Reason]` |

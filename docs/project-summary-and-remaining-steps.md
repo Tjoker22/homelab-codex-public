@@ -1,7 +1,7 @@
 # JXStudio Home Lab — Project Summary & Remaining Steps
 **Site:** JXStudio  
 **Date:** 16/03/2026  
-**Status:** Phase 1 — Pre-window prep COMPLETE. Maintenance window today.  
+**Status:** Phase 1 — Maintenance window PAUSED. Recovery in progress. See incident record below.
 **Companion Files:** `network-design-document.md` | `network-settings-register-POPULATED.md`
 
 ---
@@ -286,7 +286,7 @@ Verify:
 
 ---
 
-### Step 4 — SG2008P Management VLAN → 99
+### Step 4 — SG2008P Management VLAN → 99 ✅ Complete
 
 ```
 Do from Admin PC — still has flat network dashboard access
@@ -304,46 +304,43 @@ Action:
      VLAN change.
 
 Verify:
-  ☐  Switch still shows Connected in Omada Devices
-  ☐  Switch config still accessible from Admin PC
-  ☐  Do not proceed to Step 5 until confirmed connected
+  ✅  Switch still shows Connected in Omada Devices
+  ✅  Switch config still accessible from Admin PC
+  ✅  Do not proceed to Step 5 until confirmed connected
 ```
 
 ---
 
-### Step 5 — OC200 Port → MGMT Profile
+### Step 5 — OC200 Port → MGMT Profile ⚠️ Attempted — Failed — Recovery Complete
 
 ```
-Do from Admin PC — last action before it loses flat network access
+⚠️  INCIDENT — See incident record below.
 
-Pre-flight before touching Port 1:
-  ☐  Admin Laptop on 192.168.10.11 with internet — confirmed
-  ☐  SG2008P management VLAN confirmed on 99 — Step 4 done
-  ☐  Dashboard URL ready: https://192.168.99.2:8043
-  ☐  Credentials confirmed
+Pre-flight (all confirmed before attempt):
+  ✅  Admin Laptop on 192.168.10.11 with internet
+  ✅  SG2008P management VLAN confirmed on 99
+  ✅  Dashboard URL ready: https://192.168.99.2:8043
+  ✅  Credentials confirmed
 
-Action:
-  Devices → SG2008P → Ports → Port Settings
-  Click Port 1 (OC200)
-  Set fields as per How to Change a Port — MGMT values
-  Apply
-  Dashboard goes offline immediately — expected
-  OC200 picks up 192.168.99.2 from DHCP reservation
+Action taken:
+  Port 1 (OC200) set to MGMT profile and applied.
+  Dashboard went offline — expected.
+  OC200 did NOT come back at 192.168.99.2.
 
-Reconnect from Admin Laptop:
-  Open browser → https://192.168.99.2:8043
-  Accept certificate warning — click Advanced → Proceed
-  Log in
+Root cause:
+  DHCP is disabled on MGMT VLAN 99.
+  OC200 could not get its DHCP reservation (192.168.99.2).
+  Port was moved but no IP address was assigned.
+  Controller unreachable.
 
-  ★  Admin Laptop is now primary dashboard access
-     ACL Rule 1 permits HOME (192.168.10.11) → MGMT (192.168.99.2)
+Recovery:
+  OC200 factory reset performed.
+  Config restored from last known good backup.
 
-Verify from Admin Laptop:
-  ☐  Dashboard loads at https://192.168.99.2:8043
-  ☐  All devices adopted — none disconnected or pending
-  ☐  SG2008P shows Connected in Devices
-  ☐  ER605 shows Connected in Devices
-  ☐  EAP shows Connected in Devices
+Current state (end of session):
+  ⚠️  ER605 not re-adopting to controller — management plane issue
+  ✅  Internet working on all home devices
+  ☐  Step 5 not yet complete — requires pre-work before retry
 ```
 
 ---
@@ -443,6 +440,56 @@ Unexpected outage on any port change:
 
 ---
 
+## ⚠️ Maintenance Window Incident — 16/03/2026
+
+### OC200 DHCP Failure on MGMT Port Change
+
+**What happened:**
+Port 1 (OC200) was changed to MGMT profile (Step 5). Dashboard went offline
+as expected. OC200 did not come back at 192.168.99.2.
+
+**Root cause:**
+DHCP is disabled on MGMT VLAN 99. The OC200 needs a DHCP offer to pick up
+its reserved IP. With no DHCP pool on VLAN 99, no address was assigned.
+
+**Resolution:**
+OC200 factory reset. Config restored from backup taken after VLANs, DHCP,
+reservations, ACL rules, IP Groups, and port profiles.
+
+**Current state:**
+ER605 not re-adopting to controller post-restore. Internet is functional.
+Management plane only. Resolving next session.
+
+**Fix for next attempt (Step 5 pre-work):**
+Enable temporary DHCP pool on MGMT VLAN 99 before next port change attempt:
+  Range: 192.168.99.100 – 192.168.99.110
+  This allows OC200 to receive a DHCP offer and pick up reservation 192.168.99.2.
+  Disable the pool after OC200 is confirmed at 192.168.99.2.
+
+---
+
+## Next Session — Tasks Before Retry Window
+
+Complete these before attempting Step 5 again:
+
+- [ ] Resolve ER605 re-adoption to controller
+      → Try: Devices → Forget → re-adopt via ER605 admin panel
+      → Verify: ER605 shows Connected in Omada Devices
+- [ ] Enable temporary DHCP pool on MGMT VLAN 99
+      → Settings → Wired Networks → LAN → MGMT (99)
+      → Enable DHCP, range 192.168.99.100–192.168.99.110
+      → This is temporary — disable after Step 5 completes
+- [ ] Confirm all devices still adopted and working
+      → EAP, SG2008P, ER605 all Connected
+- [ ] Take fresh config backup
+      → System → Backup & Restore → Backup
+      → Save to configs/ as omada_backup_v[x]_16-03-26_post-recovery.cfg
+- [ ] Git commit backup file
+
+Once these are done — proceed with Step 5 retry.
+
+---
+
 ## Future Phases — Remaining Work
 
 ### Phase 2 — Catalyst 3750G
@@ -513,4 +560,4 @@ Unexpected outage on any port change:
 
 ---
 
-*Last updated: 16/03/2026 — Mid-window update. Steps 1–3 complete. Steps 4–6 pending.*
+*Last updated: 16/03/2026 — Maintenance window paused. Step 4 complete. Step 5 failed — incident logged. Next session pre-work tasks added.*
