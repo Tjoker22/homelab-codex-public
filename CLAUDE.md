@@ -38,7 +38,7 @@ If a task requires a design decision not covered in this file or the architectur
 
 ## Architecture Overview
 
-**Hardware Stack:**
+### Network Hardware Stack
 
 | Device | Model | Role | Mgmt IP |
 |--------|-------|------|---------|
@@ -46,23 +46,36 @@ If a task requires a design decision not covered in this file or the architectur
 | Managed Switch | TP-Link TL-SG2008P | PoE switch | 192.168.99.10 |
 | Controller | TP-Link OC200 | Omada controller | 192.168.99.2 |
 | WAP | TP-Link EAP653 (US) | Wireless access point | 192.168.99.x |
-| DNS | Raspberry Pi | Pi-hole DNS server | 192.168.10.15 |
+| DNS / MGMT | Raspberry Pi 5 8GB | Pi-hole primary, Tailscale primary, MGMT device | 192.168.99.5 |
 | L3 Core Switch | Cisco Catalyst 3750G | Inter-VLAN routing (Phase 2) | 192.168.99.3 |
 | L2 Access Switch | Cisco Catalyst 2960G | Lab access layer (Phase 3) | 192.168.99.4 |
-| Hypervisor | Proxmox | VM and LXC host (Phase 4) | 192.168.20.10 |
-| Reverse Proxy | Nginx Proxy Manager | Service proxy LXC (Phase 5) | 192.168.20.50 |
-| Remote Access | Tailscale LXC | Subnet router (Phase 6) | 192.168.20.51 |
+| Hypervisor | Proxmox — genesis2 | VM and LXC host (Phase 1) | 192.168.20.10 |
+| Reverse Proxy | Nginx Proxy Manager | Service proxy LXC (Phase 2) | 192.168.20.50 |
+| Remote Access | Tailscale LXC | Subnet router co-advertiser (Phase 2) | 192.168.20.51 |
 
-**VLAN Scheme:**
+### Genesis2 Hardware
+
+| Component | Spec |
+|-----------|------|
+| Hostname | genesis2 |
+| Chassis | NZXT |
+| CPU | AMD Ryzen 7 5700X @ 3.4 GHz (8c/16t) |
+| GPU | NVIDIA MSI GeForce RTX 2060 6GB — passthrough Phase 6 |
+| RAM | 64 GB DDR4-3600 MHz (expandable to 128 GB) |
+| Boot Drive | 256 GB 2.5" SSD — Proxmox OS and ISO storage |
+| Data Drives | 3× 500 GB 2.5" HDD — RAIDZ1 pool (1 TB usable) |
+| Final IP | 192.168.20.10 — VLAN 20 LAB |
+
+### VLAN Scheme
 
 | VLAN | Name | Subnet | Gateway | Purpose |
 |------|------|--------|---------|---------|
-| 10 | HOME | 192.168.10.0/24 | 192.168.10.1 | Home devices, personal PCs, Pi-hole |
+| 10 | HOME | 192.168.10.0/24 | 192.168.10.1 | Home devices, personal PCs, Pi-hole Phase 1 |
 | 20 | LAB | 192.168.20.0/24 | 192.168.20.1 | Servers, VMs, infrastructure |
 | 30 | IOT | 192.168.30.0/24 | 192.168.30.1 | Smart home — fully isolated |
 | 99 | MGMT | 192.168.99.0/24 | 192.168.99.1 | Network management only |
 
-**Security Model:**
+### Security Model
 - Home devices reach lab services only via Nginx Proxy Manager (192.168.20.50)
 - IoT is fully isolated — no cross-VLAN access in any direction
 - Admin-only ACLs gate direct management access to Proxmox and SSH
@@ -89,25 +102,49 @@ Tier 2 — Management (admin devices only):
 
 ## IP and MAC Register
 
+### Network Devices
+
 | Device | IP | VLAN | MAC |
 |--------|-----|------|-----|
 | ER605 — WAN Gateway | 192.168.10.1 | 10 | [MAC_REDACTED] |
 | OC200 — Omada Controller | 192.168.99.2 | 99 | [MAC_REDACTED] |
 | TL-SG2008P — Switch | 192.168.99.10 | 99 | [MAC_REDACTED] |
 | EAP653 — WAP | 192.168.99.x | 99 | [MAC_REDACTED] |
+| Raspberry Pi 5 — MGMT/DNS | 192.168.99.5 | 99 | [MAC_REDACTED] |
 | Admin PC | 192.168.10.10 | 10 | [MAC_REDACTED] |
 | Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] |
-| Partner PC | 192.168.10.12 | 10 | [MAC_REDACTED] |
-| Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] |
+| Partner PC | 192.168.10.12 | 10 | `[MAC pending]` |
 | Philips Hue Bridge | 192.168.30.5 | 30 | [MAC_REDACTED] |
-| Proxmox Host | 192.168.20.10 | 20 | `[MAC — Phase 4]` |
-| Nginx Proxy Manager | 192.168.20.50 | 20 | N/A — VM |
-| Tailscale LXC | 192.168.20.51 | 20 | N/A — LXC |
-| 3750G SVI MGMT | 192.168.99.3 | 99 | N/A |
-| 2960G MGMT | 192.168.99.4 | 99 | N/A |
-| Pi-hole (Phase 2+) | 192.168.99.5 | 99 | Same Pi MAC |
 
-> Full register with change log: `network/network_settings_register_populated.md`
+### Genesis2 VM and LXC Register — LAB VLAN 192.168.20.0/24
+
+> Full register with zone rationale: `docs/genesis2-project-genesis-plan.md`
+
+| VMID | IP | Hostname | Type | Role | Phase |
+|------|-----|----------|------|------|-------|
+| — | .10 | genesis2 | Physical | Proxmox host | 1 |
+| 220 | .20 | prometheus | LXC | Prometheus + pve_exporter + Node Exporter | 1 |
+| 221 | .21 | grafana | LXC | Grafana dashboards | 1 |
+| 222 | .22 | loki | LXC | Loki log aggregation | 1 |
+| 230 | .30 | pihole2 | LXC | Pi-hole secondary DNS | 2 |
+| 240 | .40 | forgejo | LXC | Forgejo internal Git | 3 |
+| 250 | .50 | npm | LXC | Nginx Proxy Manager | 2 |
+| 251 | .51 | tailscale | LXC | Tailscale subnet router | 2 |
+| 360 | .60 | nextcloud | VM | Nextcloud — multi-user | 4 |
+| 261 | .61 | homepage | LXC | Homepage dashboard | 4 |
+| 262 | .62 | jxstudios | LXC | jxstudios.dev website | 5 |
+| 380 | .80 | ollama | VM | Ollama + Open WebUI — GPU passthrough | 6 |
+
+### VMID Convention
+
+| Hundreds Digit | Type |
+|---|---|
+| 2xx | LXC container |
+| 3xx | Virtual Machine (VM) |
+
+Last two digits mirror the IP last octet. Example: VMID 251 = LXC at 192.168.20.51.  
+Scratch containers (IPs .90–.99) use VMIDs 290–299 (LXC) or 390–399 (VM).  
+Never reuse a VMID after a container is deleted — retire it.
 
 ---
 
@@ -115,15 +152,16 @@ Tier 2 — Management (admin devices only):
 
 | Phase | Focus | Status |
 |-------|-------|--------|
-| 1 | Omada ISP rack — VLANs, DHCP, ACL, Pi-hole DNS | ✳️ In progress — maintenance window today |
+| 1 | Omada ISP rack — VLANs, DHCP, ACL, Pi-hole DNS | ✳️ In progress — maintenance window Monday |
+| 1b | Genesis2 — Proxmox install, ZFS pool, observability stack | 🔲 Planning complete — install session pending |
 | 2 | Cisco Catalyst 3750G — L3 core switch | 🔲 Not started |
 | 3 | Cisco Catalyst 2960G — L2 access switch (optional) | 🔲 Not started |
-| 4 | Proxmox hypervisor | 🔲 Not started |
-| 5 | Nginx Proxy Manager reverse proxy | 🔲 Not started |
-| 6 | Tailscale subnet router LXC | 🔲 Not started |
+| 4 | Nextcloud, Homepage dashboard | 🔲 Not started |
+| 5 | jxstudios.dev website | 🔲 Not started |
+| 6 | Ollama + Open WebUI — GPU passthrough | 🔲 Not started |
 | 7 | Cisco 1921 edge routers (optional) | 🔲 Not started |
 
-> Current active phase is Phase 1. Only work on tasks within the current phase unless explicitly instructed otherwise.
+> Note: NPM and Tailscale (previously labelled Phase 5/6) are now Phase 2 — they are infrastructure services, not applications.
 
 ---
 
@@ -133,43 +171,47 @@ Tier 2 — Management (admin devices only):
 |------|---------|
 | `CLAUDE.md` | This file — primary context for Claude Code |
 | `docs/project-summary-and-remaining-steps.md` | Current project state, remaining steps, maintenance window checklist |
-| `network/network_design_document_populated.md` | Primary architecture document — design decisions, ACL rules, config procedures |
-| `network/network_settings_register_populated.md` | Live IP/MAC/DHCP register — authoritative source of truth for all assignments |
+| `docs/genesis2-project-genesis-plan.md` | Genesis2 server planning — hardware, storage, VM register, service stack |
+| `network/network_design_document_populated.md` | Primary network architecture document |
+| `network/network_settings_register_populated.md` | Live IP/MAC/DHCP register — authoritative source of truth |
 | `network/network_inventory.csv` | Switch port assignment history |
-| `network/network_map_3_1_26.drawio` | Network diagram source (edit with draw.io) |
-| `docs/network_setup_quick_guide.md` | Step-by-step Phase 1 ER605 configuration |
-| `docs/network_setup_quick_guide_part_2` | Phase 1 continued — Omada switch, Pi-hole |
-| `host_setup.md` | Proxmox post-install configuration guide |
-| `configs/` | TP-Link Omada controller backup `.cfg` files |
+| `network/network_map_3_1_26.drawio` | Network diagram source |
+| `docs/network_setup_quick_guide.md` | Phase 1 ER605 configuration guide |
+| `host_setup.md` | Proxmox post-install configuration guide — to be updated for Genesis2 |
+| `configs/` | TP-Link Omada controller backups and Cisco IOS running configs |
 | `vms/universal_prox_instance_template.md` | Template for documenting new VMs and LXCs |
 
 ---
 
 ## Conventions
 
-- **Network settings register** (`network/network_settings_register_populated.md`) is the authoritative source for IP addresses, MAC addresses, and DHCP reservations. Update it whenever any device is added or changed.
-- **Omada backups** in `configs/` use the format `omada_backup_<version>_<date>_<description>.cfg`. Always add a new file — never overwrite existing backups.
-- **VM/LXC instances** are documented using the template in `vms/universal_prox_instance_template.md`.
-- **Site name:** `JXStudios` — **Domain:** `jxstudios.dev` — **Proxmox host:** `192.168.20.10` — **Nginx Proxy Manager:** `192.168.20.50`
+- **Network settings register** is the authoritative source for IP addresses, MACs, and DHCP reservations. Update it whenever any device is added or changed.
+- **VM/LXC register** for Genesis2 is maintained in both this file (summary table) and `docs/genesis2-project-genesis-plan.md` (full detail).
+- **VMID convention:** 2xx = LXC, 3xx = VM. Last two digits mirror IP last octet. Enforced from first container — no exceptions.
+- **Omada backups** use format `omada_backup_<version>_<date>_<description>.cfg`. Always add new file — never overwrite.
+- **Cisco configs** stored as plain text in `configs/cisco/`.
+- **Site name:** `JXStudios` — **Domain:** `jxstudios.dev` — **Proxmox host:** `192.168.20.10`
 
 ---
 
 ## What Claude Code Should Do
 
 - Keep `network_settings_register_populated.md` accurate after any network change
+- Keep `genesis2-project-genesis-plan.md` accurate after any Genesis2 service change
 - Update phase checklists in `project-summary-and-remaining-steps.md` as tasks complete
 - Add change log entries to the register when network changes are made
 - Write utility scripts for network tasks — ping sweeps, connectivity tests, lease checks
-- Write Proxmox setup scripts for VMs and LXCs (Phase 4+)
-- Write service deployment scripts and compose files (Phase 5+)
+- Write Proxmox setup scripts for VMs and LXCs
+- Write service deployment scripts and compose files
 - Store all Cisco IOS running configs in `configs/cisco/` as plain text
-- Never commit secrets, passwords, or API keys — use `.env` files and keep them in `.gitignore`
+- Never commit secrets, passwords, or API keys — use `.env` files in `.gitignore`
 
 ## What Claude Code Should NOT Do
 
 ```
 ✘  Change network architecture decisions — refer to architect
 ✘  Modify VLAN numbering, IP addressing, or ACL policy
+✘  Change VMID convention or VM/LXC IP assignments
 ✘  Create Proxmox VMs or LXCs outside the defined IP ranges
 ✘  Add Proxmox to the reverse proxy — ever
 ✘  Skip phases or implement ahead of the current phase
@@ -220,6 +262,7 @@ Phase: [phase number]
 
 Examples:
 [Phase 1] Add — network ping sweep script — verify device connectivity post-cutover
+[Phase 1b] Add — ZFS pool creation procedure — Genesis2 post-install
 [Phase 4] Update — Proxmox LXC deploy script — add VLAN tag parameter
 [Docs] Update — settings register — post-window Phase 1 completion
 [Config] Add — 3750G initial running config — Phase 2 baseline
@@ -251,10 +294,12 @@ Claude Code may freely update these sections as the repo evolves:
 - Key Files table — add new files as they are created
 - Phase Status — mark phases complete, do not add new phases
 - IP and MAC Register — add MACs when devices come online
+- VM/LXC Register — update status as containers are created
 
 Claude Code must not modify these sections without explicit architect instruction:
 - Two-Tier Access Rule
 - VLAN Scheme and subnets
+- VMID Convention
 - What Claude Code Should NOT Do
 - Architecture Overview hardware roles
 
@@ -269,13 +314,16 @@ After any network change, task completion, or phase milestone:
    → Add change log entry
    → Update relevant section
 
-2. Update project-summary-and-remaining-steps.md
+2. Update genesis2-project-genesis-plan.md (if Genesis2 change)
+   → Update VM/LXC register
+   → Update service stack status
+
+3. Update project-summary-and-remaining-steps.md
    → Mark completed checklist items
    → Note any new issues or decisions
 
-3. Commit both together:
-   git add network/network_settings_register_populated.md \
-           docs/project-summary-and-remaining-steps.md
+4. Commit together:
+   git add [changed files]
    git commit -m "[Docs] Update — [what changed]"
    git push
 ```
@@ -301,10 +349,10 @@ ping 192.168.99.2
 sudo nmcli con delete direct-oc200
 ```
 
-Config backups location: `configs/`
+Config backups location: `configs/`  
 Last known good backup: taken after VLANs, DHCP, reservations, ACL rules, IP Groups — pre-port-profile baseline.
 
 ---
 
-*CLAUDE.md version: 2.0 — 16/03/2026 — merged architect context and repo scan*
-*Next review: After Phase 1 maintenance window complete*
+*CLAUDE.md version: 3.0 — 18/03/2026 — Added Genesis2 hardware, VM register, VMID convention, MGMT Pi role*  
+*Next review: After Phase 1 maintenance window complete and Genesis2 Proxmox install session*

@@ -1,8 +1,8 @@
 # JXStudio Home Lab — Project Summary & Remaining Steps
-**Site:** JXStudio  
-**Date:** 16/03/2026  
-**Status:** Phase 1 — Maintenance window PAUSED. Recovery in progress. See incident record below.
-**Companion Files:** `network-design-document.md` | `network-settings-register-POPULATED.md`
+**Site:** JXStudios  
+**Date:** 18/03/2026  
+**Status:** Phase 1 — Network maintenance window scheduled Monday. Genesis2 planning complete.  
+**Companion Files:** `network_design_document_populated.md` | `network_settings_register_populated.md` | `genesis2-project-genesis-plan.md`
 
 ---
 
@@ -29,11 +29,11 @@
 
 ## Conversation Summary
 
-This document summarises the full planning and build session for the JXStudio home lab network. It covers every major decision made, every issue encountered, and the current state of the project heading into the maintenance window.
+This document summarises the full planning and build sessions for the JXStudios home lab network. It covers every major decision made, every issue encountered, and the current state of the project.
 
 ---
 
-### What Was Built — The Architecture
+### What Was Built — Network Architecture
 
 A four-VLAN segmented home lab network designed around an ISP rack (TP-Link Omada) and a server rack (Cisco). The design separates home devices, lab infrastructure, IoT devices, and network management into isolated networks with explicit inter-VLAN policy enforcement.
 
@@ -54,57 +54,110 @@ A four-VLAN segmented home lab network designed around an ISP rack (TP-Link Omad
 | TP-Link SG2008P v3.20 | SG2008BP | Managed PoE Switch | 192.168.99.10 | Active |
 | TP-Link OC200 | OC200 | Omada Controller | 192.168.99.2 | Active |
 | TP-Link EAP653 (US) v1.0 | EAP653 | Wireless AP | 192.168.99.x | Active |
-| Raspberry Pi | `[model]` | Pi-hole DNS | 192.168.10.15 | Active — static IP removed ✅ |
+| Raspberry Pi 5 8GB | Pi 5 | MGMT device / Pi-hole / Tailscale | 192.168.99.5 | Active — Phase 2 MGMT migration |
+| Proxmox Server — genesis2 | Custom | Hypervisor | 192.168.20.10 | Planning complete — install pending |
 | Cisco Catalyst 3750G | 3750G | L3 Core Switch | 192.168.99.3 | Planned — Phase 2 |
 | Cisco Catalyst 2960G | 2960G | L2 Access / Lab | 192.168.99.4 | Planned — Phase 2/3 |
-| Proxmox Server | `[model]` | Hypervisor | 192.168.20.10 | Planned — Phase 4 |
 | Cisco 1921 x2 | 1921 | Lab Edge / VPN | .20.254 / .20.253 | Planned — Phase 7 |
 
 ---
 
-### Key Decisions Made
+### What Was Built — Genesis2 Server (Project Genesis)
 
-**Switch Stack — Decision Pending**
-Option A (3750G only, 2960G free for lab) vs Option B (both in production). Not yet confirmed — update the document header when decided.
+A Proxmox-based home lab server planned and designed in Session 2. Full detail in `docs/genesis2-project-genesis-plan.md`.
+
+**Hardware:**
+
+| Component | Spec |
+|-----------|------|
+| CPU | AMD Ryzen 7 5700X @ 3.4 GHz |
+| GPU | NVIDIA MSI GeForce RTX 2060 6GB — passthrough Phase 6 |
+| RAM | 64 GB DDR4-3600 MHz |
+| Boot | 256 GB 2.5" SSD |
+| Data | 3× 500 GB 2.5" HDD — RAIDZ1 (1 TB usable) |
+
+**VM/LXC Register Summary:**
+
+| VMID | IP | Hostname | Type | Role | Phase |
+|------|-----|----------|------|------|-------|
+| 220 | .20 | prometheus | LXC | Prometheus + exporters | 1b |
+| 221 | .21 | grafana | LXC | Grafana dashboards | 1b |
+| 222 | .22 | loki | LXC | Loki log aggregation | 1b |
+| 230 | .30 | pihole2 | LXC | Pi-hole secondary DNS | 2 |
+| 240 | .40 | forgejo | LXC | Forgejo internal Git | 3 |
+| 250 | .50 | npm | LXC | Nginx Proxy Manager | 2 |
+| 251 | .51 | tailscale | LXC | Tailscale subnet router | 2 |
+| 360 | .60 | nextcloud | VM | Nextcloud | 4 |
+| 261 | .61 | homepage | LXC | Homepage dashboard | 4 |
+| 262 | .62 | jxstudios | LXC | jxstudios.dev website | 5 |
+| 380 | .80 | ollama | VM | Ollama + Open WebUI — GPU passthrough | 6 |
+
+---
+
+### Key Decisions Made — Network
+
+**Switch Stack — Option A Confirmed**
+3750G only in production. 2960G free for lab experiments with 1921 routers.
 
 **DNS Architecture — Two Phase**
-- Phase 1: Pi-hole at 192.168.10.15 serves VLAN 10 only. No cross-VLAN ACL rules needed.
-- Phase 2+: Pi moves to MGMT at 192.168.99.5. Serves all VLANs. DNS permit ACL rules added at that point.
+- Phase 1: Pi-hole at 192.168.10.15 serves VLAN 10 only
+- Phase 2+: Pi moves to MGMT at 192.168.99.5. Serves all VLANs. Genesis2 pihole2 LXC is secondary via Gravity Sync
 
 **Controller IP — DHCP Reservation Approach**
-After two failed attempts to manually change the OC200 IP (both resulting in auth failure and loss of access), the decision was made to use a DHCP reservation instead. The OC200 MAC ([MAC_REDACTED]) is reserved to 192.168.99.2. When Port 1 switches to MGMT profile during the maintenance window the controller picks up 192.168.99.2 automatically from the reservation. No manual IP change required.
-
-**SG2008P Management VLAN — Maintenance Window Only**
-In Omada 6.x the switch management VLAN is configured via VLAN Interface in the device config sidebar — not a simple IP field. Changing it before the port profiles are applied physically would cause the controller to lose the switch immediately. This step is performed during the maintenance window after trunk and MGMT port assignments are confirmed working.
+OC200 MAC reserved to 192.168.99.2. Picks up address automatically when Port 1 switches to MGMT profile.
 
 **ACL Enforcement — Two Layer**
-- Omada Gateway ACL handles broad VLAN-to-VLAN policy (Phase 1 active)
-- Cisco 3750G IOS ACLs handle host-level fine-grained rules (Phase 2+)
+- Omada Gateway ACL: broad VLAN-to-VLAN policy (Phase 1 active)
+- Cisco 3750G IOS ACLs: host-level fine-grained rules (Phase 2+)
 
 **Two-Tier Access Architecture**
-- Tier 1 (Services): Home devices → Reverse Proxy (192.168.20.50) only
-- Tier 2 (Management): Specific admin IPs → Proxmox :8006 / SSH direct only
+- Tier 1: Home devices → Reverse Proxy (192.168.20.50) only
+- Tier 2: Admin IPs → Proxmox :8006 / SSH direct only
 - Proxmox is never a reverse proxy target
 
-**Port Profiles in Omada 6.x — Behaviour Only**
-In Omada 6.1.0.19 VLAN settings were removed from port profiles entirely. Port profiles are now behaviour-only templates (PoE, flow control, spanning tree). VLAN assignment is done directly on ports in Port Settings during the maintenance window.
+**Network Rollback — 18/03/2026**
+MGMT VLAN configuration encountered issues during previous attempt. Network rolled back to flat 192.168.0.0/24. All backend VLAN structure, DHCP pools, reservations, and ACL rules remain intact in Omada. Maintenance window rescheduled to Monday. Genesis2 planning session used the intervening time productively.
+
+### Key Decisions Made — Genesis2
+
+**Storage: RAIDZ1**
+Three 500 GB HDDs as RAIDZ1 pool. 1 TB usable. Industry-relevant ZFS skill, checksumming, single-drive fault tolerance. SSD for Proxmox OS and ISOs.
+
+**VMID Convention: 2xx LXC / 3xx VM**
+Last two digits mirror IP last octet. Type and IP readable from ID alone.
+
+**Pi as Primary DNS and Tailscale**
+Pi 5 is always-on, no planned maintenance. Genesis2 is secondary/backup for DNS. Same for Tailscale subnet routing.
+
+**Observability First**
+PLG stack (Prometheus, Loki, Grafana) deployed before any application services.
+
+**Nextcloud as VM, Multi-user from Day One**
+OS-level isolation appropriate for real user data. Migration from single-user later is painful — building ahead costs little.
+
+**Forgejo over Gitea**
+Better community trajectory post-fork. API-compatible. Push mirror to GitHub supported natively.
+
+**jxstudios.dev: Astro**
+Modern static site generator. Strong portfolio signal. No CMS overhead needed.
 
 ---
 
 ### Issues Encountered and Resolved
 
 **OC200 Controller Access Loss — Twice**
-Root cause: Manually changing the controller IP while actively managing a live network caused the application service to enter a half-started auth state. Web UI loaded but authentication failed consistently.
-Resolution: Factory reset with config backup restore. IP change handled via DHCP reservation during maintenance window — no manual change required.
+Root cause: Manually changing controller IP caused auth failure state.
+Resolution: Factory reset with config backup restore. IP via DHCP reservation during maintenance window.
 
-**SG2008P Management IP Path Changed in 6.x**
-The switch management VLAN is no longer under Config > Advanced. It is now under VLAN Interface in the device config sidebar. Changing this before the physical port configuration is in place loses the switch from the controller.
+**MGMT VLAN Window Rollback**
+Root cause: Issues encountered during MGMT VLAN configuration.
+Resolution: Rolled back to flat network. Pre-window prep remains complete. Monday window replanned.
+
+**ER605 Login Lockout**
+Caused by login attempts on wrong device. 2 hour timer. Resolution: wait.
 
 **Direct Access Recovery Procedure — For Reference**
-If the controller becomes unreachable on the network:
 ```bash
-# Connect patch cable: Laptop ETH → OC200 ETH2 (not ETH1 — Port 1 carries PoE power)
-# Set static IP on Fedora laptop
 sudo nmcli con add type ethernet \
   ifname [iface] \
   con-name direct-oc200 \
@@ -112,13 +165,9 @@ sudo nmcli con add type ethernet \
   gw4 192.168.99.2
 sudo nmcli con up direct-oc200
 ping 192.168.99.2
-# Access https://192.168.99.2:8043 or http://192.168.99.2:8088
-# After recovery:
+# Access https://192.168.99.2:8043
 sudo nmcli con delete direct-oc200
 ```
-
-**ER605 Login Lockout**
-Caused by attempting login on the ER605 page while believing it was the OC200. 2 hour lockout after repeated failed attempts. Resolution: wait for timer to clear.
 
 ---
 
@@ -132,15 +181,14 @@ Caused by attempting login on the ER605 page while believing it was the OC200. 2
 | EAP653 | 192.168.99.x | 99 | [MAC_REDACTED] |
 | Admin PC | 192.168.10.10 | 10 | [MAC_REDACTED] |
 | Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] |
-| Partner PC | 192.168.10.12 | 10 | [MAC_REDACTED] |
-| Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] |
+| Partner PC | 192.168.10.12 | 10 | `[MAC]` |
+| Raspberry Pi 5 — Pi-hole / MGMT | 192.168.10.15 (Phase 1) → 192.168.99.5 (Phase 2+) | 10 → 99 | [MAC_REDACTED] |
 | Philips Hue Bridge | 192.168.30.5 | 30 | [MAC_REDACTED] |
-| Proxmox Host | 192.168.20.10 | 20 | `[MAC — Phase 4]` |
-| Nginx Proxy Manager | 192.168.20.50 | 20 | N/A — VM |
+| genesis2 — Proxmox Host | 192.168.20.10 | 20 | `[MAC — after install]` |
+| Nginx Proxy Manager | 192.168.20.50 | 20 | N/A — LXC |
 | Tailscale LXC | 192.168.20.51 | 20 | N/A — LXC |
 | 3750G SVI MGMT | 192.168.99.3 | 99 | N/A |
 | 2960G MGMT | 192.168.99.4 | 99 | N/A |
-| Pi-hole (Phase 2+) | 192.168.99.5 | 99 | Same Pi MAC |
 
 ---
 
@@ -158,16 +206,6 @@ Caused by attempting login on the ER605 page while believing it was the OC200. 2
 | 6 | Block-IoT-to-MGMT | IOT → MGMT | Deny | ✅ Enabled |
 | 7 | MGMT-Full-Access | MGMT → HOME, LAB, IOT | Permit | ✅ Enabled |
 
-**Pending — Add when each phase goes live**
-
-| Rule | Waiting On |
-|------|------------|
-| Admin-PC/Laptop → Proxmox TCP 8006 | Phase 4 |
-| Admin-PC/Laptop → Lab SSH TCP 22 | Phase 4 |
-| Home → Proxy HTTP/HTTPS | Phase 5 |
-| Lab → Home | Phase 4 |
-| IoT/Lab/MGMT → Pi-hole UDP+TCP 53 | Phase 2+ |
-
 ---
 
 ## Pre-Window Prep — Status
@@ -183,180 +221,103 @@ Caused by attempting login on the ER605 page while believing it was the OC200. 2
 | Port profiles created — HOME, MGMT, TRUNK-ALL, LAN-Uplink | ✅ Complete |
 | Raspberry Pi static IP removed — Pi back up on DHCP | ✅ Complete |
 | Fresh config backup saved to Git repo | ✅ Complete |
-| SG2008P management VLAN | ⏩ Moved to maintenance window — Step 6 |
+| SG2008P management VLAN | ⏩ Maintenance window — Step 6 |
 | Credentials written on paper | ☐ Do this before starting the window |
 
 > **Pre-window prep is complete. Write credentials on paper then begin the window.**
 
 ---
 
-## Maintenance Window — Revised Order of Operations
+## Maintenance Window — Full Order of Operations
 
-> Admin PC handles Steps 3 and 4 — it still has flat network dashboard access.  
-> Admin Laptop takes over as primary dashboard from Step 5 onward.  
-> One step at a time. Verify before moving on.
-
----
-
-### Current Port Map — SG2008P
-
-```
-Port 1  — OC200 Omada Controller     → Step 5 — last
-Port 2  — EAP653 WAP                 → ✅ Complete
-Port 3  — Raspberry Pi (MAC confirms)→ Step 6 — after Step 5
-Port 4  — Partner PC (DESKTOP-CE1DDUF)  → ✅ Complete
-Port 5  — Philips Hue Bridge         → ✅ Complete — HOME
-Port 6  — Vizio TV                   → ✅ Complete
-Port 7  — Nothing connected          → leave
-Port 8  — ER605 LAN uplink           → leave
-```
+> Inform household of planned disruption before starting.  
+> Keep Admin Laptop on Wi-Fi connected throughout — backup admin console.  
+> One port at a time. Verify before moving to the next step.  
+> Do not begin a step until the previous step is fully verified.
 
 ---
 
-### How to Change a Port — Field by Field
+### Step 1 — Media Devices (TV, PS5)
 
 ```
 Where: Devices → SG2008P → Ports → Port Settings
-Click a port row to open the Edit panel on the right
 
-For any HOME device port:
-  Native Network:        HOME (10)
-  Network Tags Setting:  Custom
-  Tagged Networks:       clear all tags
-  Untagged Network:      HOME (10)
-  Profile:               HOME
-  → Apply
+Action:
+  Change each media device port to HOME profile — one at a time
+  Wait 60 seconds after each change
 
-For Port 1 — OC200 only — do last:
-  Native Network:        MGMT (99)
-  Network Tags Setting:  Custom
-  Tagged Networks:       clear all tags
-  Untagged Network:      MGMT (99)
-  Profile:               MGMT
-  → Apply
+Verify after each device:
+  ☐  Device shows 192.168.10.x in Omada → Clients
+  ☐  Internet works on the device
+  ☐  No other devices lost connectivity
+
+If device does not get new IP after 60 seconds:
+  → Power cycle the device → wait 60 seconds → check Clients
 ```
 
 ---
 
-### Step 1 — Remaining Home Devices ✅ Complete
+### Step 2 — Remaining Home Devices
 
 ```
-✅  Port 6 — Vizio TV          → HOME — verified
-✅  Port 5 — Philips Hue Bridge → HOME — verified
-✅  Port 4 — Partner PC (DESKTOP-CE1DDUF) → HOME — verified
-    IP: 192.168.10.12 | MAC: [MAC_REDACTED]
+Action:
+  Change remaining home device ports to HOME profile — one at a time
 
-Verified:
-  ✅  Device shows 192.168.10.12 in Omada → Clients
-  ✅  Internet works on the device
-  ✅  No other devices lost connectivity
+Verify after each:
+  ☐  Device shows 192.168.10.x address
+  ☐  Internet works
+  ☐  No unexpected devices lost connectivity
 ```
 
 ---
 
-### Step 2 — EAP Port ✅ Complete
+### Step 3 — EAP Port → HOME Profile
 
 ```
-✅  Port 2 — EAP653 → HOME profile
-    Admin Laptop confirmed on 192.168.10.11 via Wi-Fi
+Action:
+  Change EAP port on SG2008P to HOME profile
 
-    Note: Admin Laptop is on VLAN 10 but dashboard is still
-    on flat network. Admin PC handles Steps 3 and 4.
-    Admin Laptop takes over as primary from Step 5 onward.
+What happens automatically:
+  Admin Laptop (Wi-Fi) gets DHCP lease on VLAN 10 → 192.168.10.11
+  All wireless clients reconnect on VLAN 10
+
+Verify:
+  ☐  Admin Laptop shows 192.168.10.11
+  ☐  Internet works on Admin Laptop
+  ☐  Omada dashboard still reachable from Admin Laptop
+  ☐  Other wireless devices show 192.168.10.x
+
+  ★  Admin Laptop is now confirmed backup admin console
+     Keep it on Wi-Fi for the rest of the window
 ```
 
 ---
 
-### Step 3 — Update Pi-hole DNS in Omada ✅ Complete
+### Step 4 — Update Pi-hole DNS in Omada
 
 ```
-Do from Admin PC — still has flat network dashboard access
-
 Where: Settings → Wired Networks → LAN → HOME (VLAN 10)
 
 Action:
   Change DNS Primary from 1.1.1.1 to 192.168.10.15
   Save
 
-Note: Pi not yet on VLAN 10 — takes effect after Step 6.
+Note: Pi is not yet on VLAN 10 — takes effect after Step 5.
 
 Verify:
-  ✅  DNS saved as 192.168.10.15 in VLAN 10 config
+  ☐  DNS entry saved as 192.168.10.15 in VLAN 10 config
 ```
 
 ---
 
-### Step 4 — SG2008P Management VLAN → 99 ✅ Complete
+### Step 5 — Shared Port (Admin PC + Raspberry Pi) → HOME Profile
 
 ```
-Do from Admin PC — still has flat network dashboard access
-
-Where: Devices → SG2008P → Config tab
-  → click VLAN Interface in the left sidebar
+Note: Admin PC and Pi share one port via an unmanaged switch.
+Both devices move simultaneously when this port changes.
 
 Action:
-  Management VLAN field — currently shows Default (1)
-  Change to MGMT (99)
-  Apply
-
-  ★  This is safe now because home device ports are already
-     on VLAN 10. The physical layer matches the management
-     VLAN change.
-
-Verify:
-  ✅  Switch still shows Connected in Omada Devices
-  ✅  Switch config still accessible from Admin PC
-  ✅  Do not proceed to Step 5 until confirmed connected
-```
-
----
-
-### Step 5 — OC200 Port → MGMT Profile ⚠️ Attempted — Failed — Recovery Complete
-
-```
-⚠️  INCIDENT — See incident record below.
-
-Pre-flight (all confirmed before attempt):
-  ✅  Admin Laptop on 192.168.10.11 with internet
-  ✅  SG2008P management VLAN confirmed on 99
-  ✅  Dashboard URL ready: https://192.168.99.2:8043
-  ✅  Credentials confirmed
-
-Action taken:
-  Port 1 (OC200) set to MGMT profile and applied.
-  Dashboard went offline — expected.
-  OC200 did NOT come back at 192.168.99.2.
-
-Root cause:
-  DHCP is disabled on MGMT VLAN 99.
-  OC200 could not get its DHCP reservation (192.168.99.2).
-  Port was moved but no IP address was assigned.
-  Controller unreachable.
-
-Recovery:
-  OC200 factory reset performed.
-  Config restored from last known good backup.
-
-Current state (end of session):
-  ⚠️  ER605 not re-adopting to controller — management plane issue
-  ✅  Internet working on all home devices
-  ☐  Step 5 not yet complete — requires pre-work before retry
-```
-
----
-
-### Step 6 — Admin PC + Raspberry Pi Port → HOME Profile
-
-```
-Do from Admin Laptop — now confirmed in dashboard at new address
-
-Note: Confirm whether Admin PC and Pi share Port 3 via the
-unmanaged switch or are on separate ports before proceeding.
-If shared — both move simultaneously when that port changes.
-
-Action:
-  Change Port 3 (and Port 4 if Admin PC is there) to HOME profile
-  Using HOME field values from How to Change a Port above
+  Change shared unmanaged switch port to HOME profile
 
 What happens:
   Admin PC  → DHCP → 192.168.10.10 (reservation)
@@ -365,21 +326,72 @@ What happens:
 Verify Admin PC:
   ☐  Shows 192.168.10.10 — run ipconfig in terminal
   ☐  Internet works from Admin PC
-  ☐  Admin PC can reach https://192.168.99.2:8043
-     (ACL Rule 1 permits HOME → MGMT)
+  ☐  Omada dashboard reachable from Admin PC
 
 Verify Pi via KVM:
   ☐  Shows 192.168.10.15 — run hostname -I
   ☐  Pi-hole admin loads: http://192.168.10.15/admin
-  ☐  Pi-hole query log shows DNS activity populating
+  ☐  Pi-hole query log shows DNS activity
 
 If Admin PC gets wrong IP:
   → ipconfig /release then ipconfig /renew
-  → If still wrong — check reservation MAC matches exactly
+  → If still wrong — use Admin Laptop as primary, continue
 
 If Pi gets wrong IP:
   → sudo dhclient -r then sudo dhclient
-  → Check reservation MAC matches exactly
+  → Verify reservation MAC matches exactly
+```
+
+---
+
+### Step 6 — SG2008P Management VLAN → 99
+
+```
+Note: This was moved from pre-window prep. Safe to apply now
+that home device ports are confirmed on VLAN 10.
+
+Where: Devices → SG2008P → Config → VLAN Interface
+
+Action:
+  Set Management VLAN to 99 (MGMT)
+  Apply
+
+Verify:
+  ☐  Switch still shows Connected in Omada Devices
+  ☐  Switch config still accessible
+```
+
+---
+
+### Step 7 — OC200 Port → MGMT Profile (Point of No Return)
+
+```
+Pre-flight — confirm ALL of these before touching Port 1:
+  ☐  Admin Laptop confirmed 192.168.10.11 with internet
+  ☐  Admin PC confirmed 192.168.10.10 with internet
+  ☐  Pi confirmed 192.168.10.15 — Pi-hole working
+  ☐  SG2008P management VLAN confirmed on 99
+  ☐  Dashboard URL on paper: https://192.168.99.2:8043
+  ☐  Login credentials on paper
+
+Action:
+  Change Port 1 (OC200) to MGMT profile via Port Settings
+  Dashboard goes offline immediately — expected
+  OC200 picks up 192.168.99.2 from DHCP reservation
+
+Reconnect:
+  Open new browser tab on Admin Laptop or Admin PC
+  Go to https://192.168.99.2:8043
+  Accept certificate warning
+  Log in
+
+Verify:
+  ☐  Dashboard loads at https://192.168.99.2:8043
+  ☐  All devices adopted — none disconnected or pending
+  ☐  Clients page shows all devices on correct VLANs
+  ☐  SG2008P online in Devices
+  ☐  ER605 online in Devices
+  ☐  EAP online in Devices
 ```
 
 ---
@@ -440,101 +452,128 @@ Unexpected outage on any port change:
 
 ---
 
-## ⚠️ Maintenance Window Incident — 16/03/2026
+## Genesis2 — Proxmox Installation Checklist
 
-### OC200 DHCP Failure on MGMT Port Change
+> Maintenance-window-independent — can be done any time after hardware is ready.
+> Network config will need updating after Monday's window completes.
 
-**What happened:**
-Port 1 (OC200) was changed to MGMT profile (Step 5). Dashboard went offline
-as expected. OC200 did not come back at 192.168.99.2.
+### Pre-Install
 
-**Root cause:**
-DHCP is disabled on MGMT VLAN 99. The OC200 needs a DHCP offer to pick up
-its reserved IP. With no DHCP pool on VLAN 99, no address was assigned.
+| Task | Status |
+|------|--------|
+| Verify hardware — POST, all drives detected | ☐ |
+| Download Proxmox VE ISO (current stable) | ☐ |
+| Flash ISO to USB installer | ☐ |
+| Confirm BIOS settings — IOMMU/AMD-Vi enabled (required for future GPU passthrough) | ☐ |
+| Note network interface names for bridge config | ☐ |
 
-**Resolution:**
-OC200 factory reset. Config restored from backup taken after VLANs, DHCP,
-reservations, ACL rules, IP Groups, and port profiles.
+### Proxmox Installer Decisions
 
-**Current state:**
-ER605 not re-adopting to controller post-restore. Internet is functional.
-Management plane only. Resolving next session.
+| Setting | Choice | Notes |
+|---------|--------|-------|
+| Target disk | 256 GB SSD | Boot drive only — HDDs configured separately post-install |
+| Filesystem | ext4 | Sufficient for boot volume — ZFS on root not required |
+| Management IP | Temporary — see below | Set per current network phase |
+| Hostname | genesis2.jxstudios.dev | Set permanently from day one |
 
-**Fix for next attempt (Step 5 pre-work):**
-Enable temporary DHCP pool on MGMT VLAN 99 before next port change attempt:
-  Range: 192.168.99.100 – 192.168.99.110
-  This allows OC200 to receive a DHCP offer and pick up reservation 192.168.99.2.
-  Disable the pool after OC200 is confirmed at 192.168.99.2.
+**Temporary IP by network phase:**
 
----
+| Current network | Set installer IP to |
+|-----------------|---------------------|
+| Flat 192.168.0.0/24 (now) | 192.168.0.20 |
+| VLAN 10 HOME (after Monday) | 192.168.10.20 (temporary — update after Phase 2) |
+| VLAN 20 LAB (Phase 2+) | 192.168.20.10 (permanent) |
 
-## Next Session — Tasks Before Retry Window
+### Post-Install (Session Pending)
 
-Complete these before attempting Step 5 again:
+| Task | Status |
+|------|--------|
+| First login — web UI at https://[ip]:8006 | ☐ |
+| Update all packages — `apt update && apt full-upgrade` | ☐ |
+| Configure VLAN-aware bridge — set bridge-vlan-aware yes | ☐ |
+| Create RAIDZ1 pool from three HDDs — document drive IDs | ☐ |
+| Add datapool storage in Proxmox web UI | ☐ |
+| Record genesis2 MAC address in settings register | ☐ |
+| Set up SSH key authentication — disable password auth | ☐ |
+| Take first config snapshot / backup | ☐ |
+| Git commit — "Phase 1b — Genesis2 Proxmox baseline" | ☐ |
 
-- [ ] Resolve ER605 re-adoption to controller
-      → Try: Devices → Forget → re-adopt via ER605 admin panel
-      → Verify: ER605 shows Connected in Omada Devices
-- [ ] Enable temporary DHCP pool on MGMT VLAN 99
-      → Settings → Wired Networks → LAN → MGMT (99)
-      → Enable DHCP, range 192.168.99.100–192.168.99.110
-      → This is temporary — disable after Step 5 completes
-- [ ] Confirm all devices still adopted and working
-      → EAP, SG2008P, ER605 all Connected
-- [ ] Take fresh config backup
-      → System → Backup & Restore → Backup
-      → Save to configs/ as omada_backup_v[x]_16-03-26_post-recovery.cfg
-- [ ] Git commit backup file
-
-Once these are done — proceed with Step 5 retry.
+> Full post-install procedure will be documented in a dedicated session.
 
 ---
 
 ## Future Phases — Remaining Work
 
-### Phase 2 — Catalyst 3750G
-- [ ] Confirm Option A vs Option B — update all docs
+### Phase 1b — Genesis2 Proxmox Install + Observability Stack
+- [ ] Proxmox installation session — dedicated planning and procedure
+- [ ] ZFS RAIDZ1 pool creation — document drive IDs used
+- [ ] Deploy observability stack — Prometheus, Grafana, Loki LXCs
+- [ ] Verify PLG stack healthy before proceeding
+
+### Phase 2 — Catalyst 3750G + Infrastructure Services
+- [ ] Verify PoE standard on 3750G — `show power inline` — before Pi PoE HAT purchase
+- [ ] Confirm Option A confirmed — update all docs
 - [ ] Verify IOS version and feature set — `show version` / `show license`
 - [ ] Configure VLANs, SVIs, default route, inter-rack trunk
 - [ ] Configure IOS ACLs for host-level rules
 - [ ] Connect inter-rack trunk — SG2008P Port 7 to 3750G Gi0/1
-- [ ] Test inter-VLAN routing
-- [ ] Back up running config to Git
-
-### Phase 3 — Catalyst 2960G (Option B Only)
-- [ ] Configure as access layer switch
-- [ ] Cascade trunk to 3750G
-- [ ] Test and document
-
-### Phase 4 — Proxmox
-- [ ] Install Proxmox on server
-- [ ] Configure VLAN-aware bridge from day one — set bridge-vlan-aware yes
-- [ ] Assign static IP 192.168.20.10
+- [ ] Migrate genesis2 to final IP 192.168.20.10
+- [ ] Deploy NPM LXC — 192.168.20.50
+- [ ] Deploy Tailscale LXC — 192.168.20.51
+- [ ] Deploy Pi-hole secondary LXC — 192.168.20.30
+- [ ] Migrate Pi to MGMT VLAN 192.168.99.5
+- [ ] Configure Gravity Sync — Pi (primary) → pihole2 (secondary)
+- [ ] Configure Tailscale DNS override — Pi-hole as mobile nameserver
 - [ ] Enable pending ACL rules — Proxmox :8006 and SSH
-- [ ] Enable pending ACL rule — Lab-to-Home
 
-### Phase 5 — Nginx Proxy Manager
-- [ ] Create LXC — 192.168.20.50 VLAN 20
-- [ ] Install and configure Nginx Proxy Manager
-- [ ] Enable pending ACL rules — Home-to-Proxy HTTP/HTTPS
-- [ ] Add services to proxy register
+### Phase 3 — Developer Tooling + Cisco 2960G (Option A only for 2960G)
+- [ ] Deploy Forgejo LXC — 192.168.20.40
+- [ ] Configure GitHub push mirror from Forgejo
+- [ ] Set Pi as Ansible control node
+- [ ] Set Pi as serial console server — ser2net
+- [ ] 2960G: configure as lab device (Option A) or access layer (Option B)
 
-### Phase 6 — Tailscale
-- [ ] Create LXC — 192.168.20.51 VLAN 20
-- [ ] Configure as subnet router
-- [ ] Advertise 192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24
-- [ ] Approve routes in Tailscale admin console
+### Phase 4 — Applications
+- [ ] Deploy Nextcloud VM — 192.168.20.60 — data on RAIDZ1 pool
+- [ ] Deploy Homepage LXC — 192.168.20.61
+- [ ] Enable pending ACL rules — Lab-to-Home, admin IPs confirmed
 
-### Phase 2+ — Pi-hole Network-Wide
-- [ ] DHCP reservation on MGMT — Pi MAC → 192.168.99.5
-- [ ] Change Pi port to MGMT profile
-- [ ] Configure Pi-hole to listen on all interfaces
-- [ ] Add DNS ACL permit rules — IoT, Lab, MGMT → 192.168.99.5 port 53
-- [ ] Update all VLAN DNS entries to 192.168.99.5
+### Phase 5 — Presentation
+- [ ] Deploy jxstudios.dev LXC — 192.168.20.62
+- [ ] Build Astro site — portfolio/showcase content
+
+### Phase 6 — GPU Passthrough (Ollama)
+- [ ] Dedicated planning session — IOMMU groups, VFIO config
+- [ ] Deploy Ollama VM — 192.168.20.80
+- [ ] Configure RTX 2060 passthrough
 
 ### Phase 7 — Cisco 1921 Routers (Optional)
 - [ ] Lab edge and VPN configuration
 - [ ] Document in NDD
+
+### Pending Items (From Sessions)
+
+| Item | Priority | Notes |
+|------|----------|-------|
+| Verify 3750G PoE standard | High | `show power inline` — before PoE HAT purchase. Pi 5 may exceed 802.3af 15.4W ceiling under load. |
+| Record genesis2 MAC address | After install | Update network_settings_register_populated.md |
+| Partner PC MAC address | When available | Update register — 192.168.10.12 |
+| Proxmox installation session | Next Genesis2 session | Full installer decisions and post-install procedure |
+| GPU passthrough planning session | Phase 6 | Dedicated session before Ollama VM creation |
+| Quick guide OC200 IP fix | Low | 192.168.99.1 → 192.168.99.2 in two places |
+| Pi MAC discrepancy check | Before Phase 2 | Quick guide .B5:34 vs register .B5:43 — verify on device |
+
+---
+
+## Maintenance Window Schedule
+
+> Major disruptions planned for Mondays.
+
+| Window | Date | Scope | Status |
+|--------|------|-------|--------|
+| Window 1 | ~09/03/2026 | Initial VLAN creation, DHCP, ACL rules | ✅ Complete |
+| Window 2 | Monday (next) | Phase 1 port migrations, MGMT VLAN, OC200 cutover | ☐ Scheduled |
+| Window 3 | Future Monday | Phase 2 — 3750G + inter-rack trunk | 🔲 Not scheduled |
 
 ---
 
@@ -542,13 +581,12 @@ Once these are done — proceed with Step 5 retry.
 
 | Document | Status | Notes |
 |----------|--------|-------|
-| network-design-document.md | Current | Update after window |
-| network-settings-register-POPULATED.md | Current | Update after window |
-| network-settings-register-TEMPLATE.md | Complete | No changes needed |
-| network-design-document-TEMPLATE.md | Complete | No changes needed |
-| network_setup_quick_guide.md | Needs updates | See list below |
-| CLAUDE.md | Current | Update after window |
+| network_design_document_populated.md | Current | Update after window |
+| network_settings_register_populated.md | Current | Update after window |
+| genesis2-project-genesis-plan.md | ✅ Created 18/03/2026 | New — Genesis2 planning Session 2 |
+| CLAUDE.md | ✅ Updated 18/03/2026 | v3.0 — Genesis2 added |
 | project-summary-and-remaining-steps.md | This file | Update after window |
+| network_setup_quick_guide.md | Needs updates | See quick guide list below |
 
 ### Quick Guide Updates Still Needed
 - [ ] OC200 IP in body text: 192.168.99.1 → 192.168.99.2 (two places)
@@ -560,4 +598,4 @@ Once these are done — proceed with Step 5 retry.
 
 ---
 
-*Last updated: 16/03/2026 — Maintenance window paused. Step 4 complete. Step 5 failed — incident logged. Next session pre-work tasks added.*
+*Last updated: 18/03/2026 — Session 2 complete. Genesis2 planning complete. Network window rescheduled to Monday.*
