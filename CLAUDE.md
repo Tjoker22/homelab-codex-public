@@ -12,15 +12,15 @@ This is a **documentation-first** home lab repository. Current content is Markdo
 
 ---
 
-## Current State — 22/03/2026
+## Current State — 23/03/2026
 
-**Active work:** mac-server Debian install and service setup (Phase 1c) — first build session. Genesis2 Proxmox install (Phase 1b) follows.
+**Active work:** helios (Project Helios) Debian install and service setup (Phase 1c) — first build session. Genesis2 Proxmox install (Phase 1b) follows.
 
 **Network:** Flat 192.168.0.0/24. Phase 1 maintenance window deferred — admin device setup incomplete. All Omada VLAN/DHCP/ACL config is staged and intact. No network changes needed until the window is rescheduled.
 
 **CCNA study:** In progress. Phase 2 (3750G) work directly covers CCNA switching content — VLANs, SVIs, trunking, inter-VLAN routing, ACLs.
 
-**Admin laptops:** Windows and/or Mac (and Omarchy/Arch Linux). Fedora was repurposed. All scripts and procedures should cover Windows, macOS, and Linux.
+**Admin laptops:** Three admin laptops — Windows, Mac (MacBook Pro 2015), and Fedora (HP Laptop). All configured as admin consoles. Omarchy/Arch Linux also available. All scripts and procedures should cover Windows, macOS, and Linux.
 
 ---
 
@@ -59,7 +59,7 @@ If a task requires a design decision not covered in this file or the architectur
 | Controller | TP-Link OC200 | Omada controller | 192.168.99.2 |
 | WAP | TP-Link EAP653 (US) | Wireless access point | 192.168.99.x |
 | DNS / MGMT | Raspberry Pi 5 8GB | Pi-hole primary, Tailscale primary, MGMT device | 192.168.99.5 |
-| mac-server | 2008 MacBook — Debian 12 | Forgejo, NAS, code-server | 192.168.0.11 (temp) → 192.168.20.11 |
+| helios | OR PC — Debian 12 (Sandy Bridge i3-2120) | Forgejo, NAS, Jellyfin, code-server | 192.168.0.11 (temp) → 192.168.20.11 |
 | L3 Core Switch | Cisco Catalyst 3750G | Inter-VLAN routing (Phase 2) | 192.168.99.3 |
 | L2 Access Switch | Cisco Catalyst 2960G | Lab access layer (Phase 3) | 192.168.99.4 |
 | Hypervisor | Proxmox — genesis2 | VM and LXC host | 192.168.0.20 (temp) → 192.168.20.10 (Phase 2) |
@@ -128,7 +128,7 @@ Tier 2 — Management (admin devices only):
 | Admin PC | 192.168.10.10 | 10 | [MAC_REDACTED] |
 | Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] |
 | Partner PC | 192.168.10.12 | 10 | `[MAC pending]` |
-| mac-server | 192.168.0.11 (temp) → 192.168.20.11 | 20 | `[MAC — record after install]` |
+| helios | 192.168.0.11 (temp) → 192.168.20.11 | 20 | `[MAC — record after install]` |
 | Philips Hue Bridge | 192.168.30.5 | 30 | [MAC_REDACTED] |
 
 ### Genesis2 VM and LXC Register — LAB VLAN 192.168.20.0/24
@@ -143,7 +143,7 @@ Tier 2 — Management (admin devices only):
 | 221 | .21 | grafana | LXC | Grafana dashboards | 1b |
 | 222 | .22 | loki | LXC | Loki log aggregation | 1b |
 | 230 | .30 | pihole2 | LXC | Pi-hole secondary DNS | 2 |
-| 240 | — | forgejo | RETIRED | Moved to mac-server (native) | — |
+| 240 | — | forgejo | RETIRED | Moved to helios (native) | — |
 | 250 | .50 | npm | LXC | Nginx Proxy Manager | 2 |
 | 251 | .51 | tailscale | LXC | Tailscale subnet router | 2 |
 | 360 | .60 | nextcloud | VM | Nextcloud — multi-user | 4 |
@@ -170,7 +170,7 @@ Never reuse a VMID after a container is deleted — retire it.
 |-------|-------|--------|
 | 1 | Omada ISP rack — port migrations, OC200 cutover | ⏸️ Deferred — admin setup pending |
 | 1b | Genesis2 — Proxmox install, ZFS pool, observability stack | 🔄 Active — flat network |
-| 1c | mac-server — Debian install + Forgejo + Samba + code-server | 🔄 Active — next session |
+| 1c | helios — Debian install + Forgejo + Samba + Jellyfin + code-server | 🔄 Active — next session |
 | 2 | Cisco Catalyst 3750G — L3 core switch | 🔲 Not started |
 | 3 | Cisco Catalyst 2960G — L2 access switch (optional) | 🔲 Not started |
 | 4 | Nextcloud, Homepage dashboard | 🔲 Not started |
@@ -189,7 +189,8 @@ Never reuse a VMID after a container is deleted — retire it.
 | `CLAUDE.md` | This file — primary context for Claude Code |
 | `docs/project-summary-and-remaining-steps.md` | Current project state, remaining steps, phase checklists |
 | `docs/genesis2-project-genesis-plan.md` | Genesis2 server planning — hardware, storage, VM register, service stack |
-| `docs/mac-server-plan.md` | mac-server planning document — hardware, services, decisions |
+| `docs/helios-plan.md` | Helios planning document — hardware, services, decisions |
+| `docs/device_specs_list.md` | Hardware specifications for all lab devices |
 | `docs/maintenance-window-updated.md` | Corrected Phase 1 window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
 | `network/network_design_document_populated.md` | Primary network architecture document |
 | `network/network_settings_register_populated.md` | Live IP/MAC/DHCP register — authoritative source of truth |
@@ -207,7 +208,7 @@ Never reuse a VMID after a container is deleted — retire it.
 Before the Phase 1 window can be rescheduled, these must be resolved:
 
 **1. Admin laptop setup**
-Admin laptops are now Windows and/or Mac (and optionally Omarchy/Arch). Must be fully configured and confirmed able to reach the Omada dashboard before the window runs.
+Three admin laptops: Windows, Mac (MacBook Pro 2015), and Fedora (HP Laptop). Must be fully configured and confirmed able to reach the Omada dashboard before the window runs. MacBook Pro requires Discovery Utility and Java 17 FX (Zulu) installed before window day.
 
 **2. Discovery Utility — empty device table on Windows**
 The utility launches but shows no devices. Root cause: Windows Firewall blocking Java UDP broadcasts on ports 29810–29814.
@@ -320,9 +321,17 @@ Examples:
 - IDE: VSCode
 - Git: Active — connected to GitHub
 
-### Admin Laptop
-- OS: Windows or Mac — setup in progress
-- Role: Backup admin console during maintenance windows, Discovery Utility host
+### Admin Laptop — Windows
+- OS: Windows
+- Role: Admin console, backup during maintenance windows, Discovery Utility host
+
+### Admin Laptop — MacBook Pro 2015
+- OS: macOS
+- Role: Admin console, backup during maintenance windows, Discovery Utility host
+
+### Admin Laptop — HP Laptop
+- OS: Fedora
+- Role: Admin console, development machine
 
 ### Omarchy Machine
 - OS: Omarchy (Arch Linux + Hyprland) — available
@@ -409,6 +418,6 @@ Last known good backup: taken after VLANs, DHCP, reservations, ACL rules, IP Gro
 
 ---
 
-*CLAUDE.md version: 4.0 — 22/03/2026 — Network window deferred. Genesis2 active on flat network. Admin OS updated to Windows/Mac/Omarchy. Known issues section added. Recovery procedures expanded for all OS.*  
-*Previous version: 3.0 — 18/03/2026 — Genesis2 hardware, VM register, VMID convention, MGMT Pi role*  
+*CLAUDE.md version: 4.1 — 23/03/2026 — mac-server replaced by helios (Project Helios — OR PC). Admin laptops updated to three: Windows, Mac (MacBook Pro 2015), Fedora (HP Laptop). Phase 1c and Key Files updated.*
+*Previous version: 4.0 — 22/03/2026 — Network window deferred. Genesis2 active on flat network. Admin OS updated to Windows/Mac/Omarchy. Known issues section added. Recovery procedures expanded for all OS.*
 *Next review: After Phase 1b observability stack confirmed healthy*

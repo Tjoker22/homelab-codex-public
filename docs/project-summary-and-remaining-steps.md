@@ -71,7 +71,7 @@ A four-VLAN segmented home lab network designed around an ISP rack (TP-Link Omad
 | TP-Link EAP653 (US) v1.0 | EAP653 | Wireless AP | 192.168.99.x | Active |
 | Raspberry Pi 5 8GB | Pi 5 | MGMT device / Pi-hole / Tailscale | 192.168.99.5 | Active — Phase 2 MGMT migration |
 | Proxmox Server — genesis2 | Custom | Hypervisor | 192.168.20.10 | 🔄 Install in progress — flat network |
-| mac-server | 2008 MacBook — Debian 12 | Forgejo, NAS, code-server | 192.168.20.11 | Active — Phase 1c |
+| helios | OR PC — Debian 12 (Sandy Bridge i3-2120) | Forgejo, NAS, Jellyfin, code-server | 192.168.20.11 | Active — Phase 1c |
 | Cisco Catalyst 3750G | 3750G | L3 Core Switch | 192.168.99.3 | Planned — Phase 2 |
 | Cisco Catalyst 2960G | 2960G | L2 Access / Lab | 192.168.99.4 | Planned — Phase 2/3 |
 | Cisco 1921 x2 | 1921 | Lab Edge / VPN | .20.254 / .20.253 | Planned — Phase 7 |
@@ -134,20 +134,20 @@ OC200 MAC reserved to 192.168.99.2. Picks up address automatically when Port 1 s
 - Proxmox is never a reverse proxy target
 
 **Admin Laptop OS**
-Fedora was repurposed. Admin laptops are now Windows and/or Mac. All window procedures updated accordingly. Omarchy (Arch Linux) also available — uses pacman, otherwise identical commands.
+Three admin laptops: Windows, Mac (MacBook Pro 2015), and Fedora (HP Laptop). All window procedures cover Windows, macOS, and Linux. Omarchy (Arch Linux) also available — uses pacman, otherwise identical commands.
 
 ---
 
-### Key Decisions Made — mac-server
+### Key Decisions Made — Helios (Project Helios)
 
-**mac-server as always-on utility tier**
-2008 MacBook running Debian 12 headless. Sits between the Pi (lightweight anchor) and genesis2 (heavy compute) as a permanent always-on utility node at 192.168.20.11. No Docker — all services native systemd.
+**Helios as always-on utility tier**
+OR PC (Sandy Bridge i3-2120, 16 GB DDR3) running Debian 12 headless. Sits between the Pi (lightweight anchor) and genesis2 (heavy compute) as a permanent always-on utility node at 192.168.20.11. No Docker — all services native systemd. Replaces MacBook 2008 (mac-server plan) — same architecture, better hardware.
 
-**Services: Forgejo, Samba, code-server, SSH jump**
-Four native systemd services. Forgejo replaces genesis2 VMID 240 (retired). NAS via Samba with external drive. code-server for always-on browser-based VS Code access. SSH jump as Pi backup.
+**Services: Forgejo, Samba, Jellyfin, code-server, SSH jump**
+Five native systemd services. Forgejo replaces genesis2 VMID 240 (retired). NAS via Samba on ZFS RAIDZ1 pool (heliospool — 3× 500 GB HDD). Jellyfin for local media — direct play strategy (GT 220 has no hardware transcode). code-server for always-on browser-based VS Code access. SSH jump as Pi backup.
 
 **Portfolio: part of wider JXStudios lab project**
-mac-server is documented as one node in the multi-host segmented lab, not a standalone project. The tier separation reasoning, architecture decisions, and documentation discipline are the portfolio narrative.
+Helios is documented as one node in the multi-host segmented lab, not a standalone project. The tier separation reasoning, architecture decisions, and documentation discipline are the portfolio narrative.
 
 ---
 
@@ -243,6 +243,7 @@ sudo ip addr del 192.168.99.10/24 dev [interface]
 | Raspberry Pi 5 — Pi-hole / MGMT | 192.168.10.15 (Phase 1) → 192.168.99.5 (Phase 2+) | 10 → 99 | [MAC_REDACTED] |
 | Philips Hue Bridge | 192.168.30.5 | 30 | [MAC_REDACTED] |
 | genesis2 — Proxmox Host | 192.168.0.20 (temp flat) → 192.168.20.10 (Phase 2) | 20 | `[MAC — record after install]` |
+| helios | 192.168.0.11 (temp flat) → 192.168.20.11 (Phase 2) | 20 | `[MAC — record after install]` |
 | Nginx Proxy Manager | 192.168.20.50 | 20 | N/A — LXC |
 | Tailscale LXC | 192.168.20.51 | 20 | N/A — LXC |
 | 3750G SVI MGMT | 192.168.99.3 | 99 | N/A |
@@ -295,7 +296,7 @@ All of the following is configured in Omada and does not need to be redone when 
 
 These must be completed before rescheduling Window 2:
 
-- [ ] Admin laptop(s) fully configured — Windows or Mac, ready for use during window
+- [ ] Admin laptops fully configured — Windows, Mac (MacBook Pro 2015), and Fedora (HP Laptop) — at least one ready for use during window
 - [ ] Discovery Utility installed and device table working (firewall fix applied, Batch Setting by IP tested)
 - [ ] OC200 DHCP reservation verified — Network field set to MGMT VLAN 99
 - [ ] Auto Refresh IP enabled on OC200
@@ -305,14 +306,21 @@ These must be completed before rescheduling Window 2:
 
 ---
 
-## Phase 1c — mac-server Build Checklist
+## Phase 1c — Helios Build Checklist
 
 **Debian install:**
-- [ ] Debian 12 minimal install — no desktop
+- [ ] Run lsblk from live USB — confirm boot drive, leave 3 data HDDs unpartitioned
+- [ ] Debian 12 minimal install — no desktop — boot drive only
 - [ ] Static IP set to 192.168.0.11 (flat network temp)
 - [ ] SSH key auth configured — password auth disabled
 - [ ] All packages updated — apt update && apt full-upgrade
 - [ ] Record MAC address — update network register
+
+**ZFS pool:**
+- [ ] ZFS utils installed
+- [ ] RAIDZ1 pool created — heliospool — 3× 500 GB HDD
+- [ ] Datasets created: heliospool/forgejo, heliospool/shared, heliospool/media, heliospool/backups
+- [ ] Git commit — "Phase 1c — helios ZFS pool baseline"
 
 **Forgejo:**
 - [ ] forgejo user created
@@ -322,25 +330,30 @@ These must be completed before rescheduling Window 2:
 - [ ] Admin account created — credentials in password manager
 - [ ] Main lab repo migrated from GitHub to internal Forgejo
 - [ ] GitHub push mirror configured from Forgejo
-- [ ] Git commit — "Phase 1c — mac-server Forgejo baseline"
+- [ ] Git commit — "Phase 1c — helios Forgejo baseline"
 
 **Samba:**
-- [ ] External drive formatted ext4, mounted by UUID in /etc/fstab (nofail)
-- [ ] Samba installed — share paths created at /srv/samba/
-- [ ] Shares confirmed accessible from admin PC and admin laptop
-- [ ] Git commit — "Phase 1c — mac-server Samba shares"
+- [ ] Samba installed — share paths at /srv/samba/shared and /srv/samba/media (ZFS dataset mounts)
+- [ ] Shares confirmed accessible from admin PC and admin laptops
+- [ ] Git commit — "Phase 1c — helios Samba shares"
+
+**Jellyfin:**
+- [ ] Jellyfin installed — systemd unit enabled
+- [ ] Media library pointed at /srv/samba/media
+- [ ] Jellyfin confirmed accessible at http://192.168.0.11:8096
+- [ ] Git commit — "Phase 1c — helios Jellyfin"
 
 **code-server:**
 - [ ] code-server installed — systemd unit written and enabled
 - [ ] Password set — stored in password manager, not committed to repo
 - [ ] Accessible at http://192.168.0.11:8080
-- [ ] Git commit — "Phase 1c — mac-server code-server"
+- [ ] Git commit — "Phase 1c — helios code-server"
 
 **Final:**
-- [ ] All four services confirmed healthy after reboot
-- [ ] mac-server checklist marked complete in register
-- [ ] Screenshot — all four services running (systemctl status)
-- [ ] Git commit — "Phase 1c — mac-server baseline complete"
+- [ ] All five services confirmed healthy after reboot
+- [ ] Helios checklist marked complete in register
+- [ ] Screenshot — all five services running (systemctl status)
+- [ ] Git commit — "Phase 1c — helios baseline complete"
 
 ---
 
@@ -397,7 +410,7 @@ These must be completed before rescheduling Window 2:
 
 ## Future Phases — Remaining Work
 
-> **Build sequence confirmed 22/03/2026:** Phase 1c (mac-server) runs first. Genesis2 Proxmox baseline (Phase 1b) follows. Service deployment on genesis2 begins only after Forgejo is confirmed live on mac-server. Network window and Pi migration remain an independent track.
+> **Build sequence confirmed 23/03/2026:** Phase 1c (helios) runs first. Genesis2 Proxmox baseline (Phase 1b) follows. Service deployment on genesis2 begins only after Forgejo is confirmed live on helios. Network window and Pi migration remain an independent track.
 
 ### Phase 1 Network Window — DEFERRED
 > Reschedule once admin devices are configured and pre-window checklist is complete.
@@ -485,7 +498,7 @@ These must be completed before rescheduling Window 2:
 |-------|-------|--------|
 | 1 | Omada ISP rack — port migrations, OC200 cutover | ⏸️ Deferred — pre-window checklist incomplete |
 | 1b | Genesis2 — Proxmox install + ZFS + observability stack | 🔲 Not started — follows Phase 1c |
-| 1c | mac-server — Debian install + services | 🔄 Active — next session |
+| 1c | helios — Debian install + services | 🔄 Active — next session |
 | 2 | Catalyst 3750G + infrastructure services | 🔲 Not started |
 | 3 | Developer tooling + 2960G | 🔲 Not started |
 | 4 | Applications — Nextcloud, Homepage | 🔲 Not started |
