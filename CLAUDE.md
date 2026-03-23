@@ -12,6 +12,18 @@ This is a **documentation-first** home lab repository. Current content is Markdo
 
 ---
 
+## Current State — 22/03/2026
+
+**Active work:** Genesis2 Proxmox install and Phase 1b observability stack, running on flat network 192.168.0.0/24.
+
+**Network:** Flat 192.168.0.0/24. Phase 1 maintenance window deferred — admin device setup incomplete. All Omada VLAN/DHCP/ACL config is staged and intact. No network changes needed until the window is rescheduled.
+
+**CCNA study:** In progress. Phase 2 (3750G) work directly covers CCNA switching content — VLANs, SVIs, trunking, inter-VLAN routing, ACLs.
+
+**Admin laptops:** Windows and/or Mac (and Omarchy/Arch Linux). Fedora was repurposed. All scripts and procedures should cover Windows, macOS, and Linux.
+
+---
+
 ## Architect / Engineer Split
 
 This project uses two Claude instances with distinct roles:
@@ -49,7 +61,7 @@ If a task requires a design decision not covered in this file or the architectur
 | DNS / MGMT | Raspberry Pi 5 8GB | Pi-hole primary, Tailscale primary, MGMT device | 192.168.99.5 |
 | L3 Core Switch | Cisco Catalyst 3750G | Inter-VLAN routing (Phase 2) | 192.168.99.3 |
 | L2 Access Switch | Cisco Catalyst 2960G | Lab access layer (Phase 3) | 192.168.99.4 |
-| Hypervisor | Proxmox — genesis2 | VM and LXC host (Phase 1) | 192.168.20.10 |
+| Hypervisor | Proxmox — genesis2 | VM and LXC host | 192.168.0.20 (temp) → 192.168.20.10 (Phase 2) |
 | Reverse Proxy | Nginx Proxy Manager | Service proxy LXC (Phase 2) | 192.168.20.50 |
 | Remote Access | Tailscale LXC | Subnet router co-advertiser (Phase 2) | 192.168.20.51 |
 
@@ -64,6 +76,7 @@ If a task requires a design decision not covered in this file or the architectur
 | RAM | 64 GB DDR4-3600 MHz (expandable to 128 GB) |
 | Boot Drive | 256 GB 2.5" SSD — Proxmox OS and ISO storage |
 | Data Drives | 3× 500 GB 2.5" HDD — RAIDZ1 pool (1 TB usable) |
+| Current IP | 192.168.0.20 — flat network temporary |
 | Final IP | 192.168.20.10 — VLAN 20 LAB |
 
 ### VLAN Scheme
@@ -118,14 +131,15 @@ Tier 2 — Management (admin devices only):
 
 ### Genesis2 VM and LXC Register — LAB VLAN 192.168.20.0/24
 
-> Full register with zone rationale: `docs/genesis2-project-genesis-plan.md`
+> Full register with zone rationale: `genesis2-project-genesis-plan.md`  
+> During flat network phase: containers use temporary IPs on 192.168.0.0/24. Final IPs are in the .20.x range and should be used in all service configs.
 
 | VMID | IP | Hostname | Type | Role | Phase |
 |------|-----|----------|------|------|-------|
-| — | .10 | genesis2 | Physical | Proxmox host | 1 |
-| 220 | .20 | prometheus | LXC | Prometheus + pve_exporter + Node Exporter | 1 |
-| 221 | .21 | grafana | LXC | Grafana dashboards | 1 |
-| 222 | .22 | loki | LXC | Loki log aggregation | 1 |
+| — | .10 | genesis2 | Physical | Proxmox host | 1b |
+| 220 | .20 | prometheus | LXC | Prometheus + pve_exporter + Node Exporter | 1b |
+| 221 | .21 | grafana | LXC | Grafana dashboards | 1b |
+| 222 | .22 | loki | LXC | Loki log aggregation | 1b |
 | 230 | .30 | pihole2 | LXC | Pi-hole secondary DNS | 2 |
 | 240 | .40 | forgejo | LXC | Forgejo internal Git | 3 |
 | 250 | .50 | npm | LXC | Nginx Proxy Manager | 2 |
@@ -152,8 +166,8 @@ Never reuse a VMID after a container is deleted — retire it.
 
 | Phase | Focus | Status |
 |-------|-------|--------|
-| 1 | Omada ISP rack — VLANs, DHCP, ACL, Pi-hole DNS | ✳️ In progress — maintenance window Monday |
-| 1b | Genesis2 — Proxmox install, ZFS pool, observability stack | 🔲 Planning complete — install session pending |
+| 1 | Omada ISP rack — port migrations, OC200 cutover | ⏸️ Deferred — admin setup pending |
+| 1b | Genesis2 — Proxmox install, ZFS pool, observability stack | 🔄 Active — flat network |
 | 2 | Cisco Catalyst 3750G — L3 core switch | 🔲 Not started |
 | 3 | Cisco Catalyst 2960G — L2 access switch (optional) | 🔲 Not started |
 | 4 | Nextcloud, Homepage dashboard | 🔲 Not started |
@@ -161,7 +175,7 @@ Never reuse a VMID after a container is deleted — retire it.
 | 6 | Ollama + Open WebUI — GPU passthrough | 🔲 Not started |
 | 7 | Cisco 1921 edge routers (optional) | 🔲 Not started |
 
-> Note: NPM and Tailscale (previously labelled Phase 5/6) are now Phase 2 — they are infrastructure services, not applications.
+> Note: NPM and Tailscale (previously labelled Phase 5/6) are Phase 2 — they are infrastructure services, not applications.
 
 ---
 
@@ -170,27 +184,50 @@ Never reuse a VMID after a container is deleted — retire it.
 | File | Purpose |
 |------|---------|
 | `CLAUDE.md` | This file — primary context for Claude Code |
-| `docs/project-summary-and-remaining-steps.md` | Current project state, remaining steps, maintenance window checklist |
+| `docs/project-summary-and-remaining-steps.md` | Current project state, remaining steps, phase checklists |
 | `docs/genesis2-project-genesis-plan.md` | Genesis2 server planning — hardware, storage, VM register, service stack |
+| `docs/maintenance-window-updated.md` | Corrected Phase 1 window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
 | `network/network_design_document_populated.md` | Primary network architecture document |
 | `network/network_settings_register_populated.md` | Live IP/MAC/DHCP register — authoritative source of truth |
 | `network/network_inventory.csv` | Switch port assignment history |
 | `network/network_map_3_1_26.drawio` | Network diagram source |
-| `docs/network_setup_quick_guide.md` | Phase 1 ER605 configuration guide |
-| `host_setup.md` | Proxmox post-install configuration guide — to be updated for Genesis2 |
+| `docs/network_setup_quick_guide.md` | Phase 1 ER605 configuration guide — has minor updates pending |
+| `host_setup.md` | Proxmox post-install configuration guide |
 | `configs/` | TP-Link Omada controller backups and Cisco IOS running configs |
 | `vms/universal_prox_instance_template.md` | Template for documenting new VMs and LXCs |
+
+---
+
+## Known Issues — Network Window
+
+Before the Phase 1 window can be rescheduled, these must be resolved:
+
+**1. Admin laptop setup**
+Admin laptops are now Windows and/or Mac (and optionally Omarchy/Arch). Must be fully configured and confirmed able to reach the Omada dashboard before the window runs.
+
+**2. Discovery Utility — empty device table on Windows**
+The utility launches but shows no devices. Root cause: Windows Firewall blocking Java UDP broadcasts on ports 29810–29814.
+Fix:
+- Run start-discovery-utility-windows.bat as Administrator
+- Add `C:\Program Files\Java\jdk-17\bin\javaw.exe` to Windows Firewall allowed apps (Private + Public)
+- If ER605 still doesn't appear: use Batch Setting by IP (192.168.10.1) directly — bypasses broadcast discovery
+
+**3. OC200 reservation and Auto Refresh IP**
+Before the window: verify the OC200 DHCP reservation has Network field set to MGMT VLAN 99 (not default LAN). Enable Auto Refresh IP on OC200 (Devices → OC200 → Config → Services).
+
+Full corrected procedure: `docs/maintenance-window-updated.md`
 
 ---
 
 ## Conventions
 
 - **Network settings register** is the authoritative source for IP addresses, MACs, and DHCP reservations. Update it whenever any device is added or changed.
-- **VM/LXC register** for Genesis2 is maintained in both this file (summary table) and `docs/genesis2-project-genesis-plan.md` (full detail).
+- **VM/LXC register** for Genesis2 is maintained in both this file (summary table) and `genesis2-project-genesis-plan.md` (full detail).
 - **VMID convention:** 2xx = LXC, 3xx = VM. Last two digits mirror IP last octet. Enforced from first container — no exceptions.
 - **Omada backups** use format `omada_backup_<version>_<date>_<description>.cfg`. Always add new file — never overwrite.
 - **Cisco configs** stored as plain text in `configs/cisco/`.
 - **Site name:** `JXStudios` — **Domain:** `jxstudios.dev` — **Proxmox host:** `192.168.20.10`
+- **Flat network temporary IP:** genesis2 currently at 192.168.0.20. Never hardcode this into service configs.
 
 ---
 
@@ -205,6 +242,7 @@ Never reuse a VMID after a container is deleted — retire it.
 - Write service deployment scripts and compose files
 - Store all Cisco IOS running configs in `configs/cisco/` as plain text
 - Never commit secrets, passwords, or API keys — use `.env` files in `.gitignore`
+- Cover Windows, macOS, and Linux in all scripts and procedures
 
 ## What Claude Code Should NOT Do
 
@@ -219,6 +257,7 @@ Never reuse a VMID after a container is deleted — retire it.
 ✘  Run destructive commands without explicit confirmation
 ✘  Modify CLAUDE.md without explicit instruction
 ✘  Guess on design decisions — ask instead
+✘  Hardcode the flat network temporary IP (192.168.0.20) into service configs
 ```
 
 ---
@@ -261,10 +300,10 @@ Phase: [phase number]
 [Phase X] Action — description — reason
 
 Examples:
-[Phase 1] Add — network ping sweep script — verify device connectivity post-cutover
-[Phase 1b] Add — ZFS pool creation procedure — Genesis2 post-install
-[Phase 4] Update — Proxmox LXC deploy script — add VLAN tag parameter
-[Docs] Update — settings register — post-window Phase 1 completion
+[Phase 1b] Add — Proxmox baseline install — genesis2 initial setup
+[Phase 1b] Add — ZFS RAIDZ1 pool creation — genesis2 post-install
+[Phase 1b] Add — Prometheus LXC deploy — observability stack Phase 1b
+[Docs] Update — project summary — network window deferred, genesis2 on flat network
 [Config] Add — 3750G initial running config — Phase 2 baseline
 ```
 
@@ -273,18 +312,19 @@ Examples:
 ## Environment
 
 ### Admin PC (Primary Workstation)
-- OS: Windows 11 / Fedora dual boot — **Fedora is primary for Claude Code**
-- IDE: VSCode (primary) — WSL available on Windows side
-- Claude Code: Installed — proxmox-homelab directory open
+- OS: Windows 11 / Fedora dual boot — Fedora repurposed, Windows currently primary
+- IDE: VSCode
 - Git: Active — connected to GitHub
-- Why Fedora: native bash, SSH, Python, nmcli — same environment as lab servers
 
 ### Admin Laptop
-- OS: Fedora — Claude Code setup pending
-- Role: Backup admin console during maintenance windows
+- OS: Windows or Mac — setup in progress
+- Role: Backup admin console during maintenance windows, Discovery Utility host
 
-### Admin Laptop 2
-- OS: macOS — Claude Code setup pending
+### Omarchy Machine
+- OS: Omarchy (Arch Linux + Hyprland) — available
+- Package manager: pacman (not dnf or apt)
+- Java install: `sudo pacman -S jdk17-openjdk`
+- Discovery Utility: `./start-discovery-utility-linux.sh` (add `_JAVA_AWT_WM_NONREPARENTING=1` prefix if GUI renders blank under Wayland)
 
 ---
 
@@ -295,6 +335,7 @@ Claude Code may freely update these sections as the repo evolves:
 - Phase Status — mark phases complete, do not add new phases
 - IP and MAC Register — add MACs when devices come online
 - VM/LXC Register — update status as containers are created
+- Known Issues — update as issues are resolved
 
 Claude Code must not modify these sections without explicit architect instruction:
 - Two-Tier Access Rule
@@ -332,21 +373,31 @@ After any network change, task completion, or phase milestone:
 
 ## Recovery Reference
 
-If the Omada controller becomes unreachable:
+If the Omada controller becomes unreachable, connect patch cable to OC200 ETH2 (not ETH1):
 
+*Windows:*
+```
+Settings → Network & Internet → ethernet → IP assignment → Edit → Manual
+IP: 192.168.99.10  Subnet: 24  Gateway: 192.168.99.2
+Browser → https://192.168.99.2:8043
+When done: set back to Automatic (DHCP)
+```
+
+*macOS:*
+```
+System Settings → Network → ethernet → Details → TCP/IP → Manually
+IP: 192.168.99.10  Mask: 255.255.255.0  Router: 192.168.99.2
+Browser → https://192.168.99.2:8043
+When done: set back to Using DHCP
+```
+
+*Linux (including Omarchy):*
 ```bash
-# Connect patch cable: Laptop ETH → OC200 ETH2 (not ETH1)
-sudo nmcli con add type ethernet \
-  ifname [iface] \
-  con-name direct-oc200 \
-  ip4 192.168.99.10/24 \
-  gw4 192.168.99.2
-sudo nmcli con up direct-oc200
-ping 192.168.99.2
-# Access https://192.168.99.2:8043
-
-# Cleanup after recovery
-sudo nmcli con delete direct-oc200
+sudo ip addr add 192.168.99.10/24 dev [interface]
+sudo ip route add default via 192.168.99.2
+# Browser → https://192.168.99.2:8043
+# When done:
+sudo ip addr del 192.168.99.10/24 dev [interface]
 ```
 
 Config backups location: `configs/`  
@@ -354,5 +405,6 @@ Last known good backup: taken after VLANs, DHCP, reservations, ACL rules, IP Gro
 
 ---
 
-*CLAUDE.md version: 3.0 — 18/03/2026 — Added Genesis2 hardware, VM register, VMID convention, MGMT Pi role*  
-*Next review: After Phase 1 maintenance window complete and Genesis2 Proxmox install session*
+*CLAUDE.md version: 4.0 — 22/03/2026 — Network window deferred. Genesis2 active on flat network. Admin OS updated to Windows/Mac/Omarchy. Known issues section added. Recovery procedures expanded for all OS.*  
+*Previous version: 3.0 — 18/03/2026 — Genesis2 hardware, VM register, VMID convention, MGMT Pi role*  
+*Next review: After Phase 1b observability stack confirmed healthy*
