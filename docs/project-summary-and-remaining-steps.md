@@ -71,6 +71,7 @@ A four-VLAN segmented home lab network designed around an ISP rack (TP-Link Omad
 | TP-Link EAP653 (US) v1.0 | EAP653 | Wireless AP | 192.168.99.x | Active |
 | Raspberry Pi 5 8GB | Pi 5 | MGMT device / Pi-hole / Tailscale | 192.168.99.5 | Active — Phase 2 MGMT migration |
 | Proxmox Server — genesis2 | Custom | Hypervisor | 192.168.20.10 | 🔄 Install in progress — flat network |
+| mac-server | 2008 MacBook — Debian 12 | Forgejo, NAS, code-server | 192.168.20.11 | Active — Phase 1c |
 | Cisco Catalyst 3750G | 3750G | L3 Core Switch | 192.168.99.3 | Planned — Phase 2 |
 | Cisco Catalyst 2960G | 2960G | L2 Access / Lab | 192.168.99.4 | Planned — Phase 2/3 |
 | Cisco 1921 x2 | 1921 | Lab Edge / VPN | .20.254 / .20.253 | Planned — Phase 7 |
@@ -134,6 +135,19 @@ OC200 MAC reserved to 192.168.99.2. Picks up address automatically when Port 1 s
 
 **Admin Laptop OS**
 Fedora was repurposed. Admin laptops are now Windows and/or Mac. All window procedures updated accordingly. Omarchy (Arch Linux) also available — uses pacman, otherwise identical commands.
+
+---
+
+### Key Decisions Made — mac-server
+
+**mac-server as always-on utility tier**
+2008 MacBook running Debian 12 headless. Sits between the Pi (lightweight anchor) and genesis2 (heavy compute) as a permanent always-on utility node at 192.168.20.11. No Docker — all services native systemd.
+
+**Services: Forgejo, Samba, code-server, SSH jump**
+Four native systemd services. Forgejo replaces genesis2 VMID 240 (retired). NAS via Samba with external drive. code-server for always-on browser-based VS Code access. SSH jump as Pi backup.
+
+**Portfolio: part of wider JXStudios lab project**
+mac-server is documented as one node in the multi-host segmented lab, not a standalone project. The tier separation reasoning, architecture decisions, and documentation discipline are the portfolio narrative.
 
 ---
 
@@ -291,6 +305,45 @@ These must be completed before rescheduling Window 2:
 
 ---
 
+## Phase 1c — mac-server Build Checklist
+
+**Debian install:**
+- [ ] Debian 12 minimal install — no desktop
+- [ ] Static IP set to 192.168.0.11 (flat network temp)
+- [ ] SSH key auth configured — password auth disabled
+- [ ] All packages updated — apt update && apt full-upgrade
+- [ ] Record MAC address — update network register
+
+**Forgejo:**
+- [ ] forgejo user created
+- [ ] Forgejo binary downloaded and installed
+- [ ] systemd unit file written and enabled
+- [ ] Forgejo confirmed accessible at http://192.168.0.11:3000
+- [ ] Admin account created — credentials in password manager
+- [ ] Main lab repo migrated from GitHub to internal Forgejo
+- [ ] GitHub push mirror configured from Forgejo
+- [ ] Git commit — "Phase 1c — mac-server Forgejo baseline"
+
+**Samba:**
+- [ ] External drive formatted ext4, mounted by UUID in /etc/fstab (nofail)
+- [ ] Samba installed — share paths created at /srv/samba/
+- [ ] Shares confirmed accessible from admin PC and admin laptop
+- [ ] Git commit — "Phase 1c — mac-server Samba shares"
+
+**code-server:**
+- [ ] code-server installed — systemd unit written and enabled
+- [ ] Password set — stored in password manager, not committed to repo
+- [ ] Accessible at http://192.168.0.11:8080
+- [ ] Git commit — "Phase 1c — mac-server code-server"
+
+**Final:**
+- [ ] All four services confirmed healthy after reboot
+- [ ] mac-server checklist marked complete in register
+- [ ] Screenshot — all four services running (systemctl status)
+- [ ] Git commit — "Phase 1c — mac-server baseline complete"
+
+---
+
 ## Genesis2 — Proxmox Install Checklist
 
 > Active phase. Running on flat network 192.168.0.0/24.  
@@ -343,6 +396,8 @@ These must be completed before rescheduling Window 2:
 ---
 
 ## Future Phases — Remaining Work
+
+> **Build sequence confirmed 22/03/2026:** Phase 1c (mac-server) runs first. Genesis2 Proxmox baseline (Phase 1b) follows. Service deployment on genesis2 begins only after Forgejo is confirmed live on mac-server. Network window and Pi migration remain an independent track.
 
 ### Phase 1 Network Window — DEFERRED
 > Reschedule once admin devices are configured and pre-window checklist is complete.
@@ -429,7 +484,8 @@ These must be completed before rescheduling Window 2:
 | Phase | Focus | Status |
 |-------|-------|--------|
 | 1 | Omada ISP rack — port migrations, OC200 cutover | ⏸️ Deferred — pre-window checklist incomplete |
-| 1b | Genesis2 — Proxmox install + observability stack | 🔄 Active — flat network |
+| 1b | Genesis2 — Proxmox install + ZFS + observability stack | 🔲 Not started — follows Phase 1c |
+| 1c | mac-server — Debian install + services | 🔄 Active — next session |
 | 2 | Catalyst 3750G + infrastructure services | 🔲 Not started |
 | 3 | Developer tooling + 2960G | 🔲 Not started |
 | 4 | Applications — Nextcloud, Homepage | 🔲 Not started |

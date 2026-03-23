@@ -49,6 +49,7 @@
 | 8 | Router #2 | Cisco 1921 | `[IOS Version]` | Server Rack | VPN / Lab | 192.168.20.253 | Planned — Phase 7 |
 | 9 | WAP | TP-Link EAP `[model]` | `[Version]` | ISP Rack area | Wireless AP | 192.168.99.`[x]` | Active |
 | 10 | Raspberry Pi | Raspberry Pi `[model]` | `[OS Version]` | `[Location]` | Pi-hole DNS | 192.168.10.15 | Active — Phase 1 |
+| 11 | mac-server | 2008 MacBook — Debian 12 | `[Version]` | Server Rack / Lab | Forgejo, NAS, code-server | 192.168.20.11 | Active — Phase 1c |
 
 ---
 
@@ -107,6 +108,9 @@
 | Xavier PC | 192.168.10.12 | 10 | [MAC_REDACTED] | Reservation | 1 | Reservation set for potential future admin access |
 | Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] | Reservation | 1 | Phase 1: HOME DNS only. Phase 2: move to MGMT 192.168.99.5 for network-wide DNS |
 | Raspberry Pi — Pi-hole (Phase 2+) | 192.168.99.5 | 99 | [MAC_REDACTED] | Reservation | 2+ | Planned MGMT DNS — reserve when migrating Pi from HOME. See NDD §6.2 for transition steps. |
+| mac-server (temp flat) | 192.168.0.11 | flat | `[MAC — after install]` | Static | 1c | Temporary — flat network during setup |
+| mac-server (permanent) | 192.168.20.11 | 20 | `[MAC — after install]` | Static | 2 | Infrastructure zone — physical host |
+| Forgejo LXC (genesis2) | RETIRED | 20 | N/A | — | — | Moved to mac-server 192.168.20.11:3000 — VMID 240 retired |
 | Cisco 1921 #1 | 192.168.20.254 | 20 | `[MAC]` | Static | 7 | Lab edge — optional Phase 7 |
 | Cisco 1921 #2 | 192.168.20.253 | 20 | `[MAC]` | Static | 7 | VPN / lab — optional Phase 7 |
 | Philips Hue Bridge | `[192.168.30.5 — set when moved to IoT]` | 30 | [MAC_REDACTED] | Reservation | 1+ | Currently on HOME. Move to IOT VLAN 30 when 3750G live. Set static via Hue app after move. |
@@ -313,6 +317,8 @@
 | 16/03/2026 | `[Time]` | ER605 | Adoption | ER605 not re-adopting post-restore — internet functional, management plane issue | Adopted | Not adopted | N | Pending resolution next session |
 | `[Date]` | `[Time]` | TL-SG2008P | Port Profiles | Port 1 changed to MGMT profile | HOME / flat | MGMT — VLAN 99 | `[Y/N]` | Phase 1 port migration |
 | `[Date]` | `[Time]` | TL-SG2008P | Port Profiles | Port 3 changed to HOME profile | Flat network | HOME — VLAN 10 | `[Y/N]` | Phase 1 port migration — admin PC |
+| 22/03/26 | `[Time]` | Project | Planning | mac-server added to project | Not planned | mac-server confirmed as always-on utility node — Forgejo, Samba, code-server, SSH jump | N/A | Architecture decision |
+| 22/03/26 | `[Time]` | genesis2 | VM Register | VMID 240 Forgejo LXC retired | VMID 240 planned | Forgejo moved to mac-server native Debian service | N/A | mac-server architecture decision |
 | `[Date]` | `[Time]` | `[Device]` | `[Section]` | `[Description]` | `[Old value]` | `[New value]` | `[Y/N]` | `[Reason]` |
 
 ---

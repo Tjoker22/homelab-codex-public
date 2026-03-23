@@ -188,7 +188,7 @@ Addresses are grouped in zones of ten by service category. This keeps the regist
 | — | .23–.29 | — | Reserved | Monitoring expansion | — | Alertmanager, additional exporters |
 | 230 | .30 | pihole2 | LXC | Pi-hole secondary DNS | 2 | Gravity Sync pulls from Pi at 192.168.99.5 |
 | — | .31–.39 | — | Reserved | Network services expansion | — | |
-| 240 | .40 | forgejo | LXC | Forgejo internal Git | 3 | Push mirror to GitHub |
+| ~~240~~ | ~~.40~~ | ~~forgejo~~ | RETIRED — LXC | Moved to mac-server as native Debian service | — |
 | — | .41–.49 | — | Reserved | Developer tooling expansion | — | CI/CD if added later |
 | 250 | .50 | npm | LXC | Nginx Proxy Manager | 2 | All external service traffic — already committed |
 | 251 | .51 | tailscale | LXC | Tailscale subnet router | 2 | Co-advertiser with Pi — already committed |
@@ -250,7 +250,7 @@ Services are deployed in layers. No layer begins until the previous layer is sta
 
 | VMID | Service | IP | Notes |
 |------|---------|-----|-------|
-| 240 | Forgejo | 192.168.20.40 | Internal Git — push mirror to GitHub. Deploy early so Genesis2 build is self-documented from here. |
+| — | Forgejo | mac-server 192.168.20.11:3000 | Moved to mac-server — native Debian service. See mac-server-plan.md. VMID 240 retired. |
 
 ### Phase 4 — Applications
 
@@ -380,6 +380,7 @@ Tailscale is the primary remote access path for personal external access to the 
 | jxstudios.dev stack | Astro | Modern static site generator, strong portfolio signal, component-based, fast output. No CMS overhead needed for this use case. |
 | Monitoring stack | PLG — Prometheus + Loki + Grafana | Industry standard, appears in job descriptions, three independent LXCs for clean update/rebuild paths. |
 | Internal Git | Forgejo over Gitea | Better community trajectory post-Gitea Inc. fork. API-compatible — no functional difference. Push mirror to GitHub supported natively. |
+| Forgejo placement | mac-server (native), not genesis2 LXC | genesis2 has planned maintenance windows. Internal Git must be reachable during those windows. Core 2 Duo handles Go binary without issue. VMID 240 retired. |
 | Dashboard | Homepage | Actively maintained, YAML config (infrastructure-as-code discipline), clean integrations. |
 | MGMT Pi boot media | USB SSD (256 GB, already connected) | SD card wear under constant DNS query logging is an avoidable failure mode. SSD resolved. |
 
