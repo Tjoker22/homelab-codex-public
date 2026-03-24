@@ -59,7 +59,7 @@ If a task requires a design decision not covered in this file or the architectur
 | Controller | TP-Link OC200 | Omada controller | 192.168.99.2 |
 | WAP | TP-Link EAP653 (US) | Wireless access point | 192.168.99.x |
 | DNS / MGMT | Raspberry Pi 5 8GB | Pi-hole primary, Tailscale primary, MGMT device | 192.168.99.5 |
-| helios | OR PC — Debian 12 (Sandy Bridge i3-2120) | Forgejo, NAS, Jellyfin, code-server | 192.168.0.11 (temp) → 192.168.20.11 |
+| helios | OR PC — Debian 12 (Sandy Bridge i3-2120) | Forgejo, NAS, Jellyfin, code-server | 192.168.0.151 (temp) → 192.168.20.11 |
 | L3 Core Switch | Cisco Catalyst 3750G | Inter-VLAN routing (Phase 2) | 192.168.99.3 |
 | L2 Access Switch | Cisco Catalyst 2960G | Lab access layer (Phase 3) | 192.168.99.4 |
 | Hypervisor | Proxmox — genesis2 | VM and LXC host | 192.168.0.20 (temp) → 192.168.20.10 (Phase 2) |
@@ -128,7 +128,7 @@ Tier 2 — Management (admin devices only):
 | Admin PC | 192.168.10.10 | 10 | [MAC_REDACTED] |
 | Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] |
 | Partner PC | 192.168.10.12 | 10 | `[MAC pending]` |
-| helios | 192.168.0.11 (temp) → 192.168.20.11 | 20 | `[MAC — record after install]` |
+| helios | 192.168.0.151 (temp) → 192.168.20.11 | 20 | `[MAC — record after install]` |
 | Philips Hue Bridge | 192.168.30.5 | 30 | [MAC_REDACTED] |
 
 ### Genesis2 VM and LXC Register — LAB VLAN 192.168.20.0/24

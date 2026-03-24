@@ -5,7 +5,7 @@
 **Document Version:** 1.0
 **Created:** 23/03/2026
 **Last Updated:** 23/03/2026
-**Status:** Active build — flat network phase (192.168.0.11)
+**Status:** Active build — flat network phase (192.168.0.151)
 **Companion Files:** `helios-plan.md` | `CLAUDE.md` | `network_settings_register_populated.md` | `device_specs_list.md`
 
 ---
@@ -38,7 +38,7 @@ Follow each section in order. Every section ends with checkpoint boxes — do no
 | Parameter | Value |
 |-----------|-------|
 | Hostname | `helios` |
-| IP Address | `192.168.0.11` (static — outside DHCP range) |
+| IP Address | `192.168.0.151` (static — outside DHCP range) |
 | Subnet | `255.255.255.0` |
 | Gateway | `192.168.0.1` (ER605) |
 | DNS | `192.168.0.1` (ER605 — flat network default) |
@@ -87,13 +87,13 @@ Use Rufus or balenaEtcher. Select the ISO, target the USB drive, write in DD mod
 
 ### Confirm ER605 DHCP Range
 
-Before assigning 192.168.0.11, verify it is outside the ER605 DHCP pool. Log into the ER605 admin panel and check the DHCP server settings for the LAN. The static IP must not overlap with the DHCP range.
+Before assigning 192.168.0.151, verify it is outside the ER605 DHCP pool. Log into the ER605 admin panel and check the DHCP server settings for the LAN. The static IP must not overlap with the DHCP range.
 
 ### Checkpoints
 
 - [ ] Debian 12 netinst ISO downloaded
 - [ ] USB installer flashed and verified
-- [ ] ER605 DHCP range confirmed — 192.168.0.11 is outside the pool
+- [ ] ER605 DHCP range confirmed — 192.168.0.151 is outside the pool
 - [ ] Ethernet cable connected from Helios to switch
 - [ ] Monitor and keyboard attached temporarily
 
@@ -241,7 +241,7 @@ Replace the DHCP block for the Ethernet interface with:
 ```
 auto <interface-name>
 iface <interface-name> inet static
-    address 192.168.0.11
+    address 192.168.0.151
     netmask 255.255.255.0
     gateway 192.168.0.1
     dns-nameservers 192.168.0.1
@@ -256,7 +256,7 @@ sudo systemctl restart networking
 ip addr show <interface-name>
 ```
 
-192.168.0.11/24 should appear on the interface.
+192.168.0.151/24 should appear on the interface.
 
 ### Step 6 — Test connectivity
 
@@ -274,15 +274,15 @@ All three must succeed.
 ip link show <interface-name> | grep ether
 ```
 
-Update `network_settings_register_populated.md` with the Helios entry at 192.168.0.11.
+Update `network_settings_register_populated.md` with the Helios entry at 192.168.0.151.
 
 ### Step 8 — Set up SSH key authentication
 
 From the admin PC (not Helios):
 
 ```bash
-ssh-copy-id <your-user>@192.168.0.11
-ssh <your-user>@192.168.0.11
+ssh-copy-id <your-user>@192.168.0.151
+ssh <your-user>@192.168.0.151
 ```
 
 Once key login works, disable password auth on Helios:
@@ -305,7 +305,7 @@ Verify `/etc/hosts` contains: `127.0.1.1    helios`
 ### Checkpoints
 
 - [ ] All packages updated
-- [ ] Static IP 192.168.0.11 confirmed working
+- [ ] Static IP 192.168.0.151 confirmed working
 - [ ] Gateway, internet, and DNS all reachable
 - [ ] MAC address recorded
 - [ ] SSH key auth working, password auth disabled
@@ -441,16 +441,16 @@ sudo systemctl status forgejo
 
 ### Step 6 — Complete web setup
 
-Browse to `http://192.168.0.11:3000` from the admin PC. Complete the first-run wizard:
+Browse to `http://192.168.0.151:3000` from the admin PC. Complete the first-run wizard:
 
 | Setting | Value |
 |---------|-------|
 | Database | SQLite3 (default) |
 | Site Title | JXStudios Forgejo |
 | Repository Root | `/srv/forgejo/forgejo-repositories` |
-| Server Domain | `192.168.0.11` |
+| Server Domain | `192.168.0.151` |
 | SSH Server Port | `22` |
-| Base URL | `http://192.168.0.11:3000/` |
+| Base URL | `http://192.168.0.151:3000/` |
 | Admin Account | Create now — save to password manager |
 
 > ⚠️ Store the admin credentials in the password manager immediately. Do not commit them to any repository.
@@ -460,7 +460,7 @@ Browse to `http://192.168.0.11:3000` from the admin PC. Complete the first-run w
 ```bash
 cd /path/to/jxstudios-homelab
 git remote rename origin github
-git remote add origin http://192.168.0.11:3000/<user>/jxstudios-homelab.git
+git remote add origin http://192.168.0.151:3000/<user>/jxstudios-homelab.git
 git push -u origin main
 ```
 
@@ -471,7 +471,7 @@ In Forgejo: repository **Settings → Mirror Settings**. Add GitHub as a push mi
 ### Checkpoints
 
 - [ ] Forgejo binary installed and running
-- [ ] Web UI accessible at `http://192.168.0.11:3000`
+- [ ] Web UI accessible at `http://192.168.0.151:3000`
 - [ ] Admin account created — credentials saved
 - [ ] Lab repo migrated from GitHub
 - [ ] GitHub push mirror configured
@@ -536,9 +536,9 @@ sudo systemctl status smbd
 
 ### Step 6 — Test from admin PC
 
-- **Windows:** File Explorer → `\\192.168.0.11\shared`
-- **macOS:** Finder → Go → Connect to Server → `smb://192.168.0.11/shared`
-- **Linux:** File manager → `smb://192.168.0.11/shared`
+- **Windows:** File Explorer → `\\192.168.0.151\shared`
+- **macOS:** Finder → Go → Connect to Server → `smb://192.168.0.151/shared`
+- **Linux:** File manager → `smb://192.168.0.151/shared`
 
 Create a test file, then delete it. Repeat for the media share.
 
@@ -577,7 +577,7 @@ sudo systemctl status jellyfin
 
 ### Step 4 — Complete web setup
 
-Browse to `http://192.168.0.11:8096`. Walk through the wizard:
+Browse to `http://192.168.0.151:8096`. Walk through the wizard:
 
 - **Admin account:** Create and save to password manager
 - **Media library:** Add library, point at `/srv/samba/media`
@@ -593,7 +593,7 @@ In Jellyfin dashboard → **Playback**, set hardware acceleration to **None**. T
 ### Checkpoints
 
 - [ ] Jellyfin installed and running
-- [ ] Web UI accessible at `http://192.168.0.11:8096`
+- [ ] Web UI accessible at `http://192.168.0.151:8096`
 - [ ] Admin account created — credentials saved
 - [ ] Media library pointed at `/srv/samba/media`
 - [ ] Hardware transcoding confirmed disabled
@@ -664,14 +664,14 @@ sudo systemctl status code-server
 
 ### Step 6 — Test
 
-Browse to `http://192.168.0.11:8080`, enter the password. Accept the self-signed cert warning if shown.
+Browse to `http://192.168.0.151:8080`, enter the password. Accept the self-signed cert warning if shown.
 
 > ℹ️ code-server can open any path on the machine, including `/srv/forgejo` repos. This makes it a natural remote development companion to the local Forgejo instance.
 
 ### Checkpoints
 
 - [ ] code-server installed and running
-- [ ] Accessible at `http://192.168.0.11:8080`
+- [ ] Accessible at `http://192.168.0.151:8080`
 - [ ] Password saved in password manager
 - [ ] Git commit: `"Phase 1c — helios code-server"`
 
@@ -690,7 +690,7 @@ sudo reboot
 Wait approximately 60 seconds, then SSH back in:
 
 ```bash
-ssh <your-user>@192.168.0.11
+ssh <your-user>@192.168.0.151
 ```
 
 ### Step 2 — Check all services
@@ -717,11 +717,11 @@ Pool should be ONLINE, all three drives healthy, no errors.
 
 | Service | URL / Method | Expected Result |
 |---------|-------------|-----------------|
-| Forgejo | `http://192.168.0.11:3000` | Login page loads |
-| Samba | `\\192.168.0.11\shared` | Browse files |
-| Jellyfin | `http://192.168.0.11:8096` | Dashboard loads |
-| code-server | `http://192.168.0.11:8080` | VS Code loads |
-| SSH | `ssh user@192.168.0.11` | Shell prompt |
+| Forgejo | `http://192.168.0.151:3000` | Login page loads |
+| Samba | `\\192.168.0.151\shared` | Browse files |
+| Jellyfin | `http://192.168.0.151:8096` | Dashboard loads |
+| code-server | `http://192.168.0.151:8080` | VS Code loads |
+| SSH | `ssh user@192.168.0.151` | Shell prompt |
 
 ### Step 5 — Screenshot and commit
 
@@ -784,6 +784,6 @@ Store all media as H.264 MP4 or MKV. The GT 220 GPU cannot hardware transcode, a
 
 ---
 
-*Document version 1.0 — Created 23/03/2026 — Active build phase: flat network (192.168.0.11)*
+*Document version 1.0 — Created 23/03/2026 — Active build phase: flat network (192.168.0.151)*
 *Companion to: `helios-plan.md` (planning and decisions) | This file (build procedure)*
 *Next update: After Debian install — record MAC address, NIC interface name, confirm static IP*

@@ -243,7 +243,7 @@ sudo ip addr del 192.168.99.10/24 dev [interface]
 | Raspberry Pi 5 — Pi-hole / MGMT | 192.168.10.15 (Phase 1) → 192.168.99.5 (Phase 2+) | 10 → 99 | [MAC_REDACTED] |
 | Philips Hue Bridge | 192.168.30.5 | 30 | [MAC_REDACTED] |
 | genesis2 — Proxmox Host | 192.168.0.20 (temp flat) → 192.168.20.10 (Phase 2) | 20 | `[MAC — record after install]` |
-| helios | 192.168.0.11 (temp flat) → 192.168.20.11 (Phase 2) | 20 | `[MAC — record after install]` |
+| helios | 192.168.0.151 (temp flat) → 192.168.20.11 (Phase 2) | 20 | `[MAC — record after install]` |
 | Nginx Proxy Manager | 192.168.20.50 | 20 | N/A — LXC |
 | Tailscale LXC | 192.168.20.51 | 20 | N/A — LXC |
 | 3750G SVI MGMT | 192.168.99.3 | 99 | N/A |
@@ -311,7 +311,7 @@ These must be completed before rescheduling Window 2:
 **Debian install:**
 - [ ] Run lsblk from live USB — confirm boot drive, leave 3 data HDDs unpartitioned
 - [ ] Debian 12 minimal install — no desktop — boot drive only
-- [ ] Static IP set to 192.168.0.11 (flat network temp)
+- [ ] Static IP set to 192.168.0.151 (flat network temp)
 - [ ] SSH key auth configured — password auth disabled
 - [ ] All packages updated — apt update && apt full-upgrade
 - [ ] Record MAC address — update network register
@@ -326,7 +326,7 @@ These must be completed before rescheduling Window 2:
 - [ ] forgejo user created
 - [ ] Forgejo binary downloaded and installed
 - [ ] systemd unit file written and enabled
-- [ ] Forgejo confirmed accessible at http://192.168.0.11:3000
+- [ ] Forgejo confirmed accessible at http://192.168.0.151:3000
 - [ ] Admin account created — credentials in password manager
 - [ ] Main lab repo migrated from GitHub to internal Forgejo
 - [ ] GitHub push mirror configured from Forgejo
@@ -340,13 +340,13 @@ These must be completed before rescheduling Window 2:
 **Jellyfin:**
 - [ ] Jellyfin installed — systemd unit enabled
 - [ ] Media library pointed at /srv/samba/media
-- [ ] Jellyfin confirmed accessible at http://192.168.0.11:8096
+- [ ] Jellyfin confirmed accessible at http://192.168.0.151:8096
 - [ ] Git commit — "Phase 1c — helios Jellyfin"
 
 **code-server:**
 - [ ] code-server installed — systemd unit written and enabled
 - [ ] Password set — stored in password manager, not committed to repo
-- [ ] Accessible at http://192.168.0.11:8080
+- [ ] Accessible at http://192.168.0.151:8080
 - [ ] Git commit — "Phase 1c — helios code-server"
 
 **Final:**

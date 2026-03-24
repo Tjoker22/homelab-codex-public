@@ -5,7 +5,7 @@
 **Document Version:** 1.0
 **Created:** 23/03/2026
 **Last Updated:** 23/03/2026
-**Status:** Active build — flat network phase (192.168.0.11)
+**Status:** Active build — flat network phase (192.168.0.151)
 **Companion Files:** `CLAUDE.md` | `network_settings_register_populated.md` | `genesis2-project-genesis-plan.md` | `device_specs_list.md`
 
 ---
@@ -47,7 +47,7 @@
 
 | Phase | Network | Helios IP | Status | Notes |
 |-------|---------|-----------|--------|-------|
-| Flat (current — active) | 192.168.0.0/24 | 192.168.0.11 | ✅ Active build phase | All services configured and tested here first |
+| Flat (current — active) | 192.168.0.0/24 | 192.168.0.151 | ✅ Active build phase | All services configured and tested here first |
 | Phase 2+ | VLAN 20 LAB | 192.168.20.11 | 🔵 Future | After 3750G is configured and maintenance window complete |
 
 > **All services are built and validated on the flat network.** Service configs use the flat IP during this phase. When Helios migrates to VLAN 20, only the static IP and gateway need updating — service configs do not need to change, as hostnames and port numbers remain identical.
@@ -57,7 +57,7 @@
 | Parameter | Value |
 |-----------|-------|
 | Hostname | helios |
-| IP Address | 192.168.0.11 (static — outside DHCP range) |
+| IP Address | 192.168.0.151 (static — outside DHCP range) |
 | Subnet | 255.255.255.0 |
 | Gateway | 192.168.0.1 (ER605) |
 | DNS | 192.168.0.1 (ER605 — flat network default) |
@@ -235,8 +235,8 @@ Helios is documented as part of the larger JXStudios home lab project, not as a 
 | Item | Priority | Notes |
 |------|----------|-------|
 | Boot drive identification | Before install | Run `lsblk` from live USB — confirm which drive to install Debian on. Do not partition a data HDD. |
-| Set static IP 192.168.0.11 | During install | Outside DHCP range — confirm ER605 DHCP pool upper bound before choosing |
-| Confirm MAC address | After Debian install | Update `network_settings_register_populated.md` — flat network entry for helios at 192.168.0.11 |
+| Set static IP 192.168.0.151 | During install | Outside DHCP range — confirm ER605 DHCP pool upper bound before choosing |
+| Confirm MAC address | After Debian install | Update `network_settings_register_populated.md` — flat network entry for helios at 192.168.0.151 |
 | NIC interface name | During install | Record in §1 — needed for static IP config |
 | code-server password | During setup | Store in password manager — do not commit to repo |
 | Forgejo admin credentials | During setup | Store in password manager — do not commit to repo |
@@ -256,6 +256,6 @@ Helios is documented as part of the larger JXStudios home lab project, not as a 
 
 ---
 
-*Document version 1.0 — Created 23/03/2026 — Active build phase: flat network (192.168.0.11)*
+*Document version 1.0 — Created 23/03/2026 — Active build phase: flat network (192.168.0.151)*
 *Supersedes: mac-server-plan.md (role absorbed — MacBook retired to spare)*
 *Next update: After Debian install — record MAC address, NIC interface name, confirm static IP*

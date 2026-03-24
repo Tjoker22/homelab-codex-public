@@ -108,7 +108,7 @@
 | Xavier PC | 192.168.10.12 | 10 | [MAC_REDACTED] | Reservation | 1 | Reservation set for potential future admin access |
 | Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] | Reservation | 1 | Phase 1: HOME DNS only. Phase 2: move to MGMT 192.168.99.5 for network-wide DNS |
 | Raspberry Pi — Pi-hole (Phase 2+) | 192.168.99.5 | 99 | [MAC_REDACTED] | Reservation | 2+ | Planned MGMT DNS — reserve when migrating Pi from HOME. See NDD §6.2 for transition steps. |
-| helios (temp flat) | 192.168.0.11 | flat | `[MAC — after install]` | Static | 1c | Temporary — flat network during setup |
+| helios (temp flat) | 192.168.0.151 | flat | `[MAC — after install]` | Static | 1c | Temporary — flat network during setup |
 | helios (permanent) | 192.168.20.11 | 20 | `[MAC — after install]` | Static | 2 | Infrastructure zone — physical host |
 | Forgejo LXC (genesis2) | RETIRED | 20 | N/A | — | — | Moved to helios 192.168.20.11:3000 — VMID 240 retired |
 | Cisco 1921 #1 | 192.168.20.254 | 20 | `[MAC]` | Static | 7 | Lab edge — optional Phase 7 |
