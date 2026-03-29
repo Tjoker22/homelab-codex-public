@@ -2,9 +2,9 @@
 **Site:** JXStudios
 **Hostname:** `helios`
 **Project:** Project Helios
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Created:** 23/03/2026
-**Last Updated:** 23/03/2026
+**Last Updated:** 29/03/2026
 **Status:** Active build — flat network phase (192.168.0.151)
 **Companion Files:** `helios-plan.md` | `CLAUDE.md` | `network_settings_register_populated.md` | `device_specs_list.md`
 
@@ -206,21 +206,42 @@ Remove the USB drive when prompted and let the machine boot into Debian for the 
 
 ## 5. Post-Install Baseline
 
-Log in at the console with the admin user. Finish this section at the console first, then switch to SSH.
+Log in at the console. The first steps are done as **root** to set up sudo access, then everything else is done as the admin user.
 
-### Step 1 — Update all packages
+### Step 1 — Install sudo and grant admin access (as root)
+
+Log in as `root` using the root password set during install. Debian minimal does not add the first user to the sudo group by default — this must be done manually.
+
+```bash
+apt install -y sudo
+usermod -aG sudo <your-user>
+```
+
+> ⚠️ Replace `<your-user>` with the admin username created during installation.
+
+Log out of root and log back in as the admin user. Verify sudo works:
+
+```bash
+sudo whoami
+```
+
+This should return `root`. If it does not, log out and back in again — group membership changes require a fresh login session.
+
+> ℹ️ From this point forward, all commands are run as the admin user with `sudo`. Do not use the root account directly again.
+
+### Step 2 — Update all packages
 
 ```bash
 sudo apt update && sudo apt full-upgrade -y
 ```
 
-### Step 2 — Install essential tools
+### Step 3 — Install essential tools
 
 ```bash
 sudo apt install -y curl wget git htop vim net-tools
 ```
 
-### Step 3 — Record the NIC interface name
+### Step 4 — Record the NIC interface name
 
 ```bash
 ip link show
@@ -230,7 +251,7 @@ Look for the Ethernet interface — something like `enp0s25`, `eno1`, or `eth0`.
 
 **Your interface name:** _______________ (record here)
 
-### Step 4 — Set the static IP
+### Step 5 — Set the static IP
 
 ```bash
 sudo vim /etc/network/interfaces
@@ -249,7 +270,7 @@ iface <interface-name> inet static
 
 > ⚠️ Replace `<interface-name>` with the actual name recorded above (e.g., `enp0s25`).
 
-### Step 5 — Apply and verify
+### Step 6 — Apply and verify
 
 ```bash
 sudo systemctl restart networking
@@ -258,7 +279,7 @@ ip addr show <interface-name>
 
 192.168.0.151/24 should appear on the interface.
 
-### Step 6 — Test connectivity
+### Step 7 — Test connectivity
 
 ```bash
 ping -c 3 192.168.0.1     # gateway
@@ -268,7 +289,7 @@ ping -c 3 google.com      # DNS resolution
 
 All three must succeed.
 
-### Step 7 — Record the MAC address
+### Step 8 — Record the MAC address
 
 ```bash
 ip link show <interface-name> | grep ether
@@ -276,7 +297,7 @@ ip link show <interface-name> | grep ether
 
 Update `network_settings_register_populated.md` with the Helios entry at 192.168.0.151.
 
-### Step 8 — Set up SSH key authentication
+### Step 9 — Set up SSH key authentication
 
 From the admin PC (not Helios):
 
@@ -294,7 +315,7 @@ sudo systemctl restart sshd
 
 > ⚠️ From this point forward, disconnect the monitor and keyboard. All remaining work is over SSH.
 
-### Step 9 — Set the hostname
+### Step 10 — Set the hostname
 
 ```bash
 hostnamectl set-hostname helios
@@ -304,6 +325,7 @@ Verify `/etc/hosts` contains: `127.0.1.1    helios`
 
 ### Checkpoints
 
+- [ ] sudo installed and admin user added to sudo group
 - [ ] All packages updated
 - [ ] Static IP 192.168.0.151 confirmed working
 - [ ] Gateway, internet, and DNS all reachable
@@ -383,6 +405,8 @@ Pool should be ONLINE, all drives healthy, all datasets mounted at their correct
 
 Forgejo is installed first because all subsequent work should be committed to version control immediately. It is a single Go binary with no runtime dependencies.
 
+> ℹ️ Steps below follow the [official Forgejo binary installation guide](https://forgejo.org/docs/latest/admin/installation/binary). The official docs recommend a `git` user, but this guide uses `forgejo` to avoid ambiguity with the `git` command. Both approaches work.
+
 ### Step 1 — Create the forgejo system user
 
 ```bash
@@ -394,42 +418,53 @@ sudo adduser --system --shell /bin/bash --gecos 'Forgejo' --group --home /srv/fo
 Check https://codeberg.org/forgejo/forgejo/releases for the latest stable version:
 
 ```bash
-FORGEJO_VER="x.x.x"  # replace with latest
+FORGEJO_VER="x.x.x"  # replace with latest stable
 sudo wget -O /usr/local/bin/forgejo \
   https://codeberg.org/forgejo/forgejo/releases/download/v${FORGEJO_VER}/forgejo-${FORGEJO_VER}-linux-amd64
 sudo chmod 755 /usr/local/bin/forgejo
 ```
 
+Verify the binary runs:
+
+```bash
+forgejo --version
+```
+
 ### Step 3 — Create directories
+
+Per the [official docs](https://forgejo.org/docs/latest/admin/installation/binary), the config directory should be owned by `root:forgejo` with `770` so that the Forgejo process can read but not write its own config at rest:
 
 ```bash
 sudo mkdir -p /etc/forgejo
-sudo chown forgejo:forgejo /etc/forgejo && sudo chmod 750 /etc/forgejo
+sudo chown root:forgejo /etc/forgejo && sudo chmod 770 /etc/forgejo
 sudo chown -R forgejo:forgejo /srv/forgejo
 ```
 
-### Step 4 — Create systemd service
+### Step 4 — Download the official systemd service file
+
+The Forgejo project maintains a premade systemd unit file. Download it rather than writing one by hand — this ensures it stays in line with upstream expectations:
 
 ```bash
-sudo tee /etc/systemd/system/forgejo.service > /dev/null << 'EOF'
-[Unit]
-Description=Forgejo
-After=network.target
-
-[Service]
-Type=simple
-User=forgejo
-Group=forgejo
-WorkingDirectory=/srv/forgejo
-ExecStart=/usr/local/bin/forgejo web -c /etc/forgejo/app.ini
-Restart=always
-RestartSec=5
-Environment=USER=forgejo HOME=/srv/forgejo
-
-[Install]
-WantedBy=multi-user.target
-EOF
+sudo wget -O /etc/systemd/system/forgejo.service \
+  https://codeberg.org/forgejo/forgejo/raw/branch/forgejo/contrib/systemd/forgejo.service
 ```
+
+After downloading, review and edit the service file to match the Helios setup:
+
+```bash
+sudo vim /etc/systemd/system/forgejo.service
+```
+
+Confirm or update these values:
+
+| Setting | Expected Value |
+|---------|---------------|
+| `User` | `forgejo` |
+| `Group` | `forgejo` |
+| `WorkingDirectory` | `/srv/forgejo` |
+| `ExecStart` | `/usr/local/bin/forgejo web --config /etc/forgejo/app.ini` |
+
+> ℹ️ The official service file defaults to `User=git`. Change this to `forgejo` to match the user created in Step 1. Also confirm `HOME` and `WorkingDirectory` point to `/srv/forgejo`.
 
 ### Step 5 — Start Forgejo
 
@@ -455,6 +490,12 @@ Browse to `http://192.168.0.151:3000` from the admin PC. Complete the first-run 
 
 > ⚠️ Store the admin credentials in the password manager immediately. Do not commit them to any repository.
 
+After the first run completes, lock down the config directory permissions:
+
+```bash
+sudo chmod 750 /etc/forgejo
+```
+
 ### Step 7 — Migrate the lab repo
 
 ```bash
@@ -470,9 +511,11 @@ In Forgejo: repository **Settings → Mirror Settings**. Add GitHub as a push mi
 
 ### Checkpoints
 
-- [ ] Forgejo binary installed and running
+- [ ] Forgejo binary installed — `forgejo --version` returns current version
+- [ ] Official systemd service file downloaded and edited for `forgejo` user
 - [ ] Web UI accessible at `http://192.168.0.151:3000`
 - [ ] Admin account created — credentials saved
+- [ ] Config directory locked down to `750` after first run
 - [ ] Lab repo migrated from GitHub
 - [ ] GitHub push mirror configured
 - [ ] Git commit: `"Phase 1c — helios Forgejo baseline"`
@@ -557,8 +600,19 @@ Jellyfin reads from `/srv/samba/media` and streams to clients. No hardware trans
 
 ### Step 1 — Install Jellyfin
 
+Per the [official Jellyfin docs](https://jellyfin.org/docs/general/installation/linux), the recommended method for Debian is the install script. Optionally verify the script integrity first:
+
 ```bash
 sudo apt install -y curl gnupg
+
+# Optional — verify script integrity before running
+curl -fsSL https://repo.jellyfin.org/install-debuntu.sh -o /tmp/install-debuntu.sh
+diff <( sha256sum /tmp/install-debuntu.sh ) <( curl -fsSL https://repo.jellyfin.org/install-debuntu.sh.sha256sum )
+```
+
+An empty diff output means the script is intact. Then install:
+
+```bash
 curl -fsSL https://repo.jellyfin.org/install-debuntu.sh | sudo bash
 ```
 
@@ -605,19 +659,34 @@ In Jellyfin dashboard → **Playback**, set hardware acceleration to **None**. T
 
 VS Code in the browser. Runs as its own user and pairs naturally with the local Forgejo instance.
 
+> ℹ️ Steps below follow the [official code-server install docs](https://github.com/coder/code-server/blob/main/docs/install.md). The recommended method for Debian is the `.deb` package, which ships with a built-in systemd template unit (`code-server@`).
+
 ### Step 1 — Create codeserver user
 
 ```bash
 sudo adduser --system --shell /bin/bash --gecos 'code-server' --group --home /home/codeserver codeserver
 ```
 
-### Step 2 — Install code-server
+### Step 2 — Install code-server via .deb package
+
+Check https://github.com/coder/code-server/releases for the latest stable version:
 
 ```bash
-curl -fsSL https://code-server.dev/install.sh | sh
+CS_VERSION="4.109.5"  # replace with latest stable
+curl -fOL https://github.com/coder/code-server/releases/download/v${CS_VERSION}/code-server_${CS_VERSION}_amd64.deb
+sudo dpkg -i code-server_${CS_VERSION}_amd64.deb
+rm code-server_${CS_VERSION}_amd64.deb
+```
+
+Verify:
+
+```bash
+code-server --version
 ```
 
 ### Step 3 — Configure
+
+The built-in systemd template expects the config at the user's home directory. Create it:
 
 ```bash
 sudo mkdir -p /home/codeserver/.config/code-server
@@ -634,35 +703,18 @@ sudo chown -R codeserver:codeserver /home/codeserver
 
 > ⚠️ Store this password in the password manager. Do not commit it to any repository.
 
-### Step 4 — Create systemd service
+### Step 4 — Enable the built-in systemd service
+
+code-server's `.deb` package ships with a systemd template unit `code-server@`. Enable it for the `codeserver` user:
 
 ```bash
-sudo tee /etc/systemd/system/code-server.service > /dev/null << 'EOF'
-[Unit]
-Description=code-server
-After=network.target
-
-[Service]
-Type=simple
-User=codeserver
-ExecStart=/usr/bin/code-server --config /home/codeserver/.config/code-server/config.yaml
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
+sudo systemctl enable --now code-server@codeserver
+sudo systemctl status code-server@codeserver
 ```
 
-### Step 5 — Start code-server
+> ℹ️ The `@codeserver` suffix tells systemd to run the service as the `codeserver` user. No custom service file is needed — the `.deb` package provides it.
 
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now code-server
-sudo systemctl status code-server
-```
-
-### Step 6 — Test
+### Step 5 — Test
 
 Browse to `http://192.168.0.151:8080`, enter the password. Accept the self-signed cert warning if shown.
 
@@ -670,7 +722,8 @@ Browse to `http://192.168.0.151:8080`, enter the password. Accept the self-signe
 
 ### Checkpoints
 
-- [ ] code-server installed and running
+- [ ] code-server installed via `.deb` — `code-server --version` returns current version
+- [ ] Built-in systemd service `code-server@codeserver` enabled and running
 - [ ] Accessible at `http://192.168.0.151:8080`
 - [ ] Password saved in password manager
 - [ ] Git commit: `"Phase 1c — helios code-server"`
@@ -696,7 +749,7 @@ ssh <your-user>@192.168.0.151
 ### Step 2 — Check all services
 
 ```bash
-sudo systemctl status forgejo smbd jellyfin code-server sshd
+sudo systemctl status forgejo smbd jellyfin code-server@codeserver sshd
 ```
 
 All five should show `active (running)`. If any failed, check its journal:
@@ -726,7 +779,7 @@ Pool should be ONLINE, all three drives healthy, no errors.
 ### Step 5 — Screenshot and commit
 
 ```bash
-sudo systemctl status forgejo smbd jellyfin code-server sshd
+sudo systemctl status forgejo smbd jellyfin code-server@codeserver sshd
 ```
 
 Take a screenshot of the output. Then:
@@ -784,6 +837,6 @@ Store all media as H.264 MP4 or MKV. The GT 220 GPU cannot hardware transcode, a
 
 ---
 
-*Document version 1.0 — Created 23/03/2026 — Active build phase: flat network (192.168.0.151)*
+*Document version 1.1 — Updated 29/03/2026 — Flat network IP updated to 192.168.0.151, sudo step added, Forgejo/code-server steps updated per upstream docs*
 *Companion to: `helios-plan.md` (planning and decisions) | This file (build procedure)*
 *Next update: After Debian install — record MAC address, NIC interface name, confirm static IP*
