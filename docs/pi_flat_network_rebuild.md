@@ -154,22 +154,24 @@ Set:
 ```
 PasswordAuthentication no
 PubkeyAuthentication yes
-PermitRootLogin no
+PermitRootLogin no (was prohibit-password)
 ```
+
 ```bash
 sudo systemctl restart ssh
 ```
 > ⚠️ Confirm key login works **before** closing your current session.
 
-From a **windows machine**, to generate a new key:
+> From a **windows machine** 
+To generate a new key:
 ```powershell
 ssh-keygen -t ed25519 -C "windows-pc"
 ```
-When prompted for a file location, just hit Enter to accept the default (C:\Users\YourName\.ssh\id_ed25519). Set a passphrase if you want an extra layer, or hit Enter twice to skip it.
+When prompted for a file location, just hit Enter to accept the default (C:\Users\YourName\.ssh\id_ed25519). Set a passphrase if you want an extra layer, or *hit Enter twice to skip it*.
 
 PowerShell doesn't have `ssh-copy-id`, so use this instead
 ```powershell
-type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh pi@192.168.0.153 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh admin-yoyo@192.168.0.153 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
 ```
 
 It'll ask for your password one last time. After this, password won't be needed from this machine.
@@ -211,6 +213,16 @@ pihole status
 Expected:
 ```
   [✓] FTL is listening on port 53
+  [✓] Pi-hole blocking is enabled
+```
+Could be:
+```
+ [✓] FTL is listening on port 53
+     [✓] UDP (IPv4)
+     [✓] TCP (IPv4)
+     [✓] UDP (IPv6)
+     [✓] TCP (IPv6)
+
   [✓] Pi-hole blocking is enabled
 ```
 
