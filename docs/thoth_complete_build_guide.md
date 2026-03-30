@@ -26,12 +26,12 @@
 
 ## 1. Pre-Install Checklist
 
-- [X] USB drive (8GB+) flashed with `debian-13.4.0-amd64-netinst.iso` using Balena Etcher
+- [ ] USB drive (8GB+) flashed with `debian-13.4.0-amd64-netinst.iso` using Balena Etcher
   - Download from: `https://cdimage.debian.org/cdimage/release/current/amd64/iso-cd/`
-- [X] Ethernet adapter plugged in and connected to router
-- [X] Wi-Fi password written down
-- [X] Second device nearby to reference these steps
-- [X] Power adapter plugged in — do not install on battery
+- [ ] Ethernet adapter plugged in and connected to router
+- [ ] Wi-Fi password written down
+- [ ] Second device nearby to reference these steps
+- [ ] Power adapter plugged in — do not install on battery
 
 ---
 
@@ -371,30 +371,10 @@ nano ~/.bash_profile
 ```
 
 ```bash
-#!/bin/bash
-# ~/.bash_profile
-# Sourced on login shell startup
-
-# Source .bashrc if it exists — keeps login and interactive shell configs unified
-if [ -f "$HOME/.bashrc" ]; then
-    . "$HOME/.bashrc"
-fi
-
 # Auto-launch i3 on login from tty1
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     exec startx
 fi
-```
-
-### Stow .bash_profile and .bashrc config
-
-```bash
-mkdir -p ~/dotfiles/bash
-mv ~/.bash_profile ~/dotfiles/bash/.bash_profile
-mv ~/.bashrc ~/dotfiles/bash/.bashrc
-cd ~/dotfiles && stow bash
-git add .
-git commit -m "feat: add bash_profile with startx auto-launch and bashrc"
 ```
 
 ### Set up i3 config
@@ -499,8 +479,11 @@ truncate_to_repo = true
 
 ### Configure tmux
 
+Create the config directly in dotfiles:
+
 ```bash
-nano ~/.tmux.conf
+mkdir -p ~/dotfiles/tmux
+nano ~/dotfiles/tmux/.tmux.conf
 ```
 
 ```bash
@@ -583,9 +566,7 @@ mkdir -p ~/dotfiles/starship/.config
 mv ~/.config/starship.toml ~/dotfiles/starship/.config/starship.toml
 stow starship
 
-# tmux
-mkdir -p ~/dotfiles/tmux
-mv ~/.tmux.conf ~/dotfiles/tmux/.tmux.conf
+# tmux — already in dotfiles, just stow it
 stow tmux
 
 # Neovim
@@ -619,20 +600,25 @@ sudo apt install -y \
     pavucontrol
 ```
 
-Enable PipeWire for your user:
+On Debian 13, PipeWire uses **socket activation** via systemd and starts automatically when needed — you may not need to manually enable it. Reboot first and test:
 
 ```bash
-systemctl --user enable pipewire pipewire-pulse wireplumber
-systemctl --user start pipewire pipewire-pulse wireplumber
+sudo reboot
 ```
 
-Verify audio is working:
+After logging back in, verify audio is working:
 
 ```bash
 pactl info
 ```
 
-Should return PipeWire server info.
+Should return PipeWire server info. If it fails, manually enable and start the services:
+
+```bash
+systemctl --user enable pipewire pipewire-pulse wireplumber
+systemctl --user start pipewire pipewire-pulse wireplumber
+pactl info
+```
 
 ### Install Bluetooth
 
@@ -757,7 +743,7 @@ Configure fastfetch:
 
 ```bash
 mkdir -p ~/.config/fastfetch
-fastfetch --gen-config
+fastfetch --gen-config-path ~/.config/fastfetch/config.jsonc
 nano ~/.config/fastfetch/config.jsonc
 ```
 
@@ -795,7 +781,27 @@ git commit -m "feat: add applications layer — firefox, sublime, vscode, fastfe
 Do not use apt for Node — nvm gives you version control:
 
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+```
+
+The installer attempts to add nvm to your shell profile automatically, but explicitly add these lines to `~/dotfiles/bash/.bashrc` to guarantee it loads correctly in all sessions:
+
+```bash
+nano ~/dotfiles/bash/.bashrc
+```
+
+Add at the end:
+
+```bash
+# nvm
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+```
+
+Then reload and install Node:
+
+```bash
 source ~/.bashrc
 
 nvm install --lts
@@ -1283,7 +1289,7 @@ cd ~/dotfiles
 stow bash starship i3 alacritty neovim tmux polybar picom fastfetch
 
 echo "Installing nvm + Node..."
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
 source ~/.bashrc
 nvm install --lts
 
