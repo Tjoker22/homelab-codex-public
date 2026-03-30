@@ -2,9 +2,9 @@
 **Site:** JXStudios
 **Hostname:** `helios`
 **Project:** Project Helios
-**Document Version:** 1.1
+**Document Version:** 1.2
 **Created:** 23/03/2026
-**Last Updated:** 29/03/2026
+**Last Updated:** 30/03/2026
 **Status:** Active build — flat network phase (192.168.0.151)
 **Companion Files:** `helios-plan.md` | `CLAUDE.md` | `network_settings_register_populated.md` | `device_specs_list.md`
 
@@ -208,9 +208,33 @@ Remove the USB drive when prompted and let the machine boot into Debian for the 
 
 Log in at the console. The first steps are done as **root** to set up sudo access, then everything else is done as the admin user.
 
-### Step 1 — Install sudo and grant admin access (as root)
+### Step 1 — Install sudo and add admin user to sudo group
 
-Log in as `root` using the root password set during install. Debian minimal does not add the first user to the sudo group by default — this must be done manually.
+Debian minimal does not add the first user to the sudo group by default — this must be done manually as root. At this stage SSH password auth is still enabled (key auth is set up later in Step 9), so you can either work at the console or connect remotely.
+
+#### Connect as root
+
+**Windows — PowerShell:**
+
+```powershell
+ssh root@<dhcp-ip>
+```
+
+> ℹ️ The DHCP IP was assigned during install. If you don't know it, check the ER605 admin panel for DHCP leases, or read it off the console at login (`ip addr show`).
+
+**Linux / macOS — terminal:**
+
+```bash
+ssh root@<dhcp-ip>
+```
+
+**At the console (no network needed):**
+
+Log in directly at the machine using the root password set during install.
+
+#### Install sudo and add the user
+
+Once logged in as root (by any method above):
 
 ```bash
 apt install -y sudo
@@ -219,15 +243,31 @@ usermod -aG sudo <your-user>
 
 > ⚠️ Replace `<your-user>` with the admin username created during installation.
 
-Log out of root and log back in as the admin user. Verify sudo works:
+#### Verify sudo access
+
+Log out of root, then log back in as the admin user — either at the console or via SSH:
+
+**Windows — PowerShell:**
+
+```powershell
+ssh <your-user>@<dhcp-ip>
+```
+
+**Linux / macOS — terminal:**
+
+```bash
+ssh <your-user>@<dhcp-ip>
+```
+
+Then test:
 
 ```bash
 sudo whoami
 ```
 
-This should return `root`. If it does not, log out and back in again — group membership changes require a fresh login session.
+This should return `root`. If it returns a permission error, the session still has the old group membership — log out and log back in. Group changes require a fresh login to take effect.
 
-> ℹ️ From this point forward, all commands are run as the admin user with `sudo`. Do not use the root account directly again.
+> ℹ️ From this point forward, all commands are run as the admin user with `sudo`. Do not log in as root again.
 
 ### Step 2 — Update all packages
 
@@ -251,7 +291,60 @@ Look for the Ethernet interface — something like `enp0s25`, `eno1`, or `eth0`.
 
 **Your interface name:** _______________ (record here)
 
-### Step 5 — Set the static IP
+### Step 5 — Detect the active network manager
+
+Before editing any network config, identify which stack is managing the interface. Debian minimal installs typically use `ifupdown` (via `/etc/network/interfaces`), but some systems — or installs where a desktop was briefly selected then deselected — may have NetworkManager active instead. Editing the wrong file will have no effect.
+
+```bash
+# Check which service is active
+systemctl is-active networking       # ifupdown / /etc/network/interfaces
+systemctl is-active NetworkManager   # NetworkManager
+```
+
+If both return `inactive` or `unknown`, run:
+
+```bash
+systemctl list-units --type=service --state=running | grep -E 'network|NetworkManager'
+```
+
+---
+
+**If `networking` is active (ifupdown — most likely on Debian minimal):**
+
+Proceed to Step 6 — the static IP is set via `/etc/network/interfaces`.
+
+---
+
+**If `NetworkManager` is active:**
+
+Do not edit `/etc/network/interfaces`. Instead, use `nmcli`:
+
+```bash
+# Find the connection name (usually "Wired connection 1" or the interface name)
+nmcli connection show
+
+# Set the static IP (replace values and connection name as needed)
+nmcli connection modify "Wired connection 1" \
+  ipv4.method manual \
+  ipv4.addresses 192.168.0.151/24 \
+  ipv4.gateway 192.168.0.1 \
+  ipv4.dns 192.168.0.1
+
+# Bring the connection down and back up to apply
+nmcli connection down "Wired connection 1"
+nmcli connection up "Wired connection 1"
+
+# Verify
+ip addr show
+```
+
+> ℹ️ If NetworkManager is active, skip Step 6 and resume at Step 7 (test connectivity).
+
+---
+
+### Step 6 — Set the static IP (ifupdown only)
+
+> ⚠️ Only follow this step if `networking` was the active service in Step 5. If NetworkManager is managing the interface, you already set the static IP above — skip to Step 7.
 
 ```bash
 sudo vim /etc/network/interfaces
@@ -270,7 +363,7 @@ iface <interface-name> inet static
 
 > ⚠️ Replace `<interface-name>` with the actual name recorded above (e.g., `enp0s25`).
 
-### Step 6 — Apply and verify
+Apply and verify:
 
 ```bash
 sudo systemctl restart networking
@@ -299,14 +392,29 @@ Update `network_settings_register_populated.md` with the Helios entry at 192.168
 
 ### Step 9 — Set up SSH key authentication
 
-From the admin PC (not Helios):
+**Windows — PowerShell:**
+
+```powershell
+# Copy your public key to Helios
+ssh-copy-id <your-user>@192.168.0.151
+
+# Verify key login works
+ssh <your-user>@192.168.0.151
+```
+
+> ℹ️ If `ssh-copy-id` is not available on older PowerShell versions, use this alternative:
+> ```powershell
+> type $env:USERPROFILE\.ssh\id_rsa.pub | ssh <your-user>@192.168.0.151 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+> ```
+
+**Linux / macOS — terminal:**
 
 ```bash
 ssh-copy-id <your-user>@192.168.0.151
 ssh <your-user>@192.168.0.151
 ```
 
-Once key login works, disable password auth on Helios:
+Once key login works from your admin PC, disable password auth on Helios:
 
 ```bash
 sudo sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
@@ -413,7 +521,13 @@ Forgejo is installed first because all subsequent work should be committed to ve
 sudo adduser --system --shell /bin/bash --gecos 'Forgejo' --group --home /srv/forgejo forgejo
 ```
 
-### Step 2 — Download the latest binary
+### Step 2 — Install prerequisites and download the binary
+
+The Forgejo binary requires `git` and `git-lfs` to be present on the system. Install them first:
+
+```bash
+sudo apt install -y git git-lfs
+```
 
 Check https://codeberg.org/forgejo/forgejo/releases for the latest stable version:
 
@@ -606,14 +720,15 @@ Per the [official Jellyfin docs](https://jellyfin.org/docs/general/installation/
 sudo apt install -y curl gnupg
 
 # Optional — verify script integrity before running
-curl -fsSL https://repo.jellyfin.org/install-debuntu.sh -o /tmp/install-debuntu.sh
-diff <( sha256sum /tmp/install-debuntu.sh ) <( curl -fsSL https://repo.jellyfin.org/install-debuntu.sh.sha256sum )
+curl -s https://repo.jellyfin.org/install-debuntu.sh -o install-debuntu.sh
+diff <( sha256sum install-debuntu.sh ) <( curl -s https://repo.jellyfin.org/install-debuntu.sh.sha256sum )
 ```
 
-An empty diff output means the script is intact. Then install:
+An empty diff output means the script is intact. Inspect it if you want (`less install-debuntu.sh`), then install:
 
 ```bash
-curl -fsSL https://repo.jellyfin.org/install-debuntu.sh | sudo bash
+sudo bash install-debuntu.sh
+rm install-debuntu.sh
 ```
 
 ### Step 2 — Give Jellyfin media access
@@ -837,6 +952,6 @@ Store all media as H.264 MP4 or MKV. The GT 220 GPU cannot hardware transcode, a
 
 ---
 
-*Document version 1.1 — Updated 29/03/2026 — Flat network IP updated to 192.168.0.151, sudo step added, Forgejo/code-server steps updated per upstream docs*
+*Document version 1.2 — Updated 30/03/2026 — Added sudo setup with PowerShell/Linux CLI options, network stack detection before static IP, git-lfs prerequisite for Forgejo, fixed Jellyfin integrity check command*
 *Companion to: `helios-plan.md` (planning and decisions) | This file (build procedure)*
 *Next update: After Debian install — record MAC address, NIC interface name, confirm static IP*
