@@ -188,10 +188,10 @@ Never reuse a VMID after a container is deleted — retire it.
 |------|---------|
 | `CLAUDE.md` | This file — primary context for Claude Code |
 | `docs/project-summary-and-remaining-steps.md` | Current project state, remaining steps, phase checklists |
-| `docs/genesis2-project-genesis-plan.md` | Genesis2 server planning — hardware, storage, VM register, service stack |
+| `docs/genesis2_project_genesis_plan.md` | Genesis2 server planning — hardware, storage, VM register, service stack |
 | `docs/helios_plan.md` | Helios planning document — hardware, services, decisions |
 | `docs/device_specs_list.md` | Hardware specifications for all lab devices |
-| `docs/maintenance-window-updated.md` | Corrected Phase 1 window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
+| `docs/maintenance_window_updated.md` | Corrected Phase 1 window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
 | `network/network_design_document_populated.md` | Primary network architecture document |
 | `network/network_settings_register_populated.md` | Live IP/MAC/DHCP register — authoritative source of truth |
 | `network/network_inventory.csv` | Switch port assignment history |
