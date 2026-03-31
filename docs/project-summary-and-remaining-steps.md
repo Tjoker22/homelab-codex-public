@@ -100,7 +100,7 @@ A Proxmox-based home lab server planned and designed in Session 2. Full detail i
 | 221 | .21 | grafana | LXC | Grafana dashboards | 1b |
 | 222 | .22 | loki | LXC | Loki log aggregation | 1b |
 | 230 | .30 | pihole2 | LXC | Pi-hole secondary DNS | 2 |
-| 240 | .40 | forgejo | LXC | Forgejo internal Git | 3 |
+| ~~240~~ | ~~.40~~ | ~~forgejo~~ | RETIRED — LXC | Moved to helios native Debian service | — |
 | 250 | .50 | npm | LXC | Nginx Proxy Manager | 2 |
 | 251 | .51 | tailscale | LXC | Tailscale subnet router | 2 |
 | 360 | .60 | nextcloud | VM | Nextcloud | 4 |
@@ -475,10 +475,10 @@ These must be completed before rescheduling Window 2:
 | Auto Refresh IP on OC200 | High | Enable before window — Devices → OC200 → Config → Services |
 | Verify 3750G PoE standard | High — before purchase | `show power inline` — Pi 5 may exceed 802.3af 15.4W ceiling under load |
 | Record genesis2 MAC address | After install | Update network_settings_register_populated.md |
-| Partner PC MAC address | When available | Update register — 192.168.10.12 |
+| ~~Partner PC MAC address~~ | ~~When available~~ | ~~Update register — 192.168.10.12~~ — [MAC_REDACTED] recorded in network_settings_register_populated.md ✅ |
 | GPU passthrough planning session | Phase 6 | Dedicated session before Ollama VM creation |
-| Pi MAC discrepancy check | Before Phase 2 | Quick guide .B5:34 vs register .B5:43 — verify on device |
-| Quick guide OC200 IP fix | Low | 192.168.99.1 → 192.168.99.2 in two places |
+| ~~Pi MAC discrepancy check~~ | ~~Before Phase 2~~ | ~~Quick guide .B5:34 vs register .B5:43 — verify on device~~ — All references consistent at [MAC_REDACTED] ✅ |
+| ~~Quick guide OC200 IP fix~~ | ~~Low~~ | ~~192.168.99.1 → 192.168.99.2 in two places~~ — Applied 30/03/2026 ✅ |
 
 ---
 
@@ -518,16 +518,16 @@ These must be completed before rescheduling Window 2:
 | CLAUDE.md | Updated 22/03/2026 | v4.0 — reflects pause, admin OS change, current focus |
 | project-summary-and-remaining-steps.md | This file — 22/03/2026 | Updated to reflect deferred window and genesis2 on flat network |
 | docs/maintenance-window-updated.md | ✅ New — 22/03/2026 | Corrected window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
-| network_setup_quick_guide.md | Needs updates | See pending items |
+| network_setup_quick_guide.md | Partially updated — 30/03/2026 | OC200 IP fix applied. Minor updates still pending. |
 
 ### Quick Guide Updates Still Needed
-- [ ] OC200 IP in body text: 192.168.99.1 → 192.168.99.2 (two places)
+- [x] OC200 IP in body text: 192.168.99.1 → 192.168.99.2 (two places) — applied 30/03/2026
 - [ ] Add dashboard URL: https://192.168.99.2:8043
 - [ ] Clean up OC200 and Hue Bridge reservation table rows
 - [ ] Add note: Hue Bridge stays on HOME until Phase 2
 - [ ] Mark HOME DNS 1.1.1.1 as temporary
-- [ ] Verify Pi MAC discrepancy: quick guide .B5:34 vs register .B5:43 — check device
+- [x] Verify Pi MAC discrepancy: quick guide .B5:34 vs register .B5:43 — resolved, consistent at [MAC_REDACTED]
 
 ---
 
-*Last updated: 22/03/2026 — Network window deferred. Genesis2 active on flat network. CCNA study in progress. Admin laptops now Windows/Mac — Fedora repurposed.*
+*Last updated: 30/03/2026 — VMID 240 forgejo marked RETIRED. helios-plan.md references corrected to helios_plan.md. Stale pending items closed. Quick guide OC200 IP fix applied.*

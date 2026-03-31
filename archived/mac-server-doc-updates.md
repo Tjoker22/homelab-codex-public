@@ -1,3 +1,5 @@
+> **SUPERSEDED** — This document has been archived. helios (OR PC — Debian 12) replaced the MacBook Pro as the primary server. See `docs/helios_plan.md` and `docs/device_specs_list.md` for current platform details.
+
 # JXStudios — Document Update Instructions
 **Prepared:** 22/03/2026  
 **Reason:** mac-server added to project, Forgejo moved from genesis2, roadmap updated

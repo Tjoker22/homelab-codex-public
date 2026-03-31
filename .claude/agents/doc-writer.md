@@ -146,7 +146,7 @@ Ask: **"Commit these changes?"** If yes, run the git commit using the suggested 
 - Last two digits of VMID must mirror IP last octet — verify before any register addition
 - Retired VMIDs get struck through with a note, never deleted
 
-### helios-plan.md
+### helios_plan.md
 - Service stack status updates go in the Service Stack table
 - Decisions log gets new entries appended, never edited retroactively
 - Pending Items table: tick completed items, do not remove rows

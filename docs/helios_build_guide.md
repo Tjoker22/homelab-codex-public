@@ -6,7 +6,7 @@
 **Created:** 23/03/2026
 **Last Updated:** 30/03/2026
 **Status:** Active build — flat network phase (192.168.0.151)
-**Companion Files:** `helios-plan.md` | `CLAUDE.md` | `network_settings_register_populated.md` | `device_specs_list.md`
+**Companion Files:** `helios_plan.md` | `CLAUDE.md` | `network_settings_register_populated.md` | `device_specs_list.md`
 
 ---
 
@@ -953,5 +953,5 @@ Store all media as H.264 MP4 or MKV. The GT 220 GPU cannot hardware transcode, a
 ---
 
 *Document version 1.2 — Updated 30/03/2026 — Added sudo setup with PowerShell/Linux CLI options, network stack detection before static IP, git-lfs prerequisite for Forgejo, fixed Jellyfin integrity check command*
-*Companion to: `helios-plan.md` (planning and decisions) | This file (build procedure)*
+*Companion to: `helios_plan.md` (planning and decisions) | This file (build procedure)*
 *Next update: After Debian install — record MAC address, NIC interface name, confirm static IP*

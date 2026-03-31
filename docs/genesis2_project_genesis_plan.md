@@ -250,7 +250,7 @@ Services are deployed in layers. No layer begins until the previous layer is sta
 
 | VMID | Service | IP | Notes |
 |------|---------|-----|-------|
-| — | Forgejo | helios 192.168.20.11:3000 | Moved to helios — native Debian service. See helios-plan.md. VMID 240 retired. |
+| — | Forgejo | helios 192.168.20.11:3000 | Moved to helios — native Debian service. See helios_plan.md. VMID 240 retired. |
 
 ### Phase 4 — Applications
 
