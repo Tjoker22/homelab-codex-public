@@ -110,11 +110,14 @@ Add at the bottom:
 interface eth0
 static ip_address=192.168.0.153/24
 static routers=192.168.0.1
-static domain_name_servers=127.0.0.1
+static domain_name_servers=1.1.1.1
 ```
 
-> `domain_name_servers=127.0.0.1` points to Pi-hole on itself — set this now
-> so it's in place as soon as Pi-hole is installed.
+> **Why `1.1.1.1` and not `127.0.0.1`?** Setting DNS to `127.0.0.1` (localhost) at this
+> stage will break the Pi-hole installer — nothing is listening on port 53 yet so the Pi
+> cannot resolve `install.pi-hole.net` and the `curl` command will fail. Use `1.1.1.1` for
+> now. Once Pi-hole is installed and confirmed working, Section 3.6 switches this to
+> `127.0.0.1` so the Pi resolves through itself.
 
 Apply and reconnect:
 ```bash
@@ -123,16 +126,20 @@ sudo systemctl restart dhcpcd
 
 **If running NetworkManager:**
 ```bash
-# Set the static IP
+# Set the static IP — DNS set to 1.1.1.1 for now (see note below)
 sudo nmcli con mod "Wired connection 1" \
   ipv4.method manual \
   ipv4.addresses 192.168.0.153/24 \
   ipv4.gateway 192.168.0.1 \
-  ipv4.dns 127.0.0.1
+  ipv4.dns 1.1.1.1
 
 # Bring the connection down and back up to apply
 sudo nmcli con down "Wired connection 1" && sudo nmcli con up "Wired connection 1"
 ```
+
+> **Why `1.1.1.1` and not `127.0.0.1`?** Same reason as above — Pi-hole isn't installed
+> yet. Setting DNS to `127.0.0.1` now causes the `curl` installer command to fail with
+> a DNS resolution error. Section 3.6 switches this to `127.0.0.1` once Pi-hole is running.
 
 Reconnect using the new IP:
 ```bash
@@ -154,29 +161,32 @@ Set:
 ```
 PasswordAuthentication no
 PubkeyAuthentication yes
-PermitRootLogin no (was prohibit-password)
+PermitRootLogin no
 ```
+
+> `PermitRootLogin no` blocks all root login entirely. The alternative `prohibit-password` still allows root login via key — `no` is the correct choice here. Use `sudo` from your normal user for anything that needs root.
 
 ```bash
 sudo systemctl restart ssh
 ```
 > ⚠️ Confirm key login works **before** closing your current session.
 
-> From a **windows machine** 
-To generate a new key:
+> **From a Windows machine:**
+>
+> To generate a new key:
 ```powershell
 ssh-keygen -t ed25519 -C "windows-pc"
 ```
-When prompted for a file location, just hit Enter to accept the default (C:\Users\YourName\.ssh\id_ed25519). Set a passphrase if you want an extra layer, or *hit Enter twice to skip it*.
+When prompted for a file location, just hit Enter to accept the default (`C:\Users\YourName\.ssh\id_ed25519`). Set a passphrase if you want an extra layer, or hit Enter twice to skip it.
 
-PowerShell doesn't have `ssh-copy-id`, so use this instead
+PowerShell doesn't have `ssh-copy-id`, so use this instead:
 ```powershell
 type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh admin-yoyo@192.168.0.153 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
 ```
 
-It'll ask for your password one last time. After this, password won't be needed from this machine.
+It'll ask for your password one last time. After this, password won't be needed from this machine. Test it:
 ```powershell
-ssh pi@192.168.0.153
+ssh admin-yoyo@192.168.0.153
 ```
 It should log you straight in with no password prompt. Don't proceed to Step 3 until this works.
 
@@ -258,6 +268,32 @@ From any browser on the network:
 http://192.168.0.153/admin
 ```
 
+### 3.6 — Switch Pi's Own DNS to Loopback
+
+Pi-hole is now installed and confirmed working. Switch the Pi's DNS from `1.1.1.1` to `127.0.0.1` so it resolves through itself — this is the correct final state.
+
+**If using dhcpcd:**
+```bash
+sudo nano /etc/dhcpcd.conf
+```
+Change `domain_name_servers=1.1.1.1` to `domain_name_servers=127.0.0.1`, save, then:
+```bash
+sudo systemctl restart dhcpcd
+```
+
+**If using NetworkManager:**
+```bash
+sudo nmcli con mod "Wired connection 1" ipv4.dns 127.0.0.1
+sudo nmcli con down "Wired connection 1" && sudo nmcli con up "Wired connection 1"
+```
+
+Verify the Pi can still reach the internet through its own Pi-hole:
+```bash
+ping -c 3 google.com
+```
+
+Three replies confirms everything is wired up correctly — Pi-hole is running, the Pi is using it, and it can forward queries upstream.
+
 ---
 
 ## 4 — Point Your Router's DNS at Pi-hole
@@ -311,11 +347,17 @@ several lists significantly improves coverage. Add these via the admin dashboard
 | OISD Big | `https://big.oisd.nl/domainswild` | Comprehensive — ads, tracking, malware | ~1.4M |
 | HaGeZi Multi Pro | `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt` | Ads, tracking, analytics | ~500k |
 | HaGeZi Threat Intel | `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.txt` | Malware, phishing, ransomware C2 | ~1M |
+| **HaGeZi DoH/DoT Bypass** | `https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/doh.txt` | **Blocks browsers bypassing Pi-hole via encrypted DNS** | ~1k |
 | URLhaus Malware | `https://urlhaus-filter.pages.dev/urlhaus-filter-domains.txt` | Active malware domains | ~20k |
 | NoTrack Tracker | `https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt` | Trackers and analytics | ~15k |
 
-> **Start with OISD Big + HaGeZi Multi Pro + HaGeZi Threat Intel** for strong all-round
-> coverage without excessive false positives. Add more lists as needed.
+> **The DoH/DoT bypass list is important.** Chrome, Firefox, and Edge all have a feature called
+> DNS over HTTPS (DoH) which routes DNS queries encrypted directly to Google or Cloudflare,
+> completely bypassing Pi-hole. This list blocks the resolver domains those browsers use,
+> forcing them to fall back to system DNS — which is Pi-hole. Without this list, ads can
+> return in browsers even though Pi-hole is running correctly.
+
+> **Recommended combination:** OISD Big + HaGeZi Multi Pro + HaGeZi Threat Intel + HaGeZi DoH bypass.
 
 ### Add Lists via CLI (Faster)
 
@@ -325,6 +367,7 @@ INSERT INTO adlist (address, enabled, comment) VALUES
 ('https://big.oisd.nl/domainswild', 1, 'OISD Big'),
 ('https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt', 1, 'HaGeZi Multi Pro'),
 ('https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.txt', 1, 'HaGeZi Threat Intel'),
+('https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/doh.txt', 1, 'HaGeZi DoH Bypass'),
 ('https://urlhaus-filter.pages.dev/urlhaus-filter-domains.txt', 1, 'URLhaus Malware');
 EOF
 ```
