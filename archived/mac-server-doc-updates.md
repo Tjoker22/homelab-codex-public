@@ -1,4 +1,4 @@
-> **SUPERSEDED** — This document has been archived. helios (OR PC — Debian 12) replaced the MacBook Pro as the primary server. See `docs/helios_plan.md` and `docs/device_specs_list.md` for current platform details.
+> **SUPERSEDED** — This document has been archived. helios (OR PC — Debian 12) replaced the MacBook Pro as the primary server. See `docs/helios-plan.md` and `docs/device-specs-list.md` for current platform details.
 
 # JXStudios — Document Update Instructions
 **Prepared:** 22/03/2026  
@@ -99,7 +99,7 @@ To:
 
 ---
 
-## 3. network_settings_register_populated.md
+## 3. network-settings-register-populated.md
 
 ### Section 1 — Hardware Inventory — add mac-server row
 

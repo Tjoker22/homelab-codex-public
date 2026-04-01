@@ -5,14 +5,14 @@
 **Version:** `1.4`
 **Created:** `09/03/2026`
 **Last Updated:** `23/03/2026`
-**Companion Files:** `network_settings_register_populated.md` | `genesis2-project-genesis-plan.md`
+**Companion Files:** `network-settings-register-populated.md` | `genesis2-project-genesis-plan.md`
 
 ---
 
 > **How to use this document**
 > This is the authoritative hardware reference for all JXStudios lab devices. It records confirmed specs sourced from Intel ARK, manufacturer documentation, and the project planning documents.
 > Update when a device is added, removed, repurposed, or has a hardware change (RAM upgrade, drive swap, OS change).
-> IP addresses, MAC addresses, and DHCP reservations are maintained in `network_settings_register_populated.md` — not here.
+> IP addresses, MAC addresses, and DHCP reservations are maintained in `network-settings-register-populated.md` — not here.
 
 ---
 

@@ -50,7 +50,7 @@ find . -not -path '*/.git/*' -type f | sort
 
 From the results:
 - Read every `.md` file — no exceptions
-- Read every `.csv` file (e.g. `network_inventory.csv`)
+- Read every `.csv` file (e.g. `network-inventory.csv`)
 - Read or summarise contents of config files in `configs/`
 - Note any `.drawio`, `.png`, or diagram files — record their existence and last-modified date even if unreadable
 - Read any `.sh` or `.py` script files and check they are consistent with the documentation
@@ -72,10 +72,10 @@ These eight files are the minimum baseline. If any are missing or unreadable, fl
 1. `CLAUDE.md` — primary context, conventions, phase status, known issues
 2. `project-summary-and-remaining-steps.md` — phase checklists, pending items, doc status table
 3. `genesis2-project-genesis-plan.md` — Genesis2 hardware, VMID register, service stack, build checklists
-4. `helios_plan.md` — Helios hardware, service stack, build status, decisions log
-5. `network_settings_register_populated.md` — authoritative IP/MAC/DHCP register, change log
-6. `network_design_document_populated.md` — VLAN architecture, ACL policy, subnet design
-7. `device_specs_list.md` — hardware specs for all lab devices
+4. `helios-plan.md` — Helios hardware, service stack, build status, decisions log
+5. `network-settings-register-populated.md` — authoritative IP/MAC/DHCP register, change log
+6. `network-design-document-populated.md` — VLAN architecture, ACL policy, subnet design
+7. `device-specs-list.md` — hardware specs for all lab devices
 8. `maintenance-window-updated.md` — corrected Phase 1 window procedure
 
 Any files discovered in Step 1 that are not in this list are additive — read them and include them in your review.
@@ -88,11 +88,11 @@ Work through each category. For every finding, note the severity, the file(s) in
 
 ### 1. Cross-Document Consistency
 
-- **IP Addresses:** Every device IP in `CLAUDE.md`, `project-summary-and-remaining-steps.md`, and `genesis2-project-genesis-plan.md` must match `network_settings_register_populated.md` — the register is authoritative. Flag any mismatch.
+- **IP Addresses:** Every device IP in `CLAUDE.md`, `project-summary-and-remaining-steps.md`, and `genesis2-project-genesis-plan.md` must match `network-settings-register-populated.md` — the register is authoritative. Flag any mismatch.
 - **VMID Register:** The summary table in `project-summary-and-remaining-steps.md` and the full register in `genesis2-project-genesis-plan.md` must agree on every VMID, IP, hostname, type, role, and phase. Flag any row that differs.
 - **Hostnames:** `helios`, `genesis2`, and all LXC/VM hostnames must be spelled and capitalised consistently across all docs.
 - **Phase Status:** Phase status in `CLAUDE.md` must match the status in `project-summary-and-remaining-steps.md`. Flag any row where the two disagree.
-- **Hardware Specs:** Anything in `device_specs_list.md` that conflicts with `genesis2-project-genesis-plan.md`, `helios_plan.md`, or `project-summary-and-remaining-steps.md` must be flagged.
+- **Hardware Specs:** Anything in `device-specs-list.md` that conflicts with `genesis2-project-genesis-plan.md`, `helios-plan.md`, or `project-summary-and-remaining-steps.md` must be flagged.
 - **Helios IP:** helios flat network IP is 192.168.0.11, final IP is 192.168.20.11. Flag any document using a different address.
 - **Genesis2 IP:** flat network IP is 192.168.0.20, final IP is 192.168.20.10. Flag any hardcoded flat IP in service config descriptions.
 
@@ -108,16 +108,16 @@ Work through each category. For every finding, note the severity, the file(s) in
 
 - In `project-summary-and-remaining-steps.md`, are there tasks marked `☐` that appear to already be complete based on context elsewhere?
 - In `genesis2-project-genesis-plan.md`, are any unchecked items actually done?
-- In `helios_plan.md`, are any items complete or in progress that aren't reflected?
+- In `helios-plan.md`, are any items complete or in progress that aren't reflected?
 - Is any task `✅` in one document but `☐` or absent in another?
 
 ### 4. Undocumented Work
 
 This is the most important category. Look for evidence of work done but not logged.
 
-- Does the change log in `network_settings_register_populated.md` appear up to date?
+- Does the change log in `network-settings-register-populated.md` appear up to date?
 - Does `CLAUDE.md`'s "Current State" describe progress not reflected in any checklist tick or change log entry?
-- If `helios_plan.md` or `genesis2-project-genesis-plan.md` describe work as "Active" or "In Progress," are corresponding checklist items ticked?
+- If `helios-plan.md` or `genesis2-project-genesis-plan.md` describe work as "Active" or "In Progress," are corresponding checklist items ticked?
 - Are there places where a document says something was done but no change log entry or commit message is recorded?
 
 ### 5. Known Issues — Status Check
@@ -140,9 +140,9 @@ For each tracked known issue, check whether any other document suggests it has b
 
 Flag any field marked `[TBC]` or left blank that should have been filled in based on project progress:
 
-- `helios_plan.md` — boot drive TBC: has the install happened? If so this needs filling in.
-- `device_specs_list.md` — any `[TBC]` fields that should be confirmed by now.
-- `network_settings_register_populated.md` — any missing MACs for active devices (genesis2, helios, partner PC).
+- `helios-plan.md` — boot drive TBC: has the install happened? If so this needs filling in.
+- `device-specs-list.md` — any `[TBC]` fields that should be confirmed by now.
+- `network-settings-register-populated.md` — any missing MACs for active devices (genesis2, helios, partner PC).
 
 ---
 

@@ -22,7 +22,7 @@ Post-session documentation updates should go through doc-writer for consistent f
 
 <example>
 Context: A new document needs to be created following project conventions.
-user: "Create a flat network live register mirroring the format of network_settings_register_populated.md"
+user: "Create a flat network live register mirroring the format of network-settings-register-populated.md"
 assistant: "I'll use the doc-writer agent to create the new register following the existing conventions and format."
 <commentary>
 New document creation that must follow existing project conventions belongs to doc-writer.
@@ -73,7 +73,7 @@ Read every file you will be modifying. Understand the current state before draft
 For each change:
 - Follow the exact formatting of the surrounding content (table structure, checkbox style, date format, heading levels)
 - Match the tone and language of the document
-- For change log entries, use the same format as existing entries in `network_settings_register_populated.md`
+- For change log entries, use the same format as existing entries in `network-settings-register-populated.md`
 - For checklist updates, use `✅` for complete items — never delete unchecked items, only tick them
 - For CLAUDE.md version line updates, increment the minor version and add today's date
 
@@ -130,7 +130,7 @@ Ask: **"Commit these changes?"** If yes, run the git commit using the suggested 
 - Add a version history line at the bottom following the existing format
 - Never modify architecture sections without explicit architect instruction
 
-### network_settings_register_populated.md
+### network-settings-register-populated.md
 - This is the authoritative source for IPs and MACs — treat every edit with care
 - Change log entries go at the top of the change log section, newest first
 - Format: `| [date] | [description] | [files affected] |`
@@ -146,7 +146,7 @@ Ask: **"Commit these changes?"** If yes, run the git commit using the suggested 
 - Last two digits of VMID must mirror IP last octet — verify before any register addition
 - Retired VMIDs get struck through with a note, never deleted
 
-### helios_plan.md
+### helios-plan.md
 - Service stack status updates go in the Service Stack table
 - Decisions log gets new entries appended, never edited retroactively
 - Pending Items table: tick completed items, do not remove rows

@@ -2,7 +2,7 @@
 **Site:** JXStudios  
 **Date:** 22/03/2026  
 **Status:** Network window deferred — admin device setup pending. Genesis2 install active on flat network. CCNA study in progress.  
-**Companion Files:** `network_design_document_populated.md` | `network_settings_register_populated.md` | `genesis2-project-genesis-plan.md`
+**Companion Files:** `network-design-document-populated.md` | `network-settings-register-populated.md` | `genesis2-project-genesis-plan.md`
 
 ---
 
@@ -474,8 +474,8 @@ These must be completed before rescheduling Window 2:
 | OC200 reservation Network field check | High | Verify MGMT VLAN 99 selected — not default LAN |
 | Auto Refresh IP on OC200 | High | Enable before window — Devices → OC200 → Config → Services |
 | Verify 3750G PoE standard | High — before purchase | `show power inline` — Pi 5 may exceed 802.3af 15.4W ceiling under load |
-| Record genesis2 MAC address | After install | Update network_settings_register_populated.md |
-| ~~Partner PC MAC address~~ | ~~When available~~ | ~~Update register — 192.168.10.12~~ — [MAC_REDACTED] recorded in network_settings_register_populated.md ✅ |
+| Record genesis2 MAC address | After install | Update network-settings-register-populated.md |
+| ~~Partner PC MAC address~~ | ~~When available~~ | ~~Update register — 192.168.10.12~~ — [MAC_REDACTED] recorded in network-settings-register-populated.md ✅ |
 | GPU passthrough planning session | Phase 6 | Dedicated session before Ollama VM creation |
 | ~~Pi MAC discrepancy check~~ | ~~Before Phase 2~~ | ~~Quick guide .B5:34 vs register .B5:43 — verify on device~~ — All references consistent at [MAC_REDACTED] ✅ |
 | ~~Quick guide OC200 IP fix~~ | ~~Low~~ | ~~192.168.99.1 → 192.168.99.2 in two places~~ — Applied 30/03/2026 ✅ |
@@ -512,13 +512,13 @@ These must be completed before rescheduling Window 2:
 
 | Document | Status | Notes |
 |----------|--------|-------|
-| network_design_document_populated.md | Current | Update after window completes |
-| network_settings_register_populated.md | Current | Update after window completes |
+| network-design-document-populated.md | Current | Update after window completes |
+| network-settings-register-populated.md | Current | Update after window completes |
 | genesis2-project-genesis-plan.md | Current — 18/03/2026 | Update as services are deployed |
 | CLAUDE.md | Updated 22/03/2026 | v4.0 — reflects pause, admin OS change, current focus |
 | project-summary-and-remaining-steps.md | This file — 22/03/2026 | Updated to reflect deferred window and genesis2 on flat network |
 | docs/maintenance-window-updated.md | ✅ New — 22/03/2026 | Corrected window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
-| network_setup_quick_guide.md | Partially updated — 30/03/2026 | OC200 IP fix applied. Minor updates still pending. |
+| network-setup-quick-guide.md | Partially updated — 30/03/2026 | OC200 IP fix applied. Minor updates still pending. |
 
 ### Quick Guide Updates Still Needed
 - [x] OC200 IP in body text: 192.168.99.1 → 192.168.99.2 (two places) — applied 30/03/2026
@@ -530,4 +530,4 @@ These must be completed before rescheduling Window 2:
 
 ---
 
-*Last updated: 30/03/2026 — VMID 240 forgejo marked RETIRED. helios-plan.md references corrected to helios_plan.md. Stale pending items closed. Quick guide OC200 IP fix applied.*
+*Last updated: 30/03/2026 — VMID 240 forgejo marked RETIRED. helios-plan.md references corrected to helios-plan.md. Stale pending items closed. Quick guide OC200 IP fix applied.*

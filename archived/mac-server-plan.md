@@ -1,4 +1,4 @@
-> **SUPERSEDED** — This document has been archived. helios (OR PC — Debian 12) replaced the MacBook Pro as the primary server. See `docs/helios_plan.md` and `docs/device_specs_list.md` for current platform details.
+> **SUPERSEDED** — This document has been archived. helios (OR PC — Debian 12) replaced the MacBook Pro as the primary server. See `docs/helios-plan.md` and `docs/device-specs-list.md` for current platform details.
 
 # mac-server Planning Document
 **Site:** JXStudios  
@@ -7,7 +7,7 @@
 **Created:** 22/03/2026  
 **Last Updated:** 22/03/2026  
 **Status:** Planning complete — pending Debian install session  
-**Companion Files:** `CLAUDE.md` | `project-summary-and-remaining-steps.md` | `network_settings_register_populated.md`
+**Companion Files:** `CLAUDE.md` | `project-summary-and-remaining-steps.md` | `network-settings-register-populated.md`
 
 ---
 
@@ -180,7 +180,7 @@ mac-server is documented as part of the larger JXStudios home lab project, not a
 
 | Item | Priority | Notes |
 |------|----------|-------|
-| Confirm MAC address | After Debian install | Update network_settings_register_populated.md |
+| Confirm MAC address | After Debian install | Update network-settings-register-populated.md |
 | External drive selection | Before Samba setup | Format ext4, mount by UUID |
 | code-server password | During setup | Store in password manager — do not commit to repo |
 | Forgejo admin credentials | During setup | Store in password manager — do not commit to repo |

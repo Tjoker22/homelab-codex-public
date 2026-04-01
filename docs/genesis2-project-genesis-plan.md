@@ -5,7 +5,7 @@
 **Created:** 18/03/2026  
 **Last Updated:** 18/03/2026  
 **Status:** Planning complete — pending Proxmox installation session  
-**Companion Files:** `CLAUDE.md` | `project-summary-and-remaining-steps.md` | `network_settings_register_populated.md`
+**Companion Files:** `CLAUDE.md` | `project-summary-and-remaining-steps.md` | `network-settings-register-populated.md`
 
 ---
 
@@ -250,7 +250,7 @@ Services are deployed in layers. No layer begins until the previous layer is sta
 
 | VMID | Service | IP | Notes |
 |------|---------|-----|-------|
-| — | Forgejo | helios 192.168.20.11:3000 | Moved to helios — native Debian service. See helios_plan.md. VMID 240 retired. |
+| — | Forgejo | helios 192.168.20.11:3000 | Moved to helios — native Debian service. See helios-plan.md. VMID 240 retired. |
 
 ### Phase 4 — Applications
 
@@ -391,7 +391,7 @@ Tailscale is the primary remote access path for personal external access to the 
 | Item | Owner | Priority | Notes |
 |------|-------|----------|-------|
 | Verify 3750G PoE standard | JXH | High — before PoE HAT purchase | Run `show power inline` on 3750G. Confirm 802.3af (15.4W) vs 802.3at PoE+ (25W). Pi 5 under full load can approach 15.4W ceiling. If 802.3af only, use USB-C power supply or check SG2008P PoE spec as alternative. |
-| Record Genesis2 MAC address | JXH | After OS install | Update network_settings_register_populated.md — Phase 4 entry |
+| Record Genesis2 MAC address | JXH | After OS install | Update network-settings-register-populated.md — Phase 4 entry |
 | Proxmox installation planning session | Architect | Next session | Installer decisions, post-install steps, ZFS pool creation procedure |
 | GPU passthrough planning session | Architect | Phase 6 | Dedicated session — IOMMU groups, VFIO config, VM layout for Ollama |
 | Forgejo → GitHub mirror setup | Claude Code | Phase 3 | Document mirror configuration in forgejo LXC setup notes |

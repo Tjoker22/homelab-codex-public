@@ -6,7 +6,7 @@
 **Created:** 23/03/2026
 **Last Updated:** 23/03/2026
 **Status:** Active build — flat network phase (192.168.0.151)
-**Companion Files:** `CLAUDE.md` | `network_settings_register_populated.md` | `genesis2-project-genesis-plan.md` | `device_specs_list.md`
+**Companion Files:** `CLAUDE.md` | `network-settings-register-populated.md` | `genesis2-project-genesis-plan.md` | `device-specs-list.md`
 
 ---
 
@@ -89,7 +89,7 @@ Once Helios moves to VLAN 20, Samba and Jellyfin require explicit ACL permits fr
 | code-server | 8080 | TCP | Admin IPs only → 192.168.20.11:8080 — Permit |
 | Forgejo | 3000 | TCP | Via NPM proxy — no direct ACL needed |
 
-> ⚠️ These ACL rules do not exist yet and are not needed during the flat network phase. Add them to `network_settings_register_populated.md` pending rules before the Phase 2 maintenance window.
+> ⚠️ These ACL rules do not exist yet and are not needed during the flat network phase. Add them to `network-settings-register-populated.md` pending rules before the Phase 2 maintenance window.
 
 ---
 
@@ -236,7 +236,7 @@ Helios is documented as part of the larger JXStudios home lab project, not as a 
 |------|----------|-------|
 | Boot drive identification | Before install | Run `lsblk` from live USB — confirm which drive to install Debian on. Do not partition a data HDD. |
 | Set static IP 192.168.0.151 | During install | Outside DHCP range — confirm ER605 DHCP pool upper bound before choosing |
-| Confirm MAC address | After Debian install | Update `network_settings_register_populated.md` — flat network entry for helios at 192.168.0.151 |
+| Confirm MAC address | After Debian install | Update `network-settings-register-populated.md` — flat network entry for helios at 192.168.0.151 |
 | NIC interface name | During install | Record in §1 — needed for static IP config |
 | code-server password | During setup | Store in password manager — do not commit to repo |
 | Forgejo admin credentials | During setup | Store in password manager — do not commit to repo |

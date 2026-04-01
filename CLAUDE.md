@@ -188,18 +188,18 @@ Never reuse a VMID after a container is deleted — retire it.
 |------|---------|
 | `CLAUDE.md` | This file — primary context for Claude Code |
 | `docs/project-summary-and-remaining-steps.md` | Current project state, remaining steps, phase checklists |
-| `docs/genesis2_project_genesis_plan.md` | Genesis2 server planning — hardware, storage, VM register, service stack |
-| `docs/helios_plan.md` | Helios planning document — hardware, services, decisions |
-| `docs/device_specs_list.md` | Hardware specifications for all lab devices |
-| `docs/maintenance_window_updated.md` | Corrected Phase 1 window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
-| `network/network_design_document_populated.md` | Primary network architecture document |
-| `network/network_settings_register_populated.md` | Live IP/MAC/DHCP register — authoritative source of truth |
-| `network/network_inventory.csv` | Switch port assignment history |
-| `network/network_map_3_1_26.drawio` | Network diagram source |
-| `docs/network_setup_quick_guide.md` | Phase 1 ER605 configuration guide — has minor updates pending |
-| `host_setup.md` | Proxmox post-install configuration guide |
+| `docs/genesis2-project-genesis-plan.md` | Genesis2 server planning — hardware, storage, VM register, service stack |
+| `docs/helios-plan.md` | Helios planning document — hardware, services, decisions |
+| `docs/device-specs-list.md` | Hardware specifications for all lab devices |
+| `docs/maintenance-window-updated.md` | Corrected Phase 1 window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
+| `network/network-design-document-populated.md` | Primary network architecture document |
+| `network/network-settings-register-populated.md` | Live IP/MAC/DHCP register — authoritative source of truth |
+| `network/network-inventory.csv` | Switch port assignment history |
+| `network/network-map-3-1-26.drawio` | Network diagram source |
+| `docs/network-setup-quick-guide.md` | Phase 1 ER605 configuration guide — has minor updates pending |
+| `host-setup.md` | Proxmox post-install configuration guide |
 | `configs/` | TP-Link Omada controller backups and Cisco IOS running configs |
-| `vms/universal_prox_instance_template.md` | Template for documenting new VMs and LXCs |
+| `vms/universal-prox-instance-template.md` | Template for documenting new VMs and LXCs |
 
 ---
 
@@ -238,7 +238,7 @@ Full corrected procedure: `docs/maintenance-window-updated.md`
 
 ## What Claude Code Should Do
 
-- Keep `network_settings_register_populated.md` accurate after any network change
+- Keep `network-settings-register-populated.md` accurate after any network change
 - Keep `genesis2-project-genesis-plan.md` accurate after any Genesis2 service change
 - Update phase checklists in `project-summary-and-remaining-steps.md` as tasks complete
 - Add change log entries to the register when network changes are made
@@ -364,7 +364,7 @@ Claude Code must not modify these sections without explicit architect instructio
 After any network change, task completion, or phase milestone:
 
 ```
-1. Update network_settings_register_populated.md
+1. Update network-settings-register-populated.md
    → Add change log entry
    → Update relevant section
 
