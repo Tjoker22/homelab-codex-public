@@ -122,9 +122,9 @@ The NVMe and SATA drives are typically distinguishable by path prefix (`nvme` vs
 
 ### Checkpoints
 
-- [ ] Proxmox VE ISO downloaded and verified
-- [ ] USB installer written successfully
-- [ ] NVMe SSD and SATA HDD identified — note which is which
+- [X] Proxmox VE ISO downloaded and verified
+- [X] USB installer written successfully
+- [X] NVMe SSD and SATA HDD identified — note which is which
 
 ---
 
@@ -196,11 +196,11 @@ All remaining work is done through the web UI and SSH — the monitor and keyboa
 
 ### Checkpoints
 
-- [ ] Proxmox installed to NVMe SSD only — SATA HDD untouched
-- [ ] IP `192.168.0.154` confirmed on console after first boot
-- [ ] Web UI accessible at `https://192.168.0.154:8006` from admin PC
-- [ ] Root login working in web UI
-- [ ] Monitor and keyboard disconnected — working over web UI and SSH
+- [X] Proxmox installed to NVMe SSD only — SATA HDD untouched
+- [X] IP `192.168.0.154` confirmed on console after first boot
+- [X] Web UI accessible at `https://192.168.0.154:8006` from admin PC
+- [X] Root login working in web UI
+- [X] Monitor and keyboard disconnected — working over web UI and SSH
 
 ---
 
@@ -346,17 +346,17 @@ nano /etc/hosts
 
 ### Checkpoints
 
-- [ ] Enterprise PVE repo disabled (`Enabled: no` in `pve-enterprise.sources`)
-- [ ] Enterprise Ceph repo disabled (`Enabled: no` in `ceph.sources`)
-- [ ] No-subscription PVE + Ceph Squid repos added to `proxmox.sources`
-- [ ] `apt update` runs clean — no 401 errors
-- [ ] All packages updated — reboot completed if kernel updated
-- [ ] `apt modernize-sources` run if legacy `.list` warnings appeared
-- [ ] Subscription nag dismissed (optional)
-- [ ] SSH key auth working from admin PC
-- [ ] MAC address recorded in flat network register
-- [ ] Interface name recorded (e.g. `enp3s0`)
-- [ ] `/etc/hosts` correct
+- [X] Enterprise PVE repo disabled (`Enabled: no` in `pve-enterprise.sources`)
+- [X] Enterprise Ceph repo disabled (`Enabled: no` in `ceph.sources`)
+- [X] No-subscription PVE + Ceph Squid repos added to `proxmox.sources`
+- [X] `apt update` runs clean — no 401 errors
+- [X] All packages updated — reboot completed if kernel updated
+- [X] `apt modernize-sources` run if legacy `.list` warnings appeared
+- [X] Subscription nag dismissed (optional)
+- [X] SSH key auth working from admin PC
+- [X] MAC address recorded in flat network register
+- [X] Interface name recorded (e.g. `enp3s0`)
+- [X] `/etc/hosts` correct
 
 ---
 
@@ -449,13 +449,13 @@ The pool will now appear as `eospool` in the storage list and can be selected wh
 
 ### Checkpoints
 
-- [ ] ZFS module confirmed loaded (`zpool status` responds)
-- [ ] HDD identified via `/dev/disk/by-id/` path — noted
-- [ ] `eospool` created — ONLINE, single disk
-- [ ] `ashift=12` set at creation
-- [ ] LZ4 compression enabled
-- [ ] Datasets created: `eospool/data`, `eospool/nextcloud`
-- [ ] `eospool` visible in Proxmox web UI storage list
+- [X] ZFS module confirmed loaded (`zpool status` responds)
+- [X] HDD identified via `/dev/disk/by-id/` path — noted
+- [X] `eospool` created — ONLINE, single disk
+- [X] `ashift=12` set at creation
+- [X] LZ4 compression enabled
+- [X] Datasets created: `eospool/data`, `eospool/nextcloud`
+- [X] `eospool` visible in Proxmox web UI storage list
 - [ ] Git commit: `"eos baseline — Proxmox install + ZFS eospool single disk"`
 
 ---
