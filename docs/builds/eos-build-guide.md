@@ -456,7 +456,7 @@ The pool will now appear as `eospool` in the storage list and can be selected wh
 - [X] LZ4 compression enabled
 - [X] Datasets created: `eospool/data`, `eospool/nextcloud`
 - [X] `eospool` visible in Proxmox web UI storage list
-- [ ] Git commit: `"eos baseline — Proxmox install + ZFS eospool single disk"`
+- [X] Git commit: `"eos baseline — Proxmox install + ZFS eospool single disk"`
 
 ---
 
