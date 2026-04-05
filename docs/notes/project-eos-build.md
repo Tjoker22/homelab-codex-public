@@ -47,4 +47,26 @@ NAME      SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  
 eospool   928G   396K   928G        -         -     0%     0%  1.00x    ONLINE  -
 ```
 
-- 
+- Set zfs compressioin and created container mount points for general purpose and nextcloud
+ - nextcloud mountpoint dreated as planned but can be removed if plans change for nextcloude to be hosted on a differnet device.
+```bash
+zfs set compression=lz4 eospool
+
+zfs create -o mountpoint=/eospool/data eospool/data
+
+zfs create -o mountpoint=/eospool/nextcloud eospool/nextcloud
+```
+
+- verified:
+```bash
+root@eos:~# zfs list
+NAME                USED  AVAIL  REFER  MOUNTPOINT
+eospool             644K   899G   104K  /eospool
+eospool/data         96K   899G    96K  /eospool/data
+eospool/nextcloud    96K   899G    96K  /eospool/nextcloud
+root@eos:~# df -h /eospool/data/
+Filesystem      Size  Used Avail Use% Mounted on
+eospool/data    900G  128K  900G   1% /eospool/data
+```
+
+- added the pool 
