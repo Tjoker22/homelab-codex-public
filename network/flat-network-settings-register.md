@@ -39,21 +39,24 @@
 | # | Device / Hostname | Model | Role | Location | Flat IP | Status |
 |---|-------------------|-------|------|----------|---------|--------|
 | 1 | ER605 | TP-Link ER605 v2 | WAN Router / DHCP server | ISP Rack | 192.168.0.1 | ✅ Active |
-| 2 | TL-SG2008P | TP-Link TL-SG2008P | Managed PoE switch (running untagged / flat) | ISP Rack | `[TBC — check Omada or DHCP leases]` | ✅ Active |
+| 2 | TL-SG2008P | TP-Link TL-SG2008P | Managed PoE switch (running untagged / flat) | ISP Rack | 192.168.0.102 | ✅ Active |
 | 3 | OC200 | TP-Link OC200 | Omada Controller | ISP Rack | 192.168.0.102 | ✅ Active |
 | 4 | WAP | TP-Link EAP653 | Wireless AP | ISP Rack area | 192.168.0.103 | ✅ Active |
-| 5 | hestia | Raspberry Pi 5 (8 GB) | Pi-hole DNS + Tailscale subnet router | `[Location TBC]` | 192.168.0.153 | ✅ Active |
-| 6 | Genesis2 | Custom — AMD Ryzen 7 5700X, 64 GB DDR4 | Proxmox hypervisor (Phase 1b — install in progress) | Server Rack | 192.168.0.152 | 🟡 In progress |
+| 5 | hestia | Raspberry Pi 5 (8 GB) | Pi-hole DNS + Tailscale subnet router | Genesis Rack | 192.168.0.153 | ✅ Active |
+| 6 | Genesis2 | Custom — AMD Ryzen 7 5700X, 64 GB DDR4 | Proxmox hypervisor (Phase 1b — install in progress) | Genesis Rack | 192.168.0.152 | 🟡 In progress |
 | 7 | Helios | OR PC — Intel i3-2120, 16 GB DDR3 | Home server — Forgejo, Samba, Jellyfin, code-server | Server Rack | 192.168.0.151 | ✅ Active |
 | 8 | Alival | Custom — AMD Ryzen 5 5600X, 32 GB DDR4 | Primary admin workstation (Windows 11 / Fedora dual boot) | Office | 192.168.0.62 - DHCP | ✅ Active |
-| 9 | MacBook Pro 2015 | Intel Core i7-4770HQ, 16 GB | Admin laptop (macOS) | `[Location TBC]` | `[TBC — DHCP]` | ✅ Active |
-| 10 | HP Laptop | Intel Core i5-7200U, 8 GB | Admin laptop (Fedora) | `[Location TBC]` | `[TBC — DHCP]` | ✅ Active |
+| 9 | MacBook Pro 2015 | Intel Core i7-4770HQ, 16 GB | Admin laptop (macOS) | Remote | `[TBC — DHCP]` | ✅ Active |
+| 10 | HP Laptop | Intel Core i5-7200U, 8 GB | Admin laptop (Fedora) | Remote | `[TBC — DHCP]` | ✅ Active |
 | 11 | Xavier PC | `[Specs TBC]` | Household PC | Office | `[TBC — DHCP]` | ✅ Active |
 | 12 | Vizio TV | — | Media / streaming | Living room | `[TBC — DHCP]` | ✅ Active |
 | 13 | PS5 | Sony PlayStation 5 | Gaming console | Living room |  — DHCP | ✅ Active |
-| 14 | Philips Hue Bridge | Philips Hue Bridge v2 | Smart lighting controller | `[Location TBC]` | `[TBC — DHCP]` | ✅ Active |
+| 14 | Philips Hue Bridge | Philips Hue Bridge v2 | Smart lighting controller | ISP Rack | 192.168.0.100 | ✅ Active |
 | 15 | GS308 | Netgear GS308 (unmanaged) | 8-port unmanaged switch — server/admin side | Server Rack | N/A (unmanaged) | ✅ Active |
 | 16 | GS305 | Netgear GS305 (unmanaged) | 5-port unmanaged switch — media devices | Living room | N/A (unmanaged) | ✅ Active |
+| 17 | Eos | HP Pavillion - Intel Core i5-9400, 12 GB DDR4  | Proxmox home sever - Nginx proxy manager, Prometheus, Grafana, Loki, Homepage, jxstudios.dev | Server Rack | 192.168.0.154 | ✅ Active |
+| # | Device / Hostname | Model | Role | Location | Flat IP | Status |
+
 
 ---
 
@@ -75,9 +78,9 @@
 | Alival (Admin PC) | `[TBC]` | [MAC_REDACTED] | DHCP | Set reservation once Phase 1 window runs. Future: 192.168.10.10 on HOME VLAN. |
 | MacBook Pro 2015 (Admin) | `[TBC]` | [MAC_REDACTED] | DHCP | Future: 192.168.10.11 on HOME VLAN. |
 | HP Laptop / Fedora (Admin) | `[TBC]` | `[TBC]` | DHCP | Future admin laptop. Future: HOME VLAN. |
-| Xavier PC | `[TBC]` | [MAC_REDACTED] | DHCP | Future: 192.168.10.12 on HOME VLAN. |
-| Vizio TV | `[TBC]` | [MAC_REDACTED] | DHCP | Future: HOME VLAN 10. |
-| PS5 | `[TBC]` | `[TBC — record MAC]` | DHCP | Future: HOME VLAN 10. |
+| Xavier PC | 192.168.0.74 | [MAC_REDACTED] | DHCP | Future: 192.168.10.12 on HOME VLAN. |
+| Vizio TV | 192.168.0.73 | [MAC_REDACTED] | DHCP | Future: HOME VLAN 10. |
+| PS5 | 192.168.0.14 | [MAC_REDACTED] | DHCP | Future: HOME VLAN 10. |
 | Philips Hue Bridge | 192.168.0.100 | [MAC_REDACTED] | DHCP | Future: IOT VLAN 30 (set static via Hue app after move). |
 | Eos | 192.168.0.154 | [MAC_REDACTED] | Static | `[Notes]` |
 | `[Device / Hostname]` | `[IP Address]` | `[MAC Address]` | `[Type]` | `[Notes]` |
@@ -158,7 +161,7 @@
 |------|-----------------|-----|-------|
 | Port 1 | Uplink from TL-SG2008P Port 6 | N/A | |
 | Port 2 | Vizio TV | [MAC_REDACTED] | |
-| Port 3 | PS5 | `[TBC — record MAC]` | |
+| Port 3 | PS5 | [MAC_REDACTED] | |
 | Port 4 | `[TBC]` | — | |
 | Port 5 | `[TBC]` | — | |
 
@@ -187,6 +190,10 @@
 | List | Source | Status |
 |------|--------|--------|
 | StevenBlack Unified | Default | ✅ Active |
+| OISD Big | Default | ✅ Active |
+| HaGeZi Multi Pro | Default | ✅ Active |
+| HaGeZi Threat Intel | Default | ✅ Active |
+| URLhaus Malware | Default | ✅ Active |
 | `[Additional lists TBC]` | — | — |
 
 ---
@@ -230,6 +237,7 @@
 |------|------|--------|---------|--------------|----------------|-----------|-----------|--------|
 | 03/04/26 | — | All | Doc created | Flat network register created | No flat-specific register | This document | N/A | Tracking current state during pre-VLAN phase |
 | 03/04/26 | 8:20 am | ALL | Doc updated | `[Description]` | No flat-specific register | ip/mac updates to register | N/A | Updateing mac & ip to the flat network register|
+| 03/05/26 | 9:50 pm | ALL | N/A | Updated ip/mac addresses across network | Missing Addresses | Confirmed addresses | N/A | Number of missing addresses |
 | `[Date]` | `[Time]` | `[Device]` | `[Section]` | `[Description]` | `[Old value]` | `[New value]` | `[Y/N]` | `[Reason]` |
 
 
@@ -244,16 +252,16 @@
 |--------|----------------|----------------|------|
 | hestia (RPi 5 — Phase 1) | 192.168.0.153 | 192.168.10.15 | HOME 10 |
 | hestia (RPi 5 — Phase 2+) | 192.168.0.153 | 192.168.99.5 | MGMT 99 |
-| Alival (Admin PC) | `[TBC]` | 192.168.10.10 | HOME 10 |
+| Alival (Admin PC) | 192.168.0.75 | 192.168.10.10 | HOME 10 |
 | MacBook Pro Admin | `[TBC]` | 192.168.10.11 | HOME 10 |
-| Xavier PC | `[TBC]` | 192.168.10.12 | HOME 10 |
-| OC200 | `[TBC]` | 192.168.99.2 | MGMT 99 |
-| TL-SG2008P | `[TBC]` | 192.168.99.10 | MGMT 99 |
-| Helios | 192.168.0.11 | 192.168.20.11 | LAB 20 |
+| Xavier PC | 192.168.0.74 | 192.168.10.12 | HOME 10 |
+| OC200 | 192.168.0.102 | 192.168.99.2 | MGMT 99 |
+| TL-SG2008P | 192.168.0.101 | 192.168.99.10 | MGMT 99 |
+| Helios | 192.168.0.151 | 192.168.20.11 | LAB 20 |
 | Genesis2 (Proxmox) | 192.168.0.20 | 192.168.20.10 | LAB 20 |
-| Philips Hue Bridge | `[TBC]` | 192.168.30.5 | IOT 30 |
-| Vizio TV | `[TBC]` | DHCP pool | HOME 10 |
-| PS5 | `[TBC]` | DHCP pool | HOME 10 |
+| Philips Hue Bridge | 192.168.0.100 | 192.168.30.5 | IOT 30 |
+| Vizio TV | 192.168.0.73 | DHCP pool | HOME 10 |
+| PS5 | 192.168.0.14 | DHCP pool | HOME 10 |
 
 ---
 
