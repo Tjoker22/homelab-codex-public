@@ -91,11 +91,11 @@ Before assigning 192.168.0.151, verify it is outside the ER605 DHCP pool. Log in
 
 ### Checkpoints
 
-- [ ] Debian 12 netinst ISO downloaded
-- [ ] USB installer flashed and verified
-- [ ] ER605 DHCP range confirmed — 192.168.0.151 is outside the pool
-- [ ] Ethernet cable connected from Helios to switch
-- [ ] Monitor and keyboard attached temporarily
+- [X] Debian 12 netinst ISO downloaded
+- [X] USB installer flashed and verified
+- [X] ER605 DHCP range confirmed — 192.168.0.151 is outside the pool
+- [X] Ethernet cable connected from Helios to switch
+- [X] Monitor and keyboard attached temporarily
 
 ---
 
@@ -129,17 +129,17 @@ Write these down on paper before proceeding:
 
 | Item | Your Value |
 |------|-----------|
-| Boot drive device | `/dev/sd_` (fill in) |
-| Boot drive size | ________ GB |
-| Data HDD 1 | `/dev/sd_` |
-| Data HDD 2 | `/dev/sd_` |
-| Data HDD 3 | `/dev/sd_` |
+| Boot drive device | /dev/sdb |
+| Boot drive size | 256 GB |
+| Data HDD 1 | /dev/sda |
+| Data HDD 2 | /dev/sdc |
+| Data HDD 3 | /dev/sdd |
 
 ### Checkpoints
 
-- [ ] Boot drive identified and written down
-- [ ] Three 500 GB data HDDs identified and noted
-- [ ] Confident which device to install Debian on
+- [X] Boot drive identified and written down
+- [X] Three 500 GB data HDDs identified and noted
+- [X] Confident which device to install Debian on
 
 ---
 
@@ -197,10 +197,10 @@ Remove the USB drive when prompted and let the machine boot into Debian for the 
 
 ### Checkpoints
 
-- [ ] Debian installed on boot drive only
-- [ ] No desktop environment selected
-- [ ] SSH server selected
-- [ ] Machine boots to a login prompt
+- [X] Debian installed on boot drive only
+- [X] No desktop environment selected
+- [X] SSH server selected
+- [X] Machine boots to a login prompt
 
 ---
 
