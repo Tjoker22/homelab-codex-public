@@ -71,7 +71,7 @@
 | ER605 — Gateway | 192.168.0.1 | N/A | Static | WAN gateway and DHCP server — do not change |
 | hestia (RPi 5 — Pi-hole) | 192.168.0.153 | [MAC_REDACTED] | Static | Set on device — Pi-hole and Tailscale subnet router |
 | Genesis2 (Proxmox) | 192.168.0.152 | `[TBC — record after install]` | Static | Set during Proxmox installer. Temp address — never hardcode into service configs. Migrates to 192.168.20.10 at Phase 2. |
-| Helios | 192.168.0.151 | `[TBC — record MAC]` | Static | Set on Debian 12 host. Migrates to 192.168.20.11 at Phase 2. |
+| Helios | 192.168.0.151 | [MAC_REDACTED] | Static | Set on Debian 12 host. Migrates to 192.168.20.11 at Phase 2. |
 | TL-SG2008P | 192.168.0.101 | [MAC_REDACTED] | DHCP / Reservation | Check Omada or ER605 DHCP leases to confirm current IP |
 | OC200 — Omada Controller | `[TBC]` | [MAC_REDACTED] | DHCP | Currently on flat net DHCP. Set to reservation 192.168.99.2 once VLAN window runs. |
 | WAP — TP-Link EAP | `[TBC]` | `[TBC]` | DHCP | Check Omada for current IP |
@@ -118,7 +118,7 @@
 |--------|-------------|-------------|----------|-------|
 | hestia (RPi 5) | [MAC_REDACTED] | 192.168.0.153 | `[TBC — or confirm static on device]` | Pi-hole host — critical, must not change |
 | Genesis2 | `[TBC]` | 192.168.0.152 | `[TBC]` | Set if using DHCP reservation rather than static on host |
-| Helios | `[TBC]` | 192.168.0.151 | `[TBC]` | Set if using DHCP reservation rather than static on host |
+| Helios | [MAC_REDACTED] | 192.168.0.151 | `[TBC]` | Set if using DHCP reservation rather than static on host |
 | Eos | [MAC_REDACTED] | 192.168.0.154 | `[Date]` | `[Notes]` |
 | `[Device]` | `[MAC]` | `[IP]` | `[Date]` | `[Notes]` |
 

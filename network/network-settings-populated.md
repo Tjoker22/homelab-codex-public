@@ -108,8 +108,8 @@
 | Xavier PC | 192.168.10.12 | 10 | [MAC_REDACTED] | Reservation | 1 | Reservation set for potential future admin access |
 | Raspberry Pi — Pi-hole | 192.168.10.15 | 10 | [MAC_REDACTED] | Reservation | 1 | Phase 1: HOME DNS only. Phase 2: move to MGMT 192.168.99.5 for network-wide DNS |
 | Raspberry Pi — Pi-hole (Phase 2+) | 192.168.99.5 | 99 | [MAC_REDACTED] | Reservation | 2+ | Planned MGMT DNS — reserve when migrating Pi from HOME. See NDD §6.2 for transition steps. |
-| helios (temp flat) | 192.168.0.151 | flat | `[MAC — after install]` | Static | 1c | Temporary — flat network during setup |
-| helios (permanent) | 192.168.20.11 | 20 | `[MAC — after install]` | Static | 2 | Infrastructure zone — physical host |
+| helios (temp flat) | 192.168.0.151 | flat | [MAC_REDACTED] | Static | 1c | Temporary — flat network during setup |
+| helios (permanent) | 192.168.20.11 | 20 | [MAC_REDACTED] | Static | 2 | Infrastructure zone — physical host |
 | Forgejo LXC (genesis2) | RETIRED | 20 | N/A | — | — | Moved to helios 192.168.20.11:3000 — VMID 240 retired |
 | Cisco 1921 #1 | 192.168.20.254 | 20 | `[MAC]` | Static | 7 | Lab edge — optional Phase 7 |
 | Cisco 1921 #2 | 192.168.20.253 | 20 | `[MAC]` | Static | 7 | VPN / lab — optional Phase 7 |
@@ -319,6 +319,7 @@
 | `[Date]` | `[Time]` | TL-SG2008P | Port Profiles | Port 3 changed to HOME profile | Flat network | HOME — VLAN 10 | `[Y/N]` | Phase 1 port migration — admin PC |
 | 22/03/26 | `[Time]` | Project | Planning | helios added to project | Not planned | helios confirmed as always-on utility node — Forgejo, Samba, Jellyfin, code-server, SSH jump | N/A | Architecture decision — replaces mac-server plan |
 | 22/03/26 | `[Time]` | genesis2 | VM Register | VMID 240 Forgejo LXC retired | VMID 240 planned | Forgejo moved to helios native Debian service | N/A | Helios architecture decision |
+| 06/04/26 | 6:27 pm | helios | IP Register | added helios mac address | had no valuse | [MAC_REDACTED] | N/A | documentation |
 | `[Date]` | `[Time]` | `[Device]` | `[Section]` | `[Description]` | `[Old value]` | `[New value]` | `[Y/N]` | `[Reason]` |
 
 ---

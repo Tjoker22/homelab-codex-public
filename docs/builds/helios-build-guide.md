@@ -289,7 +289,7 @@ ip link show
 
 Look for the Ethernet interface — something like `enp0s25`, `eno1`, or `eth0`. Write it down.
 
-**Your interface name:** _______________ (record here)
+**Your interface name:** eno1 alt-name: enp0s25
 
 ### Step 5 — Detect the active network manager
 
@@ -415,6 +415,7 @@ ssh <your-user>@192.168.0.151
 ```
 
 Once key login works from your admin PC, disable password auth on Helios:
+> this will be run once all admin devices have passed thier ssh keys
 
 ```bash
 sudo sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
@@ -433,13 +434,13 @@ Verify `/etc/hosts` contains: `127.0.1.1    helios`
 
 ### Checkpoints
 
-- [ ] sudo installed and admin user added to sudo group
-- [ ] All packages updated
-- [ ] Static IP 192.168.0.151 confirmed working
-- [ ] Gateway, internet, and DNS all reachable
-- [ ] MAC address recorded
-- [ ] SSH key auth working, password auth disabled
-- [ ] Monitor and keyboard disconnected — working over SSH
+- [X] sudo installed and admin user added to sudo group
+- [X] All packages updated
+- [X] Static IP 192.168.0.151 confirmed working
+- [X] Gateway, internet, and DNS all reachable
+- [X] MAC address recorded
+- [X] SSH key auth working, *password auth disabled
+- [X] Monitor and keyboard disconnected — working over SSH
 
 ---
 
