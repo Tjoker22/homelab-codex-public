@@ -2,6 +2,8 @@
 
 This is the build notes for the pProject Eos build started on Sunday April, 5 2026. 
 
+## Build notes
+
 - clean install to target pc nvme01 (256Gb nvme for OS)
 - diabled both enterprise and ceph-enterprise repos and added the no-subcription versions of the repo. 
 - running `apt upadte && apt full-upgrade -y` follwoed by a reboot when done 
@@ -69,4 +71,8 @@ Filesystem      Size  Used Avail Use% Mounted on
 eospool/data    900G  128K  900G   1% /eospool/data
 ```
 
-- added the pool 
+- added the pool to the web ui with the naem `eospool`
+
+## Ideas moving forward
+
+## Ideas to resolve
