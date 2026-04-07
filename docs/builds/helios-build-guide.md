@@ -2,9 +2,9 @@
 **Site:** JXStudios
 **Hostname:** `helios`
 **Project:** Project Helios
-**Document Version:** 1.2
+**Document Version:** 1.3
 **Created:** 23/03/2026
-**Last Updated:** 30/03/2026
+**Last Updated:** 06/04/2026
 **Status:** Active build — flat network phase (192.168.0.151)
 **Companion Files:** `helios-plan.md` | `CLAUDE.md` | `network-settings-register-populated.md` | `device-specs-list.md`
 
@@ -15,7 +15,7 @@
 1. [Overview](#1-overview)
 2. [Pre-Install Preparation](#2-pre-install-preparation)
 3. [Identify the Boot Drive](#3-identify-the-boot-drive)
-4. [Debian 12 Installation](#4-debian-12-installation)
+4. [Debian 13 Trixie Installation](#4-debian-13-trixie-installation)
 5. [Post-Install Baseline](#5-post-install-baseline)
 6. [ZFS RAIDZ1 Pool](#6-zfs-raidz1-pool)
 7. [Forgejo](#7-forgejo)
@@ -42,7 +42,7 @@ Follow each section in order. Every section ends with checkpoint boxes — do no
 | Subnet | `255.255.255.0` |
 | Gateway | `192.168.0.1` (ER605) |
 | DNS | `192.168.0.1` (ER605 — flat network default) |
-| OS | Debian 12 (headless, no desktop) |
+| OS | Debian 13 Trixie (headless, no desktop) |
 
 ### Service Stack
 
@@ -65,7 +65,7 @@ Before touching the machine, gather everything needed so the install is uninterr
 ### What You Need
 
 - **USB flash drive** — 8 GB minimum, for the Debian installer ISO
-- **Debian 12 netinst ISO** — download from debian.org/distro/netinst (amd64)
+- **Debian 13 Trixie netinst ISO** — download from debian.org (amd64, netinst)
 - **A second device** — laptop or phone to read this guide while installing
 - **Ethernet cable** — Helios must be wired, not wireless
 - **Monitor and keyboard** — temporary, for the install only
@@ -76,7 +76,7 @@ Before touching the machine, gather everything needed so the install is uninterr
 **Linux/macOS:**
 
 ```bash
-sudo dd if=debian-12-amd64-netinst.iso of=/dev/sdX bs=4M status=progress
+sudo dd if=debian-13-amd64-netinst.iso of=/dev/sdX bs=4M status=progress
 ```
 
 **Windows:**
@@ -91,7 +91,7 @@ Before assigning 192.168.0.151, verify it is outside the ER605 DHCP pool. Log in
 
 ### Checkpoints
 
-- [X] Debian 12 netinst ISO downloaded
+- [X] Debian 13 Trixie netinst ISO downloaded
 - [X] USB installer flashed and verified
 - [X] ER605 DHCP range confirmed — 192.168.0.151 is outside the pool
 - [X] Ethernet cable connected from Helios to switch
@@ -143,7 +143,7 @@ Write these down on paper before proceeding:
 
 ---
 
-## 4. Debian 12 Installation
+## 4. Debian 13 Trixie Installation
 
 Run the Debian installer targeting only the boot drive identified above.
 
@@ -448,16 +448,113 @@ Verify `/etc/hosts` contains: `127.0.1.1    helios`
 
 The three 500 GB HDDs form a RAIDZ1 pool giving approximately 1 TB usable space with single-drive fault tolerance and checksumming.
 
-### Step 1 — Install ZFS utilities
+### Step 1 — Enable contrib and add the backports repository
+
+`zfsutils-linux` lives in Debian's `contrib` component, which is not enabled by default in a minimal install. This is why you got "no installation candidate" — the package exists but the repo component it lives in isn't in your sources.
+
+**First, check your current sources:**
 
 ```bash
-sudo apt install -y zfsutils-linux
+cat /etc/apt/sources.list
+```
+
+The line will look something like:
+
+```
+deb http://deb.debian.org/debian trixie main
+```
+
+If `contrib` is missing, add it:
+
+```bash
+sudo sed -i 's/trixie main$/trixie main contrib/' /etc/apt/sources.list
+```
+
+Verify the change:
+
+```bash
+grep "trixie main" /etc/apt/sources.list
+```
+
+It should now read `trixie main contrib`.
+
+**Then add the trixie-backports repository** (provides a newer, well-tested ZFS release):
+
+```bash
+sudo tee /etc/apt/sources.list.d/trixie-backports.list > /dev/null << 'EOF'
+deb http://deb.debian.org/debian trixie-backports main contrib non-free-firmware
+deb-src http://deb.debian.org/debian trixie-backports main contrib non-free-firmware
+EOF
+```
+
+**Pin ZFS to come from backports** (prevents the package manager pulling it from the older main repo):
+
+```bash
+sudo tee /etc/apt/preferences.d/90_zfs > /dev/null << 'EOF'
+Package: src:zfs-linux
+Pin: release n=trixie-backports
+Pin-Priority: 990
+EOF
+```
+
+**Update apt:**
+
+```bash
+sudo apt update
+```
+
+### Step 2 — Install kernel headers and ZFS
+
+Install the matching kernel headers and build tools first — DKMS needs them to compile the ZFS kernel module:
+
+```bash
+sudo apt install -y dpkg-dev linux-headers-amd64
+```
+
+Then install ZFS:
+
+```bash
+sudo apt install -y zfs-dkms zfsutils-linux
+```
+
+> ⚠️ During the `zfs-dkms` install, apt will pop up an EULA notice about the CDDL/GPL licensing. This is expected — accept it. If the prompt seems to hang (can happen in some SSH sessions), run instead:
+> ```bash
+> sudo DEBIAN_FRONTEND=noninteractive apt install -y zfs-dkms zfsutils-linux
+> ```
+
+DKMS will now compile the ZFS kernel module for your running kernel. This takes a few minutes — watch for errors. A successful build ends with something like `DKMS: install completed`.
+
+### Step 3 — Load the module and verify
+
+```bash
+sudo modprobe zfs
 sudo zpool status
 ```
 
-Should say "no pools available" — correct at this point.
+`zpool status` should report "no pools available" — that is correct at this point. If `modprobe zfs` fails, check the DKMS build log:
 
-### Step 2 — Identify drives by stable paths
+```bash
+sudo dkms status
+# Note the zfs version, then:
+# sudo cat /var/lib/dkms/zfs/<version>/build/make.log | tail -30
+sudo cat /var/lib/dkms/zfs/2.4.1/build/make.log | tail -30
+```
+
+A failed DKMS build almost always means the kernel headers weren't found. Confirm headers match your running kernel:
+
+```bash
+uname -r
+dpkg -l | grep linux-headers
+```
+
+The version strings must match. If they don't:
+
+```bash
+sudo apt install -y linux-headers-$(uname -r)
+sudo dkms install zfs/<version> -k $(uname -r)
+```
+
+### Step 4 — Identify drives by stable paths
 
 ```bash
 ls -la /dev/disk/by-id/ | grep -v part
@@ -465,7 +562,7 @@ ls -la /dev/disk/by-id/ | grep -v part
 
 Find the three data drives by serial/model. Use the `ata-` or `scsi-` prefixed paths — these persist across reboots even if drive letters change.
 
-### Step 3 — Create the RAIDZ1 pool
+### Step 5 — Create the RAIDZ1 pool
 
 ```bash
 sudo zpool create heliospool raidz1 \
@@ -476,13 +573,13 @@ sudo zpool create heliospool raidz1 \
 
 > ⚠️ Replace with actual by-id paths. Triple-check these are NOT the boot drive.
 
-### Step 4 — Enable LZ4 compression
+### Step 6 — Enable LZ4 compression
 
 ```bash
 sudo zfs set compression=lz4 heliospool
 ```
 
-### Step 5 — Create datasets
+### Step 7 — Create datasets
 
 ```bash
 sudo zfs create -o mountpoint=/srv/forgejo heliospool/forgejo
@@ -491,7 +588,7 @@ sudo zfs create -o mountpoint=/srv/samba/media heliospool/media
 sudo zfs create -o mountpoint=/srv/backups heliospool/backups
 ```
 
-### Step 6 — Verify
+### Step 8 — Verify
 
 ```bash
 sudo zpool status heliospool
@@ -503,10 +600,17 @@ Pool should be ONLINE, all drives healthy, all datasets mounted at their correct
 
 ### Checkpoints
 
-- [ ] ZFS utilities installed and module loaded
-- [ ] RAIDZ1 pool created — `heliospool` — all ONLINE
-- [ ] LZ4 compression enabled
-- [ ] All four datasets created and mounted
+- [X] `contrib` component confirmed in sources.list
+- [X] `trixie-backports` repository added
+- [X] `90_zfs` pin file written
+- [X] Kernel headers installed — version matches `uname -r`
+- [X] `zfs-dkms` installed — DKMS build completed without errors
+- [X] `zfsutils-linux` installed
+- [X] `modprobe zfs` loads without error
+- [X] `zpool status` responds (no pools available at this stage — correct)
+- [X] RAIDZ1 pool `heliospool` created — all drives ONLINE
+- [X] LZ4 compression enabled on pool
+- [X] All four datasets created and mounted
 
 ---
 
@@ -953,6 +1057,6 @@ Store all media as H.264 MP4 or MKV. The GT 220 GPU cannot hardware transcode, a
 
 ---
 
-*Document version 1.2 — Updated 30/03/2026 — Added sudo setup with PowerShell/Linux CLI options, network stack detection before static IP, git-lfs prerequisite for Forgejo, fixed Jellyfin integrity check command*
+*Document version 1.3 — Updated 06/04/2026 — Upgraded from Debian 12 to Debian 13 Trixie throughout; ZFS install section fully rewritten for Trixie (contrib repo, backports, DKMS build path, troubleshooting)*
 *Companion to: `helios-plan.md` (planning and decisions) | This file (build procedure)*
 *Next update: After Debian install — record MAC address, NIC interface name, confirm static IP*
