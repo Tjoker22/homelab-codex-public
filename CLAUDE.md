@@ -6,21 +6,23 @@
 
 ---
 
-## Repository Purpose
+## Current State — 06/04/2026
 
-This is a **documentation-first** home lab repository. Current content is Markdown documentation, network configuration files, and network diagrams tracking the design and phased deployment of a Proxmox-based home lab. Scripts, playbooks, and automation will be added as each phase goes live.
+**Active work:** helios (Project Helios) — OS and ZFS pool complete. Service installs (Forgejo, Samba, Jellyfin, code-server) are next. Genesis2 Proxmox install (Phase 1b) in progress at 192.168.0.152.
 
----
-
-## Current State — 23/03/2026
-
-**Active work:** helios (Project Helios) Debian install and service setup (Phase 1c) — first build session. Genesis2 Proxmox install (Phase 1b) follows.
+**New devices since last CLAUDE.md review:**
+- **eos** — HP Pavilion (i5-9400, 12 GB DDR4), Proxmox VE 9.x installed, ZFS `eospool` created. Flat IP: 192.168.0.154. Final LAB VLAN IP and role split with genesis2 **pending architect decision** (see flags below).
+- **hestia** — Raspberry Pi 5 8GB, hostname `hestia`. Pi-hole and Tailscale confirmed active on flat network at 192.168.0.153. Final MGMT VLAN IP: 192.168.99.5 (unchanged).
+- **thoth** — HP Laptop (i5-7200U), rebuilt as Debian 13 Trixie + i3 desktop (was Fedora admin laptop).
 
 **Network:** Flat 192.168.0.0/24. Phase 1 maintenance window deferred — admin device setup incomplete. All Omada VLAN/DHCP/ACL config is staged and intact. No network changes needed until the window is rescheduled.
 
 **CCNA study:** In progress. Phase 2 (3750G) work directly covers CCNA switching content — VLANs, SVIs, trunking, inter-VLAN routing, ACLs.
 
-**Admin laptops:** Three admin laptops — Windows, Mac (MacBook Pro 2015), and Fedora (HP Laptop). All configured as admin consoles. Omarchy/Arch Linux also available. All scripts and procedures should cover Windows, macOS, and Linux.
+**⚠️ Architect decisions needed:**
+1. **Eos role and final IP** — Eos (192.168.0.154) is running Proxmox and has a build guide assigning LXC services (NPM, Prometheus, Grafana, Loki, Homepage, jxstudios.dev) using the same VMIDs and .20.x IPs originally planned for Genesis2. Does Eos take the always-on services role? What is its final LAB VLAN IP (e.g., 192.168.20.x)?
+2. **VMID conflict** — VMIDs 220, 221, 222, 250, 261, 262 are assigned in both the genesis2 plan and the eos build guide. Need a clear split before any LXCs are created.
+3. **thoth hostname in admin environment** — HP Laptop is now `thoth` running Debian 13. Should it remain an admin console or is it a separate lab device?
 
 ---
 
@@ -58,11 +60,12 @@ If a task requires a design decision not covered in this file or the architectur
 | Managed Switch | TP-Link TL-SG2008P | PoE switch | 192.168.99.10 |
 | Controller | TP-Link OC200 | Omada controller | 192.168.99.2 |
 | WAP | TP-Link EAP653 (US) | Wireless access point | 192.168.99.x |
-| DNS / MGMT | Raspberry Pi 5 8GB | Pi-hole primary, Tailscale primary, MGMT device | 192.168.99.5 |
-| helios | OR PC — Debian 12 (Sandy Bridge i3-2120) | Forgejo, NAS, Jellyfin, code-server | 192.168.0.151 (temp) → 192.168.20.11 |
+| hestia | Raspberry Pi 5 8GB | Pi-hole primary, Tailscale primary, MGMT device | 192.168.0.153 (temp) → 192.168.99.5 |
+| helios | OR PC — Debian 13 Trixie (Sandy Bridge i3-2120) | Forgejo, NAS, Jellyfin, code-server | 192.168.0.151 (temp) → 192.168.20.11 |
+| eos | HP Pavilion — Proxmox VE 9.x (i5-9400) | Proxmox hypervisor — role TBD (architect) | 192.168.0.154 (temp) → TBD |
 | L3 Core Switch | Cisco Catalyst 3750G | Inter-VLAN routing (Phase 2) | 192.168.99.3 |
 | L2 Access Switch | Cisco Catalyst 2960G | Lab access layer (Phase 3) | 192.168.99.4 |
-| Hypervisor | Proxmox — genesis2 | VM and LXC host | 192.168.0.20 (temp) → 192.168.20.10 (Phase 2) |
+| Hypervisor | Proxmox — genesis2 | VM and LXC host | 192.168.0.152 (temp) → 192.168.20.10 (Phase 2) |
 | Reverse Proxy | Nginx Proxy Manager | Service proxy LXC (Phase 2) | 192.168.20.50 |
 | Remote Access | Tailscale LXC | Subnet router co-advertiser (Phase 2) | 192.168.20.51 |
 
@@ -77,8 +80,21 @@ If a task requires a design decision not covered in this file or the architectur
 | RAM | 64 GB DDR4-3600 MHz (expandable to 128 GB) |
 | Boot Drive | 256 GB 2.5" SSD — Proxmox OS and ISO storage |
 | Data Drives | 3× 500 GB 2.5" HDD — RAIDZ1 pool (1 TB usable) |
-| Current IP | 192.168.0.20 — flat network temporary |
+| Current IP | 192.168.0.152 — flat network temporary |
 | Final IP | 192.168.20.10 — VLAN 20 LAB |
+
+### Eos Hardware
+
+| Component | Spec |
+|-----------|------|
+| Hostname | eos |
+| Chassis | HP Pavilion desktop |
+| CPU | Intel Core i5-9400 (6c/6t) — Coffee Lake |
+| RAM | 12 GB DDR4 |
+| Boot Drive | 256 GB NVMe — Proxmox OS |
+| Data Drive | 1 TB SATA HDD — ZFS `eospool` (single, no redundancy — Phase 2 adds mirror) |
+| Current IP | 192.168.0.154 — flat network temporary |
+| Final IP | TBD — pending architect decision |
 
 ### VLAN Scheme
 
@@ -124,17 +140,20 @@ Tier 2 — Management (admin devices only):
 | OC200 — Omada Controller | 192.168.99.2 | 99 | [MAC_REDACTED] |
 | TL-SG2008P — Switch | 192.168.99.10 | 99 | [MAC_REDACTED] |
 | EAP653 — WAP | 192.168.99.x | 99 | [MAC_REDACTED] |
-| Raspberry Pi 5 — MGMT/DNS | 192.168.99.5 | 99 | [MAC_REDACTED] |
+| hestia — Raspberry Pi 5 MGMT/DNS | 192.168.0.153 (temp) → 192.168.99.5 | 99 | [MAC_REDACTED] |
 | Admin PC | 192.168.10.10 | 10 | [MAC_REDACTED] |
 | Admin Laptop | 192.168.10.11 | 10 | [MAC_REDACTED] |
-| Partner PC | 192.168.10.12 | 10 | `[MAC pending]` |
-| helios | 192.168.0.151 (temp) → 192.168.20.11 | 20 | `[MAC — record after install]` |
+| Partner PC | 192.168.10.12 | 10 | [MAC_REDACTED] |
+| helios | 192.168.0.151 (temp) → 192.168.20.11 | 20 | [MAC_REDACTED] |
+| eos | 192.168.0.154 (temp) → TBD | 20 | [MAC_REDACTED] |
+| genesis2 | 192.168.0.152 (temp) → 192.168.20.10 | 20 | `[MAC — record after install]` |
 | Philips Hue Bridge | 192.168.30.5 | 30 | [MAC_REDACTED] |
 
 ### Genesis2 VM and LXC Register — LAB VLAN 192.168.20.0/24
 
-> Full register with zone rationale: `genesis2-project-genesis-plan.md`  
+> Full register with zone rationale: `docs/builds/genesis-build-guide.md`
 > During flat network phase: containers use temporary IPs on 192.168.0.0/24. Final IPs are in the .20.x range and should be used in all service configs.
+> ⚠️ VMID assignments for genesis2 vs eos are pending architect clarification — do not create LXCs until resolved.
 
 | VMID | IP | Hostname | Type | Role | Phase |
 |------|-----|----------|------|------|-------|
@@ -158,8 +177,8 @@ Tier 2 — Management (admin devices only):
 | 2xx | LXC container |
 | 3xx | Virtual Machine (VM) |
 
-Last two digits mirror the IP last octet. Example: VMID 251 = LXC at 192.168.20.51.  
-Scratch containers (IPs .90–.99) use VMIDs 290–299 (LXC) or 390–399 (VM).  
+Last two digits mirror the IP last octet. Example: VMID 251 = LXC at 192.168.20.51.
+Scratch containers (IPs .90–.99) use VMIDs 290–299 (LXC) or 390–399 (VM).
 Never reuse a VMID after a container is deleted — retire it.
 
 ---
@@ -168,9 +187,9 @@ Never reuse a VMID after a container is deleted — retire it.
 
 | Phase | Focus | Status |
 |-------|-------|--------|
-| 1 | Omada ISP rack — port migrations, OC200 cutover | ⏸️ Deferred — admin setup pending |
-| 1b | Genesis2 — Proxmox install, ZFS pool, observability stack | 🔄 Active — flat network |
-| 1c | helios — Debian install + Forgejo + Samba + Jellyfin + code-server | 🔄 Active — next session |
+| 1 | Omada ISP rack — port migrations, OC200 cutover | ⏸️ Deferred — admin device setup pending |
+| 1b | Genesis2 — Proxmox install, ZFS pool, observability stack | 🔄 In progress — Proxmox install at 192.168.0.152 |
+| 1c | helios — Forgejo + Samba + Jellyfin + code-server | 🔄 Active — OS and ZFS complete, services not yet started |
 | 2 | Cisco Catalyst 3750G — L3 core switch | 🔲 Not started |
 | 3 | Cisco Catalyst 2960G — L2 access switch (optional) | 🔲 Not started |
 | 4 | Nextcloud, Homepage dashboard | 🔲 Not started |
@@ -187,19 +206,27 @@ Never reuse a VMID after a container is deleted — retire it.
 | File | Purpose |
 |------|---------|
 | `CLAUDE.md` | This file — primary context for Claude Code |
-| `docs/project-summary-and-remaining-steps.md` | Current project state, remaining steps, phase checklists |
-| `docs/genesis2-project-genesis-plan.md` | Genesis2 server planning — hardware, storage, VM register, service stack |
-| `docs/helios-plan.md` | Helios planning document — hardware, services, decisions |
-| `docs/device-specs-list.md` | Hardware specifications for all lab devices |
-| `docs/maintenance-window-updated.md` | Corrected Phase 1 window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
-| `network/network-design-document-populated.md` | Primary network architecture document |
-| `network/network-settings-register-populated.md` | Live IP/MAC/DHCP register — authoritative source of truth |
+| `docs/plans/project-summary.md` | Current project state, remaining steps, phase checklists |
+| `docs/builds/genesis-build-guide.md` | Genesis2 server planning — hardware, storage, VM register, service stack |
+| `docs/builds/helios-build-guide.md` | Helios build procedure — Debian 13 Trixie, ZFS, service installs |
+| `docs/builds/eos-build-guide.md` | Eos build procedure — Proxmox VE 9.x, ZFS eospool, LXC stack |
+| `docs/builds/hestia-build-guide.md` | Hestia (Pi 5) build procedure — Pi-hole, Tailscale, flat network setup |
+| `docs/builds/thoth-build-guide.md` | Thoth (HP Laptop) build procedure — Debian 13 Trixie + i3 desktop |
+| `docs/plans/helios-plan.md` | Helios planning document — hardware, services, decisions |
+| `docs/network/device-specs.md` | Hardware specifications for all lab devices |
+| `docs/plans/maintenance-window.md` | Phase 1 window procedure — Discovery Utility, Auto Refresh IP, all OS coverage |
+| `docs/notes/project-helios-build.md` | Live helios build session notes |
+| `docs/notes/project-hestia-build.md` | Live hestia build session notes |
+| `docs/notes/project-eos-build.md` | Live eos build session notes |
+| `network/network-design-populated.md` | Primary network architecture document |
+| `network/network-settings-populated.md` | Live IP/MAC/DHCP register — authoritative source of truth |
+| `network/flat-network-settings-register.md` | Current flat network living register — active device and service IPs |
 | `network/network-inventory.csv` | Switch port assignment history |
-| `network/network-map-3-1-26.drawio` | Network diagram source |
-| `docs/network-setup-quick-guide.md` | Phase 1 ER605 configuration guide — has minor updates pending |
-| `host-setup.md` | Proxmox post-install configuration guide |
+| `network/network-map.drawio` | Network diagram source |
+| `docs/network/network-setup-guide.md` | Phase 1 ER605 configuration guide |
+| `scripts/host-setup.md` | Proxmox post-install configuration guide (template — not yet filled) |
 | `configs/` | TP-Link Omada controller backups and Cisco IOS running configs |
-| `vms/universal-prox-instance-template.md` | Template for documenting new VMs and LXCs |
+| `docs/templates/universal-prox-instance-template.md` | Template for documenting new VMs and LXCs |
 
 ---
 
@@ -208,7 +235,7 @@ Never reuse a VMID after a container is deleted — retire it.
 Before the Phase 1 window can be rescheduled, these must be resolved:
 
 **1. Admin laptop setup**
-Three admin laptops: Windows, Mac (MacBook Pro 2015), and Fedora (HP Laptop). Must be fully configured and confirmed able to reach the Omada dashboard before the window runs. MacBook Pro requires Discovery Utility and Java 17 FX (Zulu) installed before window day.
+Three admin laptops: Windows, Mac (MacBook Pro 2015), and thoth (HP Laptop, now Debian 13). Must be fully configured and confirmed able to reach the Omada dashboard before the window runs. MacBook Pro requires Discovery Utility and Java 17 FX (Zulu) installed before window day.
 
 **2. Discovery Utility — empty device table on Windows**
 The utility launches but shows no devices. Root cause: Windows Firewall blocking Java UDP broadcasts on ports 29810–29814.
@@ -220,27 +247,31 @@ Fix:
 **3. OC200 reservation and Auto Refresh IP**
 Before the window: verify the OC200 DHCP reservation has Network field set to MGMT VLAN 99 (not default LAN). Enable Auto Refresh IP on OC200 (Devices → OC200 → Config → Services).
 
-Full corrected procedure: `docs/maintenance-window-updated.md`
+Full corrected procedure: `docs/plans/maintenance-window.md`
+
+**4. hestia — known issues from build**
+- Pi-hole blocking ads via Wi-Fi but not fully via wired ethernet — under investigation
+- sysctl.d config for Tailscale subnet advertising used `/etc/sysctl.conf` rather than `sysctl.d` — cleanup pending
 
 ---
 
 ## Conventions
 
-- **Network settings register** is the authoritative source for IP addresses, MACs, and DHCP reservations. Update it whenever any device is added or changed.
-- **VM/LXC register** for Genesis2 is maintained in both this file (summary table) and `genesis2-project-genesis-plan.md` (full detail).
+- **Network settings register** is the authoritative source for IP addresses, MACs, and DHCP reservations. Update it whenever any device is added or changed. For flat network current state, also update `network/flat-network-settings-register.md`.
+- **VM/LXC register** for Genesis2 is maintained in both this file (summary table) and `docs/builds/genesis-build-guide.md` (full detail).
 - **VMID convention:** 2xx = LXC, 3xx = VM. Last two digits mirror IP last octet. Enforced from first container — no exceptions.
 - **Omada backups** use format `omada_backup_<version>_<date>_<description>.cfg`. Always add new file — never overwrite.
 - **Cisco configs** stored as plain text in `configs/cisco/`.
 - **Site name:** `JXStudios` — **Domain:** `jxstudios.dev` — **Proxmox host:** `192.168.20.10`
-- **Flat network temporary IP:** genesis2 currently at 192.168.0.20. Never hardcode this into service configs.
+- **Flat network temporary IPs:** genesis2 at 192.168.0.152, helios at 192.168.0.151, hestia at 192.168.0.153, eos at 192.168.0.154. Never hardcode these into service configs.
 
 ---
 
 ## What Claude Code Should Do
 
-- Keep `network-settings-register-populated.md` accurate after any network change
-- Keep `genesis2-project-genesis-plan.md` accurate after any Genesis2 service change
-- Update phase checklists in `project-summary-and-remaining-steps.md` as tasks complete
+- Keep `network/network-settings-populated.md` and `network/flat-network-settings-register.md` accurate after any network change
+- Keep `docs/builds/genesis-build-guide.md` accurate after any Genesis2 service change
+- Update phase checklists in `docs/plans/project-summary.md` as tasks complete
 - Add change log entries to the register when network changes are made
 - Write utility scripts for network tasks — ping sweeps, connectivity tests, lease checks
 - Write Proxmox setup scripts for VMs and LXCs
@@ -262,7 +293,8 @@ Full corrected procedure: `docs/maintenance-window-updated.md`
 ✘  Run destructive commands without explicit confirmation
 ✘  Modify CLAUDE.md without explicit instruction
 ✘  Guess on design decisions — ask instead
-✘  Hardcode the flat network temporary IP (192.168.0.20) into service configs
+✘  Hardcode flat network temporary IPs into service configs
+✘  Create LXCs on eos or genesis2 until VMID conflict is resolved by architect
 ```
 
 ---
@@ -329,9 +361,11 @@ Examples:
 - OS: macOS
 - Role: Admin console, backup during maintenance windows, Discovery Utility host
 
-### Admin Laptop — HP Laptop
-- OS: Fedora
-- Role: Admin console, development machine
+### thoth — HP Laptop
+- OS: Debian 13 Trixie + i3 window manager (was Fedora)
+- Hostname: `thoth`
+- Role: Admin console / development machine — architect to confirm if this changes admin console designation
+- Package manager: apt
 
 ### Omarchy Machine
 - OS: Omarchy (Arch Linux + Hyprland) — available
@@ -364,15 +398,19 @@ Claude Code must not modify these sections without explicit architect instructio
 After any network change, task completion, or phase milestone:
 
 ```
-1. Update network-settings-register-populated.md
+1. Update network/network-settings-populated.md
    → Add change log entry
    → Update relevant section
 
-2. Update genesis2-project-genesis-plan.md (if Genesis2 change)
+1a. Update network/flat-network-settings-register.md
+   → Update device or service entry
+   → Note any new IPs or services
+
+2. Update docs/builds/genesis-build-guide.md (if Genesis2 change)
    → Update VM/LXC register
    → Update service stack status
 
-3. Update project-summary-and-remaining-steps.md
+3. Update docs/plans/project-summary.md
    → Mark completed checklist items
    → Note any new issues or decisions
 
@@ -404,7 +442,7 @@ Browser → https://192.168.99.2:8043
 When done: set back to Using DHCP
 ```
 
-*Linux (including Omarchy):*
+*Linux (including thoth / Omarchy):*
 ```bash
 sudo ip addr add 192.168.99.10/24 dev [interface]
 sudo ip route add default via 192.168.99.2
@@ -413,11 +451,11 @@ sudo ip route add default via 192.168.99.2
 sudo ip addr del 192.168.99.10/24 dev [interface]
 ```
 
-Config backups location: `configs/`  
+Config backups location: `configs/`
 Last known good backup: taken after VLANs, DHCP, reservations, ACL rules, IP Groups — pre-port-profile baseline.
 
 ---
 
-*CLAUDE.md version: 4.1 — 23/03/2026 — mac-server replaced by helios (Project Helios — OR PC). Admin laptops updated to three: Windows, Mac (MacBook Pro 2015), Fedora (HP Laptop). Phase 1c and Key Files updated.*
-*Previous version: 4.0 — 22/03/2026 — Network window deferred. Genesis2 active on flat network. Admin OS updated to Windows/Mac/Omarchy. Known issues section added. Recovery procedures expanded for all OS.*
-*Next review: After Phase 1b observability stack confirmed healthy*
+*CLAUDE.md version: 5.0 — 06/04/2026 — Full sync after directory reorganization and three build sessions (helios, hestia, eos). All Key File paths updated. Eos and hestia added. helios MAC confirmed, OS updated to Debian 13 Trixie, ZFS complete. genesis2 flat IP corrected to 192.168.0.152. thoth hostname added. Architect decisions flagged for eos role/IP and VMID conflict.*
+*Previous version: 4.1 — 23/03/2026 — mac-server replaced by helios. Admin laptops updated.*
+*Next review: After architect resolves eos role and VMID assignments*
